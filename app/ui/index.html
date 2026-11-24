@@ -4,25 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
 <title>Праверана.by — проверка папки проекта</title>
 <style>
-  :root{
-    --ink:#15181a; --muted:#5d666b; --line:#e4e0d6; --bg:#faf9f5; --card:#ffffff;
-    --red:#c8102e; --red-soft:#fbeaec;
-    --green:#23694a; --green-soft:#e9f2ec;
-    --gold:#a97c22; --gold-soft:#f6efdf;
-    --blue:#2f5fa6; --blue-soft:#eaeff7;
-    --accent:var(--ink); --accent-soft:#f1efe8;
-    --error:var(--red); --error-soft:var(--red-soft);
-    --warn:var(--gold); --warn-soft:var(--gold-soft);
-    --info:var(--blue); --info-soft:var(--blue-soft);
-    --ok:var(--green); --ok-soft:var(--green-soft);
-    --serif:"Onest","Segoe UI",system-ui,sans-serif;
-  }
   *{box-sizing:border-box}
   html,body{margin:0}
   body{
-    font:15px/1.5 "Onest", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    font:var(--t-body)/1.5 var(--font-text);
     color:var(--ink); background:var(--bg);
     -webkit-font-smoothing:antialiased;
   }
@@ -49,8 +37,8 @@
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
   .search{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
-  .field{flex:1 1 420px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);
-         border-radius:9px;padding:0 12px;background:#fff}
+  .field{flex:1 1 420px;display:flex;align-items:center;gap:10px;border:1px solid var(--line-input);
+         border-radius:var(--r-ctl);padding:0 12px;background:var(--surface)}
   .field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .field svg{flex:none;color:var(--muted)}
   input[type=text]{flex:1;border:0;outline:0;padding:12px 0;font:14px/1.4 "JetBrains Mono", Consolas, ui-monospace, monospace;
@@ -60,7 +48,7 @@
   button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .btn-primary{background:var(--ink);color:#fff;font-weight:600}
   .btn-primary:hover{background:#000}
-  .btn-primary[disabled]{background:#b9bdbd;cursor:default}
+  .btn-primary[disabled],.btn-primary[aria-disabled="true"]{background:var(--disabled);cursor:default}
   .btn-ghost{background:#fff;border-color:var(--line);color:var(--ink)}
   .btn-ghost:hover{border-color:#c9c9c4}
   a.btn-ghost{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
@@ -79,8 +67,17 @@
   .status .bar i{display:block;height:100%;width:35%;background:var(--accent);
                  animation:slide 1.1s ease-in-out infinite}
   @keyframes slide{0%{margin-left:-35%}100%{margin-left:100%}}
-  .alert{margin-top:14px;padding:12px 14px;border-radius:9px;background:var(--error-soft);
-         border:1px solid #eed6d3;color:#6b1d18;font-size:13.5px}
+  .alert{margin-top:14px;padding:12px 14px;border-radius:var(--r-ctl);background:var(--error-soft);
+         border:1px solid var(--red-line);color:var(--red-ink);font-size:13.5px}
+  .alert:empty{display:none}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+           clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .coverage{margin:0 0 14px;color:var(--muted);font-size:13px}
+  .coverage b{color:var(--ink);font-weight:600}
+  .table-wrap{overflow-x:auto;border-radius:var(--r-surface)}
+  .table-wrap:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .card ul{margin:0;padding-left:18px;color:var(--muted)}
+  .card ul b{color:var(--ink)}
 
   .results{margin:26px 0 60px}
   .summary{display:grid;grid-template-columns:190px 1fr;gap:20px;align-items:stretch;
@@ -109,12 +106,12 @@
   .history{margin-top:10px;color:var(--muted);font-size:12.5px}
   .history span{margin-right:14px;white-space:nowrap}
   .history b{color:var(--ink);font-weight:600}  .filters{display:flex;gap:6px;flex-wrap:wrap}
-  .filter{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;
+  .filter{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;min-height:var(--h-chip);
           color:var(--muted)}
   .filter[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
   .tools{display:flex;gap:10px;align-items:center}
   .searchbox{border:1px solid var(--line);border-radius:9px;padding:8px 12px;background:#fff;width:240px;
-             font:13px/1.4 inherit;color:var(--ink)}
+             font-size:var(--t-sm);line-height:1.4;font-family:var(--font-text);color:var(--ink)}
   .searchbox:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 
   table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
@@ -143,6 +140,7 @@
   footer{border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;padding:18px 0 30px;
          display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   .hide{display:none !important}
+  @media (prefers-reduced-motion: reduce){ .status .bar i{animation:none;width:100%;opacity:.4} }
   @media (max-width:760px){
     .summary{grid-template-columns:1fr}
     .score{border-right:0;border-bottom:1px solid var(--line);padding:0 0 14px}
@@ -198,21 +196,24 @@
       <span class="hint">файлы не покидают машину</span>
     </div>
     <div class="status" id="status" aria-live="polite"></div>
-    <div class="alert hide" id="alert"></div>
+    <div class="alert" id="alert" role="alert"></div>
   </section>
 
-  <section class="results hide" id="results">
+  <section class="results hide" id="results" aria-labelledby="results-h">
+    <h2 class="sr-only" id="results-h" tabindex="-1">Результаты проверки</h2>
     <div class="summary">
-      <div class="score">
+      <div class="score" id="score-block">
         <b><span id="score">—</span><span> / 10</span></b>
         <small id="verdict">оценка</small>
       </div>
       <div class="counts">
         <div class="chip error"><span>Ошибки</span><strong id="c-error">0</strong></div>
         <div class="chip warn"><span>Предупреждения</span><strong id="c-warn">0</strong></div>
-        <div class="chip info"><span>Информация</span><strong id="c-info">0</strong></div>
+        <div class="chip info"><span>Примечания</span><strong id="c-info">0</strong></div>
       </div>
     </div>
+
+    <p class="coverage" id="coverage"></p>
 
     <div class="delta hide" id="delta"></div>
 
@@ -221,16 +222,17 @@
         <button class="filter" data-filter="all" aria-pressed="true">Все <span id="n-all"></span></button>
         <button class="filter" data-filter="error" aria-pressed="false">Ошибки <span id="n-error"></span></button>
         <button class="filter" data-filter="warn" aria-pressed="false">Предупреждения <span id="n-warn"></span></button>
-        <button class="filter" data-filter="info" aria-pressed="false">Информация <span id="n-info"></span></button>
+        <button class="filter" data-filter="info" aria-pressed="false">Примечания <span id="n-info"></span></button>
       </div>
       <div class="tools">
-        <input class="searchbox" id="q" type="search" placeholder="Поиск по замечаниям" aria-label="Поиск">
-        <a class="btn-ghost" id="dl-marked" href="#" download title="Копии DOCX с комментариями Word">Разметка</a>
-        <a class="btn-ghost" id="dl-docx" href="#" download>DOCX</a>
-        <a class="btn-ghost" id="dl-pdf" href="#" download>PDF</a>
+        <input class="searchbox" id="q" type="search" placeholder="Поиск по замечаниям" aria-label="Поиск по замечаниям">
+        <a class="btn-ghost" id="dl-marked" href="#" download title="Копии DOCX с комментариями Word">Разметка (ZIP)</a>
+        <a class="btn-ghost" id="dl-docx" href="#" download aria-label="Скачать отчёт DOCX">Отчёт DOCX</a>
+        <a class="btn-ghost" id="dl-pdf" href="#" download aria-label="Скачать отчёт PDF">Отчёт PDF</a>
       </div>
     </div>
 
+    <div class="table-wrap" role="region" aria-label="Таблица замечаний" tabindex="0">
     <table id="tbl">
       <thead>
         <tr>
@@ -244,18 +246,19 @@
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div class="empty hide" id="noresults" style="margin-top:12px">По этому фильтру замечаний нет.</div>
+    <div class="empty hide" id="noresults">По выбранным фильтрам ничего не найдено.</div>
   </section>
 
-  <section class="card hide" id="intro" style="margin-bottom:60px">
-    <h3 style="margin:0 0 10px;font-size:16px">Что проверяется</h3>
-    <ul style="margin:0;padding-left:18px;color:var(--muted)">
-      <li><b style="color:var(--ink)">Нормы</b> — каждый шифр в тексте сверяется с реестром: отменён, заменён, не подтверждён.</li>
-      <li><b style="color:var(--ink)">Цитаты</b> — «шифр … п. X»: есть ли такой пункт в фонде, на какой странице.</li>
-      <li><b style="color:var(--ink)">Комплектность</b> — наличие ПЗ, АР, КР/КЖ/КМ, ИОС, ПОС, ППР, смет по именам файлов.</li>
-      <li><b style="color:var(--ink)">Состав ПОС и ППР</b> — блоки приложений Г и В СН 1.03.04-2020.</li>
-      <li><b style="color:var(--ink)">Заглушки</b> — «ХХХ», «___», «заполнить», «по проекту».</li>
+  <section class="card" id="intro" style="margin-bottom:60px">
+    <h2 style="margin:0 0 10px;font-size:var(--t-h3)">Что проверяется</h2>
+    <ul>
+      <li><b>Нормы</b> — каждый шифр в тексте сверяется с реестром: отменён, заменён, статус не подтверждён.</li>
+      <li><b>Цитаты</b> — «шифр … п. X»: есть ли такой пункт в фонде, на какой странице.</li>
+      <li><b>Комплектность</b> — наличие ПЗ, АР, КР/КЖ/КМ, ИОС, ПОС, ППР, смет по именам файлов.</li>
+      <li><b>Состав ПОС и ППР</b> — блоки приложений Г и В СН 1.03.04-2020.</li>
+      <li><b>Заглушки</b> — «ХХХ», «___», «заполнить», «по проекту».</li>
     </ul>
+    <p class="hint">Не проверяются: расчёты, чертежи DWG, модели RVT, сканы без текстового слоя и сметы.</p>
   </section>
 
   <footer class="wrap" style="padding-left:0;padding-right:0">
@@ -276,31 +279,41 @@ function setStatus(text, busy) {
 }
 
 function showError(msg) {
-  const el = $('alert');
-  el.textContent = msg;
-  el.classList.remove('hide');
+  $('alert').textContent = msg;
 }
-function clearError() { $('alert').classList.add('hide'); }
+function clearError() { $('alert').textContent = ''; }
+
+let netErrors = 0;
 
 async function start() {
+  if ($('run').getAttribute('aria-disabled') === 'true') return;
   const path = $('path').value.trim();
-  if (!path) { showError('Укажите путь к папке проекта.'); return; }
+  const input = $('path');
+  if (!path) {
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', 'alert');
+    showError('Укажите путь к папке проекта или выберите её кнопкой «Выбрать папку…».');
+    input.focus();
+    return;
+  }
+  input.removeAttribute('aria-invalid');
   clearError();
+  netErrors = 0;
   $('results').classList.add('hide');
   $('intro').classList.add('hide');
-  $('run').disabled = true;
+  $('run').setAttribute('aria-disabled', 'true');
   setStatus('Читаю документы и сверяю с реестром…', true);
   try {
     const res = await fetch('/api/audit', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({path, include_text: $('text').checked})
     });
-    if (!res.ok) throw new Error((await res.json()).detail || 'Ошибка запуска');
+    if (!res.ok) throw new Error((await res.json()).detail || 'Сервер не принял запрос. Проверьте путь и повторите.');
     job = (await res.json()).job;
     localStorage.setItem('audit-path', path);
     poll();
   } catch (e) {
-    $('run').disabled = false;
+    $('run').removeAttribute('aria-disabled');
     setStatus('');
     showError(e.message);
   }
@@ -310,20 +323,39 @@ async function poll() {
   try {
     const res = await fetch(`/api/audit/${job}`);
     const data = await res.json();
+    if (!data.state) {
+      throw new Error('Задача потеряна — сервер перезапускался. Запустите проверку заново.');
+    }
     if (data.state === 'done') {
       result = data.result;
       render();
-      $('run').disabled = false;
-      setStatus('');
+      $('run').removeAttribute('aria-disabled');
+      const s = result.summary;
+      setStatus(`Готово: оценка ${String(s.score).replace('.', ',')}, ошибок ${s.error}, `
+        + `предупреждений ${s.warn}, примечаний ${s.info}.`);
+      $('results-h').focus();
       return;
     }
-    if (data.state === 'error') throw new Error(data.error || 'Ошибка аудита');
+    if (data.state === 'error') throw new Error(friendly(data.error));
+    netErrors = 0;
     setTimeout(poll, 600);
   } catch (e) {
-    $('run').disabled = false;
+    if (e instanceof TypeError && ++netErrors < 3) { setTimeout(poll, 800); return; }
+    $('run').removeAttribute('aria-disabled');
     setStatus('');
-    showError(e.message);
+    showError(e.message === 'Failed to fetch'
+      ? 'Сервер не отвечает. Проверьте, что приложение запущено, и повторите.'
+      : e.message);
   }
+}
+
+function friendly(text) {
+  const t = String(text || '');
+  if (/PermissionError|WinError 5|Access is denied/i.test(t)) {
+    return 'Нет доступа к папке. Проверьте права или выберите другую папку.';
+  }
+  if (/No such file|не найден/i.test(t)) return 'Папка не найдена. Проверьте путь.';
+  return t || 'Не удалось выполнить проверку.';
 }
 
 function render() {
@@ -340,11 +372,21 @@ function render() {
   $('n-info').textContent = s.info;
   $('meta-line').textContent =
     `${m.files_scanned} док. · ${m.size_mb} МБ · ${m.duration_s} с`;
+
+  const skipped = m.skipped || 0;
+  const errorsCount = (result.errors || []).length;
+  let coverage = `Прочитано файлов: <b>${m.files_scanned}</b> из ${m.files_total}.`;
+  if (skipped) coverage += ` Пропущено без чтения: ${skipped} (чертежи, модели, архивы).`;
+  if (errorsCount) coverage += ` Не удалось прочитать: ${errorsCount}.`;
+  coverage += ' Сканы без текстового слоя не проверяются.';
+  $('coverage').innerHTML = coverage;
+
   $('dl-docx').href = `/api/report/${job}.docx`;
   $('dl-pdf').href = `/api/report/${job}.pdf`;
   $('dl-marked').href = `/api/marked/${job}.zip`;
   renderDynamics();
   $('results').classList.remove('hide');
+  $('intro').classList.add('hide');
   drawRows();
 }
 
@@ -395,10 +437,18 @@ function drawRows() {
     (!query || (f.message + ' ' + f.file + ' ' + f.norm + ' ' + f.category).toLowerCase()
       .includes(query.toLowerCase())));
   $('noresults').classList.toggle('hide', rows.length > 0);
+  if (!rows.length) {
+    $('noresults').textContent = rows.length === 0 && !result.findings.length
+      ? 'Выполненные проверки замечаний не выявили. Это не заключение экспертизы.'
+      : 'По выбранным фильтрам ничего не найдено. Сбросьте фильтр или измените запрос.';
+  }
   for (const f of rows) {
     const tr = document.createElement('tr');
-    const label = f.severity === 'error' ? 'Ошибка' : f.severity === 'warn' ? 'Предупр.' : 'Инфо';
-    const where = f.file === '—' ? 'комплект проекта' : f.file + (f.page ? `, стр. ${f.page}` : '');
+    const label = f.severity === 'error' ? 'Ошибка'
+      : f.severity === 'warn' ? 'Предупр.' : 'Прим.';
+    const isDocx = /\.docx$/i.test(f.file || '');
+    const place = f.page ? `${isDocx ? 'фрагм.' : 'стр.'} ${f.page}` : '';
+    const where = f.file === '—' ? 'комплект проекта' : f.file + (place ? `, ${place}` : '');
     tr.innerHTML = `
       <td><span class="lvl ${f.severity}">${label}</span></td>
       <td class="cat">${esc(f.category)}</td>
@@ -423,24 +473,55 @@ $('files').addEventListener('change', async (ev) => {
   if (!files.length) return;
   clearError();
   $('results').classList.add('hide');
-  $('run').disabled = true;
+  $('run').setAttribute('aria-disabled', 'true');
   setStatus(`Загружаю ${files.length} файлов во временную папку…`, true);
   const fd = new FormData();
   for (const f of files) fd.append('files', f, f.webkitRelativePath || f.name);
   fd.append('include_text', $('text').checked ? 'true' : 'false');
   try {
     const res = await fetch('/api/upload', {method: 'POST', body: fd});
-    if (!res.ok) throw new Error((await res.json()).detail || 'Не удалось загрузить');
+    if (!res.ok) throw new Error((await res.json()).detail || 'Не удалось загрузить файлы. Попробуйте ещё раз.');
     const data = await res.json();
     job = data.job;
     setStatus('Читаю документы и сверяю с реестром…', true);
     poll();
   } catch (e) {
-    $('run').disabled = false;
+    $('run').removeAttribute('aria-disabled');
     setStatus('');
     showError(e.message);
   }
 });
+
+// выгрузки: проверяем ответ и объясняем сбой вместо страницы сервера
+for (const [id, what] of [['dl-docx', 'DOCX'], ['dl-pdf', 'PDF'], ['dl-marked', 'разметку']]) {
+  $(id).addEventListener('click', async (ev) => {
+    if (!job) { ev.preventDefault(); showError('Сначала выполните проверку.'); return; }
+    const href = $(id).getAttribute('href') || '';
+    if (!href || href === '#') { ev.preventDefault(); return; }
+    ev.preventDefault();
+    clearError();
+    try {
+      const res = await fetch(href, {method: 'GET'});
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || (id === 'dl-pdf'
+          ? 'Не удалось собрать PDF. Скачайте отчёт DOCX.'
+          : `Не удалось подготовить ${what}. Повторите позже.`));
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = res.headers.get('content-disposition')?.match(/filename="?([^";]+)/i)?.[1]
+        || `praverana-${what}.bin`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      showError(e.message);
+    }
+  });
+}
 
 document.querySelectorAll('.filter').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -471,5 +552,8 @@ if (qJob) {
 </script>
 </body>
 </html>
+
+
+
 
 

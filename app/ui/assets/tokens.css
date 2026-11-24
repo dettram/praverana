@@ -1,4 +1,4 @@
-/* Праверана.by — единые токены для лендинга (/) и инструмента (/app).
+﻿/* Праверана.by — единые токены для лендинга (/) и инструмента (/app).
    Значения — из docs/SYSTEM.md; контрасты текста посчитаны по WCAG AA. */
 
 :root {
@@ -80,6 +80,10 @@
   --sev-ok-soft: var(--green-soft);
 
   /* псевдонимы приложения */
+  --serif: var(--font-display);
+  --sans: var(--font-text);
+  --mono: var(--font-mono);
+  --line-input: #8a8f94;
   --bg: var(--paper);
   --card: var(--surface);
   --accent: var(--ink);
@@ -114,3 +118,4 @@
   --display-tracking: -0.035em;
   --display-tracking-xl: -0.04em;
 }
+

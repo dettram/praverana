@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru" data-type="software" data-radius="soft" data-buttons="solid" data-motion>
 <head>
 <meta charset="utf-8">
@@ -13,9 +13,10 @@
 <meta name="theme-color" content="#faf9f5">
 <meta name="site-kind" content="software">
 <meta name="page-type" content="software">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 1.6 30.4 16 16 30.4 1.6 16Z' fill='%2315181a'/><path d='M16 5.4 26.6 16 16 26.6 5.4 16Z' fill='%23faf9f5'/><path d='M10.4 16.2 14.4 20.2 21.8 12.4' fill='none' stroke='%23a97c22' stroke-width='2.4' stroke-linecap='round'/></svg>">
+<link rel="icon" href="assets/logo/favicon.svg" type="image/svg+xml">
 
 <link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
 <link rel="stylesheet" href="assets/system.css">
 <link rel="stylesheet" href="assets/ui/cards.css">
 <link rel="stylesheet" href="assets/motion/motion.css">
@@ -23,19 +24,7 @@
 <link rel="stylesheet" href="assets/layout/layout.css">
 <link rel="stylesheet" href="assets/icons/icon.css">
 <style>
-:root {
-  --p-bg: #faf9f5; --p-surface: #ffffff; --p-ink: #15181a; --p-muted: #5d666b;
-  --p-accent: #8a5f14; --p-accent-ink: #faf9f5; --p-action: #15181a; --p-action-ink: #faf9f5;
-  --p-inv-bg: #15181a; --p-inv-surface: #222526; --p-inv-ink: #faf9f5; --p-inv-muted: #a5a6a3;
-  --p-inv-accent: #d9a441; --p-inv-accent-ink: #15181a; --p-inv-action: #d9a441; --p-inv-action-ink: #15181a;
-  --font-display: "Onest", system-ui, sans-serif;
-  --font-text: "Onest", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-  --display-weight: 500;
-  --display-tracking: -0.035em;
-  --display-tracking-xl: -0.04em;
-}
-/* знак: ромб с галочкой (основа рушникового орнамента) */
+/* Токены — в assets/tokens.css (единый набор для / и /app). Здесь только страничное. */
 .mark {
   width: 26px; height: 26px; flex: none; display: inline-block;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 1.6 30.4 16 16 30.4 1.6 16Z' fill='%2315181a'/><path d='M16 5.4 26.6 16 16 26.6 5.4 16Z' fill='%23faf9f5'/><path d='M10.4 16.2 14.4 20.2 21.8 12.4' fill='none' stroke='%23a97c22' stroke-width='2.4' stroke-linecap='round'/></svg>") center / contain no-repeat;
@@ -116,8 +105,8 @@
       <div class="hero__text span-5">
         <p class="hero__kicker"><span class="dot" aria-hidden="true"></span>Беларусь · реестр ТНПА на 18.11.2026</p>
         <h1 id="hero-h">Проект проверен. Праверана.</h1>
-        <p class="hero__lead">Инструмент читает папку проекта и находит отменённые шифры, пункты, которых нет в норме, дыры в комплекте и незаполненные места. Отчёт — с файлом, страницей и нормой.</p>
-        <div class="btn-row"><a class="btn btn--primary" href="/app">Проверить папку проекта</a><a class="btn btn--secondary" href="#report">Посмотреть отчёт</a></div>
+        <p class="hero__lead">Каждое замечание — с нормой, файлом и страницей. Инструмент читает папку проекта и находит отменённые шифры, пункты, которых нет в норме, дыры в комплекте и незаполненные места.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="/app">Проверить папку</a><a class="btn btn--secondary" href="#report">Посмотреть отчёт</a></div>
         <p class="hero__proof">141 документ в перечне ТНПА, 44 989 пунктов в индексе, файлы не покидают машину.</p>
       </div>
       <div class="hero__media span-6 start-7">
@@ -224,7 +213,7 @@
     <div class="closing__cta close--type">
       <div class="section-head">
         <h2 id="close-h">Проверьте свой проект</h2>
-        <p>Две минуты на папку. Файлы остаются на вашей машине, аккаунт не нужен.</p>
+        <p>Прогон по папке — секунды. Файлы остаются на вашей машине, аккаунт не нужен.</p>
       </div>
       <a class="btn btn--primary btn--xl btn--wide" href="/app">Открыть инструмент<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
     </div>
@@ -252,3 +241,4 @@
 <script type="module" src="assets/layout/layout.js"></script>
 </body>
 </html>
+

@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Праверана.by — бренд-бук</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font:var(--t-body)/1.6 var(--font-text)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  header.top{border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
+  .top-in{height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .top-in img{height:30px;width:auto}
+  nav{display:flex;gap:18px;font-size:var(--t-sm)}
+  nav a{color:var(--muted);text-decoration:none}
+  nav a:hover{color:var(--ink)}
+  .ornament{height:5px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='5' viewBox='0 0 20 5'><path d='M5 0 L10 2.5 L5 5 L0 2.5Z' fill='%23c8102e'/><path d='M15 0 L20 2.5 L15 5 L10 2.5Z' fill='%2323694a'/></svg>");
+    background-repeat:repeat-x;background-size:20px 5px;opacity:.3}
+  section{padding:72px 0;border-bottom:1px solid var(--line)}
+  h1{font:600 44px/1.1 var(--font-display);letter-spacing:-.03em;margin:0 0 12px}
+  h2{font:600 var(--t-h2)/1.25 var(--font-display);letter-spacing:-.02em;margin:0 0 8px}
+  h3{font:600 var(--t-h3)/1.35 var(--font-display);margin:32px 0 10px}
+  .lead{color:var(--muted);max-width:62ch;margin:0}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-surface);padding:22px}
+  .label{font-size:var(--t-xs);color:var(--muted);letter-spacing:.02em;margin-bottom:8px}
+  .swatch{height:88px;border-radius:var(--r-ctl);border:1px solid var(--line-soft);margin-bottom:10px}
+  .mono{font-family:var(--font-mono);font-size:var(--t-sm);color:var(--ink-2)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r-ctl);
+       padding:0 18px;height:var(--h-ctl);font:600 14px var(--font-text);border:1px solid transparent;cursor:default}
+  .btn--primary{background:var(--ink);color:var(--paper)}
+  .btn--secondary{background:var(--surface);border-color:var(--line);color:var(--ink)}
+  .input{display:flex;align-items:center;height:var(--h-ctl);border:1px solid var(--line-input);
+         border-radius:var(--r-ctl);padding:0 12px;color:var(--muted);font-size:var(--t-sm);background:var(--surface)}
+  .lvl{display:inline-block;font:600 12px var(--font-text);padding:2px 9px;border-radius:var(--r-pill)}
+  .lvl.error{background:var(--red-soft);color:var(--red)}
+  .lvl.warn{background:var(--gold-soft);color:var(--gold-text)}
+  .lvl.info{background:var(--slate-soft);color:var(--slate)}
+  table{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+  .dont{border-left:3px solid var(--red);padding-left:14px;margin-top:14px;color:var(--ink-2);font-size:var(--t-sm)}
+  .do{border-left:3px solid var(--green);padding-left:14px;margin-top:14px;color:var(--ink-2);font-size:var(--t-sm)}
+  .spec{display:grid;grid-template-columns:120px 1fr;gap:8px 18px;align-items:baseline}
+  .size{font-family:var(--font-mono);color:var(--muted);font-size:var(--t-xs)}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:var(--t-sm)}
+  .quote{font:600 26px/1.35 var(--font-display);letter-spacing:-.02em;max-width:34ch}
+  .fine{color:var(--muted);font-size:var(--t-xs);max-width:70ch}
+  @media (max-width:820px){.g2,.g3{grid-template-columns:1fr}h1{font-size:32px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a href="#" aria-label="Праверана.by"><img src="../assets/logo/logo-horizontal.svg" alt="Праверана.by"></a>
+    <nav aria-label="Разделы бренд-бука">
+      <a href="#mark">Знак</a><a href="#logo">Логотип</a><a href="#slogan">Слоган</a>
+      <a href="#color">Палитра</a><a href="#type">Тип</a><a href="#ui">Компоненты</a><a href="#rules">Правила</a>
+    </nav>
+  </div>
+  <div class="ornament" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+  <section style="border-bottom:0">
+    <h1>Бренд-бук</h1>
+    <p class="lead">Праверана.by — локальный аудит проектной документации по ТНПА Республики Беларусь.
+      Здесь всё, что нужно, чтобы делать страницы, документы и письма в одном характере: знак, логотип,
+      слоган, палитра, типографика, компоненты и запреты.</p>
+    <p class="lead" style="margin-top:12px">Основа — цвета государственной символики и ромб
+      рушникового орнамента. Государственный герб не воспроизводится: его использование регулируется
+      законодательством.</p>
+  </section>
+
+  <section id="mark">
+    <h2>1. Знак</h2>
+    <p class="lead">Ромб — основа белорусского орнамента; внутри галочка: «праверана» значит «проверено».
+      Знак читается и как печать, и как узел вышивки.</p>
+    <div class="grid g2" style="margin-top:28px">
+      <div class="card" style="display:grid;place-items:center;min-height:220px">
+        <img src="../assets/logo/mark.svg" alt="Знак: ромб с галочкой" width="120" height="120">
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Построение</h3>
+        <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:var(--t-sm)">
+          <li>Внешний ромб — квадрат, повёрнутый на 45°, поле 64 × 64.</li>
+          <li>Внутренний ромб — 80 % внешнего, цвет бумаги.</li>
+          <li>Галочка — золото <span class="mono">#A97C22</span>, толщина 4,6 при поле 64.</li>
+          <li>В одном макете — один знак. Не обводить, не добавлять тень и объём.</li>
+        </ul>
+        <p class="fine" style="margin-top:14px">Минимальный размер: 24 px в интерфейсе, 8 мм в печати.
+          Охранное поле — половина высоты знака со всех сторон.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="logo">
+    <h2>2. Логотип</h2>
+    <p class="lead">Четыре файла, один источник: <span class="mono">app/ui/assets/logo/</span>.
+      В интерфейсе — горизонтальный, в подписи и печати — вертикальный, в один цвет — монохром.</p>
+    <div class="grid g2" style="margin-top:28px">
+      <div class="card" style="background:var(--paper)">
+        <div class="label">Горизонтальный · бумага</div>
+        <img src="../assets/logo/logo-horizontal.svg" alt="Горизонтальный логотип" style="width:100%;max-width:340px">
+      </div>
+      <div class="card" style="background:var(--ink)">
+        <div class="label" style="color:#a5a6a3">Горизонтальный · инверсия</div>
+        <div style="background:var(--ink);padding:14px;border-radius:var(--r-ctl)">
+          <img src="../assets/logo/logo-horizontal.svg" alt="Логотип на тёмном" style="width:100%;max-width:340px;filter:brightness(0) invert(1)">
+        </div>
+      </div>
+      <div class="card" style="display:grid;place-items:center">
+        <div class="label">Вертикальный</div>
+        <img src="../assets/logo/logo-stacked.svg" alt="Вертикальный логотип" width="120">
+      </div>
+      <div class="card" style="display:grid;place-items:center">
+        <div class="label">Монохром · один цвет</div>
+        <img src="../assets/logo/logo-mono.svg" alt="Монохромный знак" width="110">
+      </div>
+    </div>
+    <div class="do"><b>Можно:</b> ставить на бумагу, белый и тёмный фон; уменьшать до 24 px (знак) и 120 px (логотип).</div>
+    <div class="dont"><b>Нельзя:</b> растягивать, менять наклон, перекрашивать галочку в красный, ставить на фотографию
+      без подложки, добавлять обводку, использовать герб вместо знака.</div>
+  </section>
+
+  <section id="slogan">
+    <h2>3. Слоган</h2>
+    <p class="quote">«Каждое замечание — с нормой, файлом и страницей.»</p>
+    <p class="lead" style="margin-top:16px">Основной слоган обещает проверяемость, а не «качество»: ровно то,
+      что человек увидит в отчёте. Подпись бренда — «Проект проверен. Праверана.» — остаётся в герое
+      и на титуле.</p>
+    <table style="margin-top:22px">
+      <thead><tr><th>Где</th><th>Текст</th></tr></thead>
+      <tbody>
+        <tr><td>Герой страницы</td><td>Проект проверен. Праверана.</td></tr>
+        <tr><td>Первый экран, подзаголовок</td><td>Каждое замечание — с нормой, файлом и страницей.</td></tr>
+        <tr><td>Подпись в письме</td><td>Праверана.by — проверка проекта до нормоконтроля.</td></tr>
+        <tr><td>Документ, шапка</td><td>Отчёт об аудите проектной документации · Праверана.by</td></tr>
+      </tbody>
+    </table>
+    <p class="fine" style="margin-top:14px">Резервные варианты: «Проверить до нормоконтроля, а не после»;
+      «Спорить с нормой, а не с рецензентом»; бел. «Праверана па нормах: заўвага, пункт, старонка».</p>
+  </section>
+
+  <section id="color">
+    <h2>4. Палитра</h2>
+    <p class="lead">Красный, зелёный и золотой — из государственной символики; бумага и тушь держат
+      документный характер. Контраст указан к бумаге <span class="mono">#FAF9F5</span> по WCAG.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="swatch" style="background:#15181a"></div><div class="label">Тушь</div><div class="mono">#15181A · 16,93:1</div><p class="fine">текст, главная кнопка</p></div>
+      <div class="card"><div class="swatch" style="background:#faf9f5"></div><div class="label">Бумага</div><div class="mono">#FAF9F5 · фон</div><p class="fine">страницы и документы</p></div>
+      <div class="card"><div class="swatch" style="background:#5d666b"></div><div class="label">Вторичный текст</div><div class="mono">#5D666B · 5,57:1</div><p class="fine">подписи, пояснения</p></div>
+      <div class="card"><div class="swatch" style="background:#8a5f14"></div><div class="label">Золото текстом</div><div class="mono">#8A5F14 · 5,35:1</div><p class="fine">уровень «предупреждение», акцент</p></div>
+      <div class="card"><div class="swatch" style="background:#a97c22"></div><div class="label">Золото графикой</div><div class="mono">#A97C22</div><p class="fine">только знак и линии, не текст</p></div>
+      <div class="card"><div class="swatch" style="background:#c8102e"></div><div class="label">Красный</div><div class="mono">#C8102E · 5,58:1</div><p class="fine">ошибка</p></div>
+      <div class="card"><div class="swatch" style="background:#23694a"></div><div class="label">Зелёный</div><div class="mono">#23694A · 6,25:1</div><p class="fine">«ок», рост</p></div>
+      <div class="card"><div class="swatch" style="background:#3a4a5a"></div><div class="label">Нейтраль</div><div class="mono">#3A4A5A · 8,64:1</div><p class="fine">уровень «примечание»</p></div>
+      <div class="card"><div class="swatch" style="background:#8a8f94"></div><div class="label">Граница поля</div><div class="mono">#8A8F94 · 3,26:1</div><p class="fine">минимум для контролов</p></div>
+    </div>
+    <div class="dont"><b>Нельзя:</b> фиолетовый и синий как бренд, градиенты, золото текстом светлее #8A5F14,
+      красный для обычных кнопок (читается как удаление).</div>
+  </section>
+
+  <section id="type">
+    <h2>5. Типографика</h2>
+    <p class="lead">Onest — интерфейс и заголовки (локально, OFL). JetBrains Mono — шифры норм, пути,
+      числа прогонов. В документах Word остаётся Times New Roman: так требует деловая переписка и ГОСТ.</p>
+    <div class="spec" style="margin-top:26px">
+      <div class="size">44 / 600</div><div style="font:600 40px/1.1 var(--font-display);letter-spacing:-.03em">Проверка проекта</div>
+      <div class="size">32 / 600</div><div style="font:600 30px/1.2 var(--font-display);letter-spacing:-.02em">Оценка и покрытие</div>
+      <div class="size">22 / 600</div><div style="font:600 22px/1.3 var(--font-display)">Раздел страницы</div>
+      <div class="size">16 / 600</div><div style="font:600 16px/1.4 var(--font-display)">Подзаголовок карточки</div>
+      <div class="size">15 / 400</div><div>Основной текст: пятнадцать пикселей, интерлиньяж 1,5–1,6, до 65 знаков в строке.</div>
+      <div class="size">13 / 400</div><div style="font-size:13px;color:var(--muted)">Подписи, метаданные, кнопки</div>
+      <div class="size">12 / 500</div><div class="mono">СН 1.03.04-2020 · п. 7.7 · с. 15</div>
+    </div>
+    <div class="do"><b>Правило:</b> не больше трёх кеглей в одном блоке; моно — только для шифров, путей и чисел.</div>
+  </section>
+
+  <section id="ui">
+    <h2>6. Компоненты</h2>
+    <div class="grid g2" style="margin-top:24px">
+      <div class="card">
+        <div class="label">Кнопки</div>
+        <div class="row"><span class="btn btn--primary">Проверить папку</span><span class="btn btn--secondary">Выбрать папку…</span></div>
+        <p class="fine" style="margin-top:12px">Одна главная кнопка на экран. Высота 40, главное действие — 44.
+          Hover: тень на 1 px вверх; нажатие — вниз.</p>
+      </div>
+      <div class="card">
+        <div class="label">Поле</div>
+        <div class="input">C:\Проекты\АТЛАС</div>
+        <p class="fine" style="margin-top:12px">Граница #8A8F94 — минимум 3:1. Фокус — кольцо 3 px цвета бумаги
+          и граница тушью.</p>
+      </div>
+      <div class="card">
+        <div class="label">Уровни</div>
+        <div class="row"><span class="lvl error">Ошибка</span><span class="lvl warn">Предупреждение</span><span class="lvl info">Примечание</span></div>
+        <p class="fine" style="margin-top:12px">Уровень всегда назван словом; цвет — подкрепление, не единственный носитель.</p>
+      </div>
+      <div class="card">
+        <div class="label">Строка замечания</div>
+        <table>
+          <thead><tr><th>Где</th><th>Замечание</th><th>Норма</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">ПОС, фрагм. 12</td><td>шифр отменён</td><td class="mono">СНБ 2.04.02-2000</td></tr>
+            <tr><td class="mono">ПЗ, стр. 4</td><td>пункт не найден</td><td class="mono">СП 5.04.01-2021</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <h3>Движение</h3>
+    <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:var(--t-sm)">
+      <li>Появление героя — 700 мс, cubic-bezier(.22,.7,.3,1), один раз.</li>
+      <li>Hover карточки — 150 мс, подъём на 2 px; фото внутри рамки — масштаб 1,02 за 500 мс.</li>
+      <li>Ничего не двигается от прокрутки; при <span class="mono">prefers-reduced-motion</span> всё стоит на месте.</li>
+    </ul>
+  </section>
+
+  <section id="rules">
+    <h2>7. Правила и запреты</h2>
+    <div class="grid g2" style="margin-top:22px">
+      <div class="card">
+        <h3 style="margin-top:0">Делаем</h3>
+        <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:var(--t-sm)">
+          <li>Показываем реальный продукт: скриншот интерфейса, отчёт, размеченную страницу.</li>
+          <li>Называем цифру и её источник: 141 документ, 44 989 пунктов, 46 полных текстов.</li>
+          <li>Пишем границы вслух: что не проверяется и почему.</li>
+          <li>Одно действие — одна подпись: «Проверить папку».</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Не делаем</h3>
+        <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:var(--t-sm)">
+          <li>Не обещаем «полную проверку проекта» — расчёты и чертежи вне зоны.</li>
+          <li>Не используем герб, флаг и их фрагменты как элементы интерфейса.</li>
+          <li>Не пишем «инновационный», «экосистема», «под ключ», «команда профессионалов».</li>
+          <li>Не добавляем отзывы, логотипы клиентов и награды, которых нет.</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Применение</h3>
+    <table>
+      <tbody>
+        <tr><td>Фавикон</td><td class="mono">logo/favicon.svg</td></tr>
+        <tr><td>Превью ссылки</td><td>1200 × 630, знак на бумаге, слоган одной строкой</td></tr>
+        <tr><td>Подпись письма</td><td>логотип 120 px + строка «Праверана.by — проверка проекта до нормоконтроля»</td></tr>
+        <tr><td>Документы DOCX/PDF</td><td>Times New Roman, колонтитул «2026-АТЛ · ПОС v0.2», без знака в теле</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p class="fine">Цвета и орнаментальный мотив отсылают к государственной символике Республики Беларусь.
+    Изображение Государственного герба не воспроизводится: его использование регулируется
+    законодательством и требует разрешения. Шрифты Onest и JetBrains Mono — SIL OFL 1.1.</p>
+</footer>
+
+</body>
+</html>
+

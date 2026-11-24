@@ -193,7 +193,8 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         for i, f in enumerate(findings, 1):
             where = f["file"] if f["file"] != "—" else "комплект проекта"
             if f.get("page"):
-                where += f", стр. {f['page']}"
+                unit = "фрагм." if str(f.get("file", "")).lower().endswith(".docx") else "стр."
+                where += f", {unit} {f['page']}"
             rows.append((i, SEV_LABEL[f["severity"]], f["category"], where,
                          f["message"], f["norm"] or "—", f["action"] or "—"))
         _table(doc, ("№", "Уровень", "Категория", "Где", "Замечание", "Норма", "Действие"),

@@ -75,6 +75,11 @@ def app_page() -> HTMLResponse:
     return HTMLResponse((HERE / "ui" / "index.html").read_text(encoding="utf-8"))
 
 
+@app.get("/brand", response_class=HTMLResponse)
+def brand_page() -> HTMLResponse:
+    return HTMLResponse((HERE / "ui" / "brand" / "index.html").read_text(encoding="utf-8"))
+
+
 @app.post("/api/audit")
 def start(payload: dict) -> JSONResponse:
     raw = (payload.get("path") or "").strip().strip('"')
