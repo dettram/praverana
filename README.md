@@ -57,6 +57,19 @@ uv run --with python-docx --with pypdf python app/engine.py --path "<папка 
 Без корпуса интерфейс и отчёт работают, но проверки норм и пунктов дадут пустой результат:
 это ограничение, а не ошибка.
 
+## Находки и задачи
+
+**Правило проекта: нашёл — заведи issue.** Любая находка (баг, нехватка функции, неясный текст,
+нарушение канона, пробел в нормативной базе) сразу становится задачей в
+[Issues](https://github.com/dettram/praverana/issues). Ничего не держим в чате и памяти.
+
+```powershell
+powershell -File tools/new-issue.ps1 -Title "Что не так" -BodyFile body.md -Labels "ui,bug"
+```
+
+Метки: `bug`, `enhancement`, `norms`, `report`, `ui`, `landing`, `accessibility`, `corpus`,
+`documentation`. Подробности и требования к телу — `AGENTS.md`.
+
 ## Структура
 
 ```
