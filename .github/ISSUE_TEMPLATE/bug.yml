@@ -1,0 +1,44 @@
+name: Ошибка
+description: Проверка пропускает дефект, отчёт падает, разметка ломает файл
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Что произошло
+      description: Ожидаемое и фактическое поведение
+      placeholder: |
+        Ожидал: замечание «отменённая норма» для СНБ 2.04.02-2000
+        Фактически: строка не появилась в отчёте
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Как повторить
+      description: Папка, файл, команда или шаги в интерфейсе
+      placeholder: |
+        1. uv run --with python-docx python samples/make_demo.py
+        2. uv run ... python app/engine.py --path samples/demo-project
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Место в документе
+      description: Файл и пункт, если дело в проверке нормы
+      placeholder: "ПЗ-демо.docx, абзац 3; СН 1.03.04-2020, п. 7.7"
+  - type: textarea
+    id: env
+    attributes:
+      label: Окружение
+      description: ОС, версия Python, наличие корпуса и реестра
+      placeholder: "Windows 11, Python 3.13, корпус подключён, фонд 747 файлов"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Проверено
+      options:
+        - label: Повторил на чистой папке
+        - label: Нет текстов норм и данных заказчика в описании

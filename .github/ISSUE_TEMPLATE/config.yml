@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Как устроен аудит
+    url: https://github.com/dettram/praverana/blob/main/docs/ARCHITECTURE.md
+    about: Слои, проверки, оценка, история прогонов
+  - name: Лендинг и гейты
+    url: https://github.com/dettram/praverana/blob/main/docs/LANDING.md
+    about: Как прогнать copy-lint, consistency и gate

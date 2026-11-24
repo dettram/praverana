@@ -1,0 +1,38 @@
+name: Задача
+description: Новая проверка, формат отчёта, улучшение интерфейса
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Что должно появиться
+      description: Результат, который видит инженер
+      placeholder: "В отчёте — раздел «ссылки на отменённые нормы с датой отмены»"
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: Правило проверки
+      description: Как решается без модели — что сверяется и с чем
+      placeholder: "Шифр из текста → колонка «Заменяет / чем заменён» реестра → дата замены"
+    validations:
+      required: true
+  - type: textarea
+    id: falsepos
+    attributes:
+      label: Где правило может ошибиться
+      description: Ложные срабатывания и как их отличить
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - проверки движка
+        - отчёт DOCX/PDF
+        - разметка Word
+        - история прогонов
+        - интерфейс
+        - корпус и реестр
+        - лендинг

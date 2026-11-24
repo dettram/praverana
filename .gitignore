@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Локальные данные и артефакты
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.stroy-audit/
+report-*/
+marked/
+*.docx
+*.pdf
+!docs/**/*.pdf
+
+# Интерфейс: шрифты включены, скриншоты включены; кит и его сборка — нет
+app/ui/assets/system.css
+app/ui/assets/system.js
+app/ui/assets/ui/
+app/ui/assets/motion/
+app/ui/assets/backgrounds/
+app/ui/assets/layout/
+app/ui/assets/icons/
+app/ui/assets/moments/
+app/ui/assets/diagrams/
+app/ui/assets/kit/
+
+# Гейт: профили браузера и кропы, но не waiver'ы
+.taste-skill/chrome-*/
+.taste-skill/*.json
+!.taste-skill/waivers.json
+shots/
+
+# ОС и редакторы
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.log

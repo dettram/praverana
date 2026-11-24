@@ -1,0 +1,42 @@
+name: Пробел в нормативной базе
+description: Нормы нет в фонде, шифр не опознан, пункт не находится
+title: "[norm] "
+labels: ["norms"]
+body:
+  - type: input
+    id: code
+    attributes:
+      label: Шифр
+      placeholder: "СП 1.03.11-2023"
+    validations:
+      required: true
+  - type: input
+    id: clause
+    attributes:
+      label: Пункт и страница
+      placeholder: "п. 6.3.4.1, с. 24"
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Что не так
+      options:
+        - нормы нет в перечне (data/norms-pos.json)
+        - нормы нет в реестре
+        - в реестре есть, текста в фонде нет
+        - индекс не находит пункт, хотя он есть в тексте
+        - шифр распознан неверно
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Чем подтверждается
+      description: Ссылка на карточку нормы, страница, цитата (короткая)
+      placeholder: "normy.stn.by, карточка; в документе с. 15"
+  - type: checkboxes
+    id: legal
+    attributes:
+      label: Правовая гигиена
+      options:
+        - label: Не прикладываю полный текст нормы (только шифр и короткую цитату)
+          required: true
