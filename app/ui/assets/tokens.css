@@ -1,0 +1,116 @@
+/* Праверана.by — единые токены для лендинга (/) и инструмента (/app).
+   Значения — из docs/SYSTEM.md; контрасты текста посчитаны по WCAG AA. */
+
+:root {
+  /* поверхность */
+  --paper: #faf9f5;
+  --surface: #ffffff;
+  --surface-sunk: #f6f6f3;
+
+  /* линии */
+  --line: #e4e0d6;
+  --line-soft: #f0f0ed;
+  --line-strong: #c9c9c4;
+
+  /* текст */
+  --ink: #15181a;
+  --ink-2: #3a3f46;
+  --muted: #5d666b;
+  --disabled: #b9bdbd;
+
+  /* бренд */
+  --gold: #a97c22;        /* только графика и знак */
+  --gold-text: #8a5f14;   /* золото как текст, 5,35:1 на бумаге */
+  --gold-soft: #f6efdf;
+  --red: #c8102e;
+  --red-soft: #fbeaec;
+  --red-ink: #6b1d18;
+  --red-line: #eed6d3;
+  --green: #23694a;
+  --green-soft: #e9f2ec;
+  --slate: #3a4a5a;       /* уровень «примечание»: нейтраль, не бренд */
+  --slate-soft: #eef1f4;
+
+  /* фокус */
+  --focus: #f1efe8;
+  --ring: 0 0 0 3px var(--focus);
+
+  /* шрифты */
+  --font-display: "Onest", "Segoe UI", system-ui, sans-serif;
+  --font-text: "Onest", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+
+  /* шкала кеглей */
+  --t-xs: 12px;
+  --t-sm: 13px;
+  --t-body: 15px;
+  --t-h3: 16px;
+  --t-metric: 20px;
+  --t-h2: 22px;
+  --t-h1: 32px;
+  --t-score: 44px;
+
+  /* отступы */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* радиусы */
+  --r-ctl: 8px;
+  --r-surface: 12px;
+  --r-media: 20px;
+  --r-pill: 999px;
+
+  /* высоты контролов */
+  --h-ctl: 40px;
+  --h-cta: 44px;
+  --h-chip: 32px;
+
+  /* семантика уровней */
+  --sev-error: var(--red);
+  --sev-error-soft: var(--red-soft);
+  --sev-warn: var(--gold-text);
+  --sev-warn-soft: var(--gold-soft);
+  --sev-info: var(--slate);
+  --sev-info-soft: var(--slate-soft);
+  --sev-ok: var(--green);
+  --sev-ok-soft: var(--green-soft);
+
+  /* псевдонимы приложения */
+  --bg: var(--paper);
+  --card: var(--surface);
+  --accent: var(--ink);
+  --accent-soft: var(--focus);
+  --error: var(--sev-error);
+  --error-soft: var(--sev-error-soft);
+  --warn: var(--sev-warn);
+  --warn-soft: var(--sev-warn-soft);
+  --info: var(--sev-info);
+  --info-soft: var(--sev-info-soft);
+  --ok: var(--sev-ok);
+  --ok-soft: var(--sev-ok-soft);
+
+  /* псевдонимы кита (лендинг) */
+  --p-bg: var(--paper);
+  --p-surface: var(--surface);
+  --p-ink: var(--ink);
+  --p-muted: var(--muted);
+  --p-accent: var(--gold-text);
+  --p-accent-ink: var(--paper);
+  --p-action: var(--ink);
+  --p-action-ink: var(--paper);
+  --p-inv-bg: var(--ink);
+  --p-inv-surface: #222526;
+  --p-inv-ink: var(--paper);
+  --p-inv-muted: #a5a6a3;
+  --p-inv-accent: #d9a441;
+  --p-inv-accent-ink: var(--ink);
+  --p-inv-action: #d9a441;
+  --p-inv-action-ink: var(--ink);
+  --display-weight: 500;
+  --display-tracking: -0.035em;
+  --display-tracking-xl: -0.04em;
+}
