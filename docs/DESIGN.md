@@ -5,8 +5,8 @@
 - Название: **Праверана.by** («проверка»), домен в имени.
 - Слоган: **«Каждое замечание — с нормой, файлом и страницей.»**
   Подпись бренда: «Проект проверен. Праверана.»
-- Знак: ромб с подрезанными концами (конец тканой ленты), золотая нитка внутри и вырезанная
-  галочка; файлы — `app/ui/assets/logo/` (`mark.svg`, `mark-inverse.svg`, `logo-horizontal.svg`,
+- Знак: квадратная плашка-штамп с вырезанной буквой П (Праверана), без галочки и орнамента;
+  файлы — `app/ui/assets/logo/` (`mark.svg`, `mark-inverse.svg`, `logo-horizontal.svg`,
   `logo-horizontal-inverse.svg`, `logo-stacked.svg`, `logo-mono.svg`, `favicon.svg`), генератор —
   `tools/logo.py`.
 - Надпись в логотипе — контуры (`tools/outline.py` → `wordmark-paths.json`), поэтому она не зависит

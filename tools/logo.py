@@ -1,10 +1,11 @@
 """Праверана.by — знак и логотип.
 
-Одна геометрия даёт все файлы: mark, инверсию, монохром, favicon, горизонтальный
-и вертикальный логотип.
+Знак: квадратная плашка-штамп с вырезанной буквой П (Праверана). Без галочки,
+без орнамента и без золота в самом знаке: золото живёт в надписи `.by`.
 
-Знак: ромб с подрезанными концами (край тканой ленты), золотая нитка внутри и
-вырезанная галочка — «проверено», без герба и без флага.
+Одна геометрия даёт все файлы: mark, инверсию, монохром, favicon, горизонтальный
+и вертикальный логотип. Надпись — контуры из wordmark-paths.json (tools/outline.py),
+поэтому шрифт Onest для логотипа не требуется.
 
 Запуск: python tools/logo.py <out-dir> [--preview]
 """
@@ -17,11 +18,15 @@ from pathlib import Path
 
 INK = "#15181a"
 PAPER = "#faf9f5"
-GOLD = "#a97c22"
 GOLD_TEXT = "#8a5f14"
 GOLD_ON_DARK = "#d9a441"
 
 WORDMARK = Path(__file__).resolve().parent.parent / "app/ui/assets/logo/wordmark-paths.json"
+
+# --- геометрия -------------------------------------------------------------
+
+PLATE = {"x": 12, "y": 12, "size": 40, "radius": 2}
+LETTER = {"x": 19, "y": 16, "width": 26, "bar": 7, "stem": 7, "height": 28}
 
 
 def wordmark_paths():
@@ -30,49 +35,24 @@ def wordmark_paths():
     except (OSError, ValueError):
         return None
 
-# --- геометрия -------------------------------------------------------------
 
-C = 32.0
-EDGE = 30.0            # полудиагональ ромба
-TIP_CUT = 6.0          # срез на концах
-THREAD_D = 22.0        # золотая нитка
-THREAD_W = 1.1
-CHECK = ((23.2, 32.6), (29.4, 38.8), (42.6, 24.2))
-CHECK_W = 7.6
+def plate(color: str) -> str:
+    p = PLATE
+    return (f'<rect x="{p["x"]}" y="{p["y"]}" width="{p["size"]}" height="{p["size"]}" '
+            f'rx="{p["radius"]}" fill="{color}"/>')
 
 
-def rhombus(d: float, cx: float = C, cy: float = C) -> str:
-    return f"M{cx} {cy - d} L{cx + d} {cy} L{cx} {cy + d} L{cx - d} {cy} Z"
+def letter(color: str) -> str:
+    """Буква П тремя прямоугольниками: перекладина перекрывает стойки."""
+    l = LETTER
+    x, y, w, bar, stem, h = l["x"], l["y"], l["width"], l["bar"], l["stem"], l["height"]
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{bar}" fill="{color}"/>'
+            f'<rect x="{x}" y="{y}" width="{stem}" height="{h}" fill="{color}"/>'
+            f'<rect x="{x + w - stem}" y="{y}" width="{stem}" height="{h}" fill="{color}"/>')
 
 
-def square(half: float, cx: float = C, cy: float = C) -> str:
-    r = half / 1.4142135623730951
-    return (f"M{cx - r:.2f} {cy - r:.2f} L{cx + r:.2f} {cy - r:.2f} "
-            f"L{cx + r:.2f} {cy + r:.2f} L{cx - r:.2f} {cy + r:.2f} Z")
-
-
-def tip_cuts(color: str, size: float = TIP_CUT) -> str:
-    """Срезы на четырёх концах: ромб читается как конец тканой ленты."""
-    return "".join(
-        f'<path d="{square(size, x, y)}" fill="{color}"/>'
-        for x, y in ((C, 0.8), (63.2, C), (C, 63.2), (0.8, C))
-    )
-
-
-def check(color: str, width: float = CHECK_W,
-          points=CHECK) -> str:
-    d = "M" + " L".join(f"{x:g} {y:g}" for x, y in points)
-    return (f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{width:g}" '
-            f'stroke-linecap="round" stroke-linejoin="round"/>')
-
-
-def mark_body(ink: str, background: str, gold: str, check_color: str) -> str:
-    return (
-        f'<path d="{rhombus(EDGE)}" fill="{ink}"/>'
-        + tip_cuts(background)
-        + f'<path d="{rhombus(THREAD_D)}" fill="none" stroke="{gold}" stroke-width="{THREAD_W:g}"/>'
-        + check(check_color)
-    )
+def mark_body(ink: str, background: str) -> str:
+    return plate(ink) + letter(background)
 
 
 def svg_wrap(body: str, viewbox: str, label: str, title: str) -> str:
@@ -82,22 +62,21 @@ def svg_wrap(body: str, viewbox: str, label: str, title: str) -> str:
 
 def mark_svg(inverse: bool = False) -> str:
     ink, background = (PAPER, INK) if inverse else (INK, PAPER)
-    gold = GOLD_ON_DARK if inverse else GOLD
-    check_color = INK if inverse else PAPER
-    return svg_wrap(mark_body(ink, background, gold, check_color), "0 0 64 64",
+    return svg_wrap(mark_body(ink, background), "0 0 64 64",
                     "Праверана.by — знак",
-                    "Знак Праверана.by: ромб с галочкой и золотой ниткой")
+                    "Знак Праверана.by: штамп с буквой П")
 
 
 def favicon_svg() -> str:
-    """Та же геометрия на бумажной плашке: видна и на светлой, и на тёмной вкладке."""
-    body = ('<rect x="0" y="0" width="64" height="64" rx="14" fill="#faf9f5"/>'
-            + mark_body(INK, PAPER, GOLD, PAPER))
+    """Бумажная плашка, чтобы знак был виден и на тёмной вкладке."""
+    body = (f'<rect width="64" height="64" rx="14" fill="{PAPER}"/>'
+            '<g transform="translate(32 32) scale(1.16) translate(-32 -32)">'
+            + mark_body(INK, PAPER) + "</g>")
     return svg_wrap(body, "0 0 64 64", "Праверана.by", "Знак Праверана.by для вкладки")
 
 
 def mono_svg() -> str:
-    return svg_wrap(mark_body(INK, PAPER, INK, PAPER), "0 0 64 64",
+    return svg_wrap(mark_body(INK, PAPER), "0 0 64 64",
                     "Праверана.by — монохромный знак",
                     "Знак Праверана.by в один цвет")
 
@@ -107,7 +86,7 @@ def wordmark(fill: str, tld: str, size: float = 34.0, x: float = 80.0,
     """Надпись контурами из wordmark-paths.json; без файла — запасной живой текст."""
     data = wordmark_paths()
     if not data:
-        anchor = 'middle' if middle else 'start'
+        anchor = "middle" if middle else "start"
         return (f'<text x="{x}" y="{baseline}" text-anchor="{anchor}" '
                 f'font-family="Onest, \'Segoe UI\', Arial, sans-serif" '
                 f'font-size="{size:g}" font-weight="600" letter-spacing="-0.8" fill="{fill}">'
@@ -130,18 +109,15 @@ def wordmark(fill: str, tld: str, size: float = 34.0, x: float = 80.0,
 
 def horizontal_svg(inverse: bool = False) -> str:
     ink, background = (PAPER, INK) if inverse else (INK, PAPER)
-    gold = GOLD_ON_DARK if inverse else GOLD
-    check_color = INK if inverse else PAPER
     fill = PAPER if inverse else INK
     tld = GOLD_ON_DARK if inverse else GOLD_TEXT
-    body = mark_body(ink, background, gold, check_color) + wordmark(fill, tld)
+    body = mark_body(ink, background) + wordmark(fill, tld)
     return svg_wrap(body, "0 0 372 64", "Праверана.by",
                     "Праверана.by — горизонтальный логотип")
 
 
 def stacked_svg() -> str:
-    body = (f'<g transform="translate(64 2)">'
-            + mark_body(INK, PAPER, GOLD, PAPER) + "</g>"
+    body = (f'<g transform="translate(64 2)">' + mark_body(INK, PAPER) + "</g>"
             + wordmark(INK, GOLD_TEXT, size=26, x=96, baseline=104, middle=True))
     return svg_wrap(body, "0 0 192 128", "Праверана.by",
                     "Праверана.by — вертикальный логотип")
@@ -167,13 +143,13 @@ def write_all(out: Path) -> None:
 
 
 def preview(out: Path) -> None:
-    mark = mark_body(INK, PAPER, GOLD, PAPER)
-    inverse = mark_body(PAPER, INK, GOLD_ON_DARK, INK)
-    mono = mark_body(INK, PAPER, INK, PAPER)
-    fav = ('<rect width="64" height="64" rx="14" fill="#faf9f5"/>' + mark)
+    mark = mark_body(INK, PAPER)
+    inverse = mark_body(PAPER, INK)
+    mono = mark_body(INK, PAPER)
+    fav = f'<rect width="64" height="64" rx="14" fill="{PAPER}"/>' + mark
     sizes = "".join(
         f'<div class="cell"><svg viewBox="0 0 64 64" width="{s}" height="{s}">{mark}</svg>'
-        f"<span>{s}</span></div>" for s in (16, 24, 28, 32, 48, 96)
+        f"<span>{s}</span></div>" for s in (16, 20, 24, 32, 48, 96)
     )
     html = f"""<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 <title>Знак Праверана.by</title>
@@ -188,10 +164,10 @@ header i{{font-style:normal;color:#8a5f14}}
 footer{{display:flex;align-items:center;gap:10px;background:#15181a;color:#faf9f5;padding:14px 18px;border-radius:8px;font:600 20px "Segoe UI";margin-top:14px}}
 footer i{{font-style:normal;color:#d9a441}}
 .card{{border:1px solid #e4e0d6;border-radius:10px;padding:18px;display:inline-flex;align-items:center;gap:14px}}
-.card .l{{font-size:12px;color:#5d666b;width:86px}}
+.card .l{{font-size:12px;color:#5d666b;width:110px}}
 .mono{{background:#15181a;padding:10px;border-radius:8px;display:inline-flex}}
 </style></head><body>
-<h1>Знак: ромб с подрезанными концами, золотая нитка, вырезанная галочка</h1>
+<h1>Знак: штамп-П</h1>
 <div class="row">{sizes}
   <div class="cell"><div class="mono"><svg viewBox="0 0 64 64" width="96" height="96">{inverse}</svg></div><span>96 · на тушь</span></div>
   <div class="cell"><svg viewBox="0 0 64 64" width="32" height="32">{fav}</svg><span>favicon</span></div>
