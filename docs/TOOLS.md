@@ -57,6 +57,21 @@ powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action stop
 
 **Что можно взять позже:** его проверку печати (print check) и генератор мокапов — задачи в issues.
 
+## Снимки отчёта для лендинга
+
+Кадры отчёта и разметки пересобираются из текущего прогона, чтобы не расходиться с демо:
+
+```powershell
+uv run --with pymupdf python tools/render-report-png.py `
+    --project C:/Users/Public/Projects/ATLAS-TZ --out app/ui/assets/img
+```
+
+- прогон → `/api/report/{job}.pdf` → `report-page.png` и `report-page-2.png` (935 × 1210);
+- `/api/marked/{job}.zip` → Word, `ExportAsFixedFormat` с `wdExportDocumentWithMarkup` →
+  `marked-page.png` (примечания видны);
+- проект запускать из нейтральной папки (`C:\Users\Public\Projects\ATLAS-TZ`), иначе личный путь
+  попадёт в снимок; требует установленного Word.
+
 ## Итог
 
 - Логотип и знак — наши (штамп с буквой П), проверены в системе бренда Glyphfield.
