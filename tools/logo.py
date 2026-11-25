@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 INK = "#15181a"
@@ -189,4 +190,4 @@ if __name__ == "__main__":
     target = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("app/ui/assets/logo")
     write_all(target)
     if "--preview" in sys.argv:
-        preview(Path(r"C:\Users\g.macuev\AppData\Local\Temp\harvest"))
+        preview(Path(tempfile.gettempdir()) / "praverana-logo-preview")
