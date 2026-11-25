@@ -71,7 +71,7 @@
     <nav aria-label="Разделы бренд-бука">
       <a href="#mark">Знак</a><a href="#logo">Логотип</a><a href="#slogan">Слоган</a>
       <a href="#color">Палитра</a><a href="#type">Тип</a><a href="#ui">Компоненты</a>
-      <a href="#kit">Кит</a><a href="#rules">Правила</a>
+      <a href="#kit">Кит</a><a href="#print">Печать</a><a href="#rules">Правила</a>
     </nav>
   </div>
   <div class="ornament" aria-hidden="true"></div>
@@ -309,8 +309,46 @@
       концами и золотой ниткой сильнее.</div>
   </section>
 
+  <section id="print">
+    <h2>8. Проверка печати</h2>
+    <p class="lead">Минимальные размеры и фоны проверяются скриптом
+      <span class="mono">tools/check-logos.py</span>: он смотрит viewBox, width/height и отсутствие
+      живого текста. Файл, который не прошёл, в печать не идёт.</p>
+    <table style="margin-top:20px">
+      <thead><tr><th>Файл</th><th>Экран</th><th>Печать</th><th>Фон</th><th>Примечание</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">mark.svg</td><td>24 px</td><td>8 мм</td><td>бумага</td><td>инверсия — <span class="mono">mark-inverse.svg</span></td></tr>
+        <tr><td class="mono">mark-inverse.svg</td><td>24 px</td><td>8 мм</td><td>тушь</td><td>только на тёмном</td></tr>
+        <tr><td class="mono">logo-horizontal.svg</td><td>120 px по ширине</td><td>35 мм</td><td>бумага</td><td>инверсия — <span class="mono">logo-horizontal-inverse.svg</span></td></tr>
+        <tr><td class="mono">logo-horizontal-inverse.svg</td><td>120 px по ширине</td><td>35 мм</td><td>тушь</td><td>только на тёмном</td></tr>
+        <tr><td class="mono">logo-stacked.svg</td><td>90 px по ширине</td><td>30 мм</td><td>бумага</td><td>инверсия не выпускается</td></tr>
+        <tr><td class="mono">logo-mono.svg</td><td>24 px</td><td>10 мм</td><td>любой</td><td>один цвет, без золота</td></tr>
+        <tr><td class="mono">favicon.svg</td><td>16–48 px</td><td>—</td><td>вкладка</td><td>в печать не идёт</td></tr>
+      </tbody>
+    </table>
+    <div class="do"><b>Проверено:</b> ни в одном файле нет живого текста — надпись в кривых,
+      поэтому Word и Illustrator не подставляют свой шрифт.</div>
+
+    <h3>Мокапы</h3>
+    <p class="lead" style="font-size:var(--t-sm)">Собраны из существующих файлов, без стоковых фото
+      и 3D. Данные на визитке — образец, не реальный сотрудник.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card"><div class="label">Визитка 90 × 50</div>
+        <img src="../assets/img/mockups/business-card.png" alt="Визитка: логотип, имя, контакты"
+             style="width:100%;border-radius:var(--r-ctl)"></div>
+      <div class="card"><div class="label">Шапка документа A4</div>
+        <img src="../assets/img/mockups/document-header.png" alt="Шапка отчёта: логотип и объект"
+             style="width:100%;border-radius:var(--r-ctl)"></div>
+      <div class="card" style="grid-column:1/-1;display:grid;place-items:center">
+        <div class="label" style="justify-self:start">Аватар 512 × 512</div>
+        <img src="../assets/img/mockups/avatar.png" alt="Аватар: знак на туши" style="width:260px;border-radius:var(--r-ctl)">
+      </div>
+    </div>
+    <p class="fine" style="margin-top:14px">Пересборка: <span class="mono">uv run --with pillow python tools/make-mockups.py</span>.</p>
+  </section>
+
   <section id="rules">
-    <h2>8. Правила и запреты</h2>
+    <h2>9. Правила и запреты</h2>
     <div class="grid g2" style="margin-top:22px">
       <div class="card">
         <h3 style="margin-top:0">Делаем</h3>
@@ -350,6 +388,7 @@
 
 </body>
 </html>
+
 
 
 
