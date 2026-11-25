@@ -72,6 +72,19 @@ uv run --with pymupdf python tools/render-report-png.py `
 - проект запускать из нейтральной папки (`C:\Users\Public\Projects\ATLAS-TZ`), иначе личный путь
   попадёт в снимок; требует установленного Word.
 
+## Иконки приложения
+
+```powershell
+uv run --with pillow python tools/render-favicons.py
+```
+
+- `assets/icons/favicon-16/32/48.png`, `favicon.ico` (16/32/48) — вкладка;
+- `apple-touch-icon-180.png` — iOS, полноразмерная бумажная подложка;
+- `favicon-192.png` / `favicon-512.png` — Android, `purpose: any maskable`, знак в безопасной зоне;
+- `safari-pinned-tab.svg` — чёрный контур (плашка с вырезанной П);
+- `assets/manifest.webmanifest` — отдаётся сервером по `/manifest.webmanifest`
+  (`application/manifest+json`); ссылки и `theme-color` есть на `/`, `/app`, `/brand`, `/review`.
+
 ## Итог
 
 - Логотип и знак — наши (штамп с буквой П), проверены в системе бренда Glyphfield.

@@ -85,6 +85,12 @@ def review_page() -> HTMLResponse:
     return HTMLResponse((HERE / "ui" / "review.html").read_text(encoding="utf-8"))
 
 
+@app.get("/manifest.webmanifest")
+def manifest() -> FileResponse:
+    return FileResponse(str(HERE / "ui" / "assets" / "manifest.webmanifest"),
+                        media_type="application/manifest+json")
+
+
 @app.post("/api/audit")
 def start(payload: dict) -> JSONResponse:
     raw = (payload.get("path") or "").strip().strip('"')
