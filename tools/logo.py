@@ -26,7 +26,7 @@ WORDMARK = Path(__file__).resolve().parent.parent / "app/ui/assets/logo/wordmark
 # --- геометрия -------------------------------------------------------------
 
 PLATE = {"x": 12, "y": 12, "size": 40, "radius": 2}
-LETTER = {"x": 19, "y": 16, "width": 26, "bar": 7, "stem": 7, "height": 28}
+LETTER = {"x": 19, "y": 18, "width": 26, "bar": 7, "stem": 7, "height": 28}
 
 
 def wordmark_paths():

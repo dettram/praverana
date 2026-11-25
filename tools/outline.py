@@ -25,7 +25,6 @@ OUT = REPO / "app/ui/assets/logo/wordmark-paths.json"
 
 SIZE = 34.0
 TRACKING = -0.8 / SIZE  # -0.8 px при 34 px
-TLD_TRIM = -2.6         # кернинг пары «а.» вручную: без него точка отходит
 WEIGHT = 600
 
 
@@ -62,8 +61,34 @@ def main() -> None:
             x += font["hmtx"][name][0] * scale + TRACKING * SIZE
         return items, x
 
+    def visual(char: str) -> tuple[float, float]:
+        """Границы глифа в px: от левого до правого края контура."""
+        font, name = glyph(char)
+        g = font["glyf"][name]
+        return g.xMin * scale, g.xMax * scale
+
+    def item(char: str, x: float) -> dict:
+        font, name = glyph(char)
+        pen = SVGPathPen(font.getGlyphSet())
+        font.getGlyphSet()[name].draw(pen)
+        return {"char": char, "d": pen.getCommands(), "x": round(x, 2)}
+
     main_items, width = place("праверана")
-    tld_items, total = place(".by", width + TLD_TRIM)
+
+    # Точку и «by» ставим по видимым краям, а не по метрикам: иначе вокруг точки
+    # появляются лишние просветы (ширины глифов включают боковые поля).
+    last_x = main_items[-1]["x"]
+    last_xmin, last_xmax = visual(main_items[-1]["char"])
+    dot_xmin, dot_xmax = visual(".")
+    b_xmin, b_xmax = visual("b")
+    y_xmin, y_xmax = visual("y")
+
+    dot_x = last_x + last_xmax + 0.8 - dot_xmin
+    b_x = dot_x + dot_xmax + 0.6 - b_xmin
+    y_x = b_x + b_xmax + 0.8 - y_xmin
+
+    tld_items = [item(".", dot_x), item("b", b_x), item("y", y_x)]
+    total = y_x + y_xmax + 0.4
 
     payload = {
         "family": "Onest",
