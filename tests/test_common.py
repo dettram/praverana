@@ -70,3 +70,22 @@ def test_short():
     assert short("a  b\nc", 10) == "a b c"
     assert short("abcdef", 4) == "abc…"
     assert short("abc", 10) == "abc"
+
+
+@pytest.mark.parametrize("raw, expected", [
+    ("ПУЭ 6", "ПУЭ 6"),
+    ("ПУЭ 7", "ПУЭ 7"),
+    ("ТКП EN 1992-1-1-2009", "ТКП EN 1992-1-1-2009"),
+    ("СТБ ISO 9001-2015", "СТБ ISO 9001-2015"),
+    ("ГОСТ Р 21.1101-2013", "ГОСТ Р 21.1101-2013"),
+])
+def test_norm_code_prefixes(raw, expected):
+    assert norm_code(raw) == expected
+
+
+def test_extract_citations_recognises_new_prefixes():
+    text = ("ПУЭ 6 и ТКП EN 1992-1-1-2009, СТБ ISO 9001-2015, "
+            "ГОСТ Р 21.1101-2013")
+    codes = [c["code"] for c in extract_citations(text)]
+    assert codes == ["ПУЭ 6", "ТКП EN 1992-1-1-2009", "СТБ ISO 9001-2015",
+                     "ГОСТ Р 21.1101-2013"]
