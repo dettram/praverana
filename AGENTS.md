@@ -44,6 +44,22 @@ powershell -ExecutionPolicy Bypass -File tools/new-issue.ps1 -Title "Поле п
   скриншоты для UI.
 - Если находка оказалась неверной — закрываем с причиной, а не удаляем.
 
+## Скриншоты и картинки
+
+Репозиторий **приватный**: `raw.githubusercontent.com` в issue и PR не отображается (404).
+Кадры кладём в `docs/pr-assets/<N>/`, а в текст вставляем вложения GitHub:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/attach-image.ps1 -Path docs/pr-assets/35/01.png
+# → https://github.com/user-attachments/assets/…
+```
+
+```markdown
+![подпись](https://github.com/user-attachments/assets/…)
+```
+
+Подробности — `docs/GITHUB.md`, раздел 6.3. Для `fix/` — «до/после»; для UI — телефон и десктоп.
+
 ## Ревью кода
 
 Перед PR — `docs/REVIEW.md`. Два правила:

@@ -205,14 +205,22 @@ docs/pr-assets/<N>/01-after-1440.png
 docs/pr-assets/<N>/02-after-390.png
 ```
 
-`<N>` — номер issue, `NN` — порядок. В PR — встроенные картинки, не голые ссылки:
+`<N>` — номер issue, `NN` — порядок. Репозиторий **приватный**: `raw.githubusercontent.com`
+в issue и PR отдаёт 404, картинка не отображается. Загружаем файл вложением GitHub и вставляем
+полученный URL:
 
-```markdown
-![до](https://raw.githubusercontent.com/dettram/praverana/<ветка>/docs/pr-assets/42/00-before.png)
-![после](https://raw.githubusercontent.com/dettram/praverana/<ветка>/docs/pr-assets/42/01-after-1440.png)
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/attach-image.ps1 -Path docs/pr-assets/42/00-before.png
+# → https://github.com/user-attachments/assets/…
 ```
 
-Ссылка на `blob` не показывает картинку в тексте PR. Ветку не удалять до merge.
+```markdown
+![до](https://github.com/user-attachments/assets/…)
+![после](https://github.com/user-attachments/assets/…)
+```
+
+Файлы всё равно лежат в `docs/pr-assets/<N>/` — вложение только для показа. Ссылка на `blob`
+картинку в тексте не показывает.
 
 ### 6.4 Приёмка доказательства
 
