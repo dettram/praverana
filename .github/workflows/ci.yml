@@ -39,7 +39,7 @@ jobs:
         run: uv run --with-requirements requirements-dev.txt python -m pytest -q
 
       - name: demo project
-        run: uv run --with python-docx python samples/make_demo.py --out samples/demo-project
+        run: uv run --with python-docx --with openpyxl python samples/make_demo.py --out samples/demo-project
 
       - name: engine on demo
         run: >
