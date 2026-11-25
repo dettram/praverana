@@ -4,7 +4,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$Clone = Join-Path $env:LOCALAPPDATA "Temp\harvest\glyphfield"
+$Clone = Join-Path $env:LOCALAPPDATA "design-tools\glyphfield"
+if (-not (Test-Path $Clone)) { $Clone = Join-Path $env:LOCALAPPDATA "Temp\harvest\glyphfield" }
 $Node = Join-Path $env:LOCALAPPDATA "node22\node.exe"
 $Out = Join-Path $env:LOCALAPPDATA "Temp\harvest\gf-dev.log"
 $Err = Join-Path $env:LOCALAPPDATA "Temp\harvest\gf-dev.err.log"

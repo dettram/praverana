@@ -54,7 +54,8 @@
 .stat b { font-family: var(--font-display); font-size: clamp(30px, 4.2vw, 46px); line-height: 1; letter-spacing: -.03em; }
 .stat span { color: var(--p-muted); font-size: var(--t-small); }
 .rows__value.low { color: #c8102e; }
-.rows__value { font-weight: 500; }
+.rows__value { font-weight: 500; white-space: nowrap; }
+.rows--history .rows__name small { display: block; margin-top: 3px; color: var(--p-muted); font-size: 12.5px; font-weight: 400; letter-spacing: 0; }
 .footer__legal .fine { color: var(--p-muted); font-size: var(--t-small); max-width: 62ch; }
 @media (max-width: 640px) {
   .panel img { height: 96px; }
@@ -195,11 +196,11 @@
           <h2 id="history-h">Прогон за прогоном видно, стало ли лучше</h2>
           <p>Сравнение идёт по смыслу замечания, а не по номеру строки. Если менялся состав файлов, отчёт пишет, что сравнение условное.</p>
         </div>
-        <ul class="rows">
-          <li><span class="rows__name">24.11, 14:12<small>0 / 5 / 4</small></span><span class="rows__value">8,8</span></li>
-          <li><span class="rows__name">24.11, 14:11<small>0 / 5 / 4</small></span><span class="rows__value">8,8</span></li>
-          <li><span class="rows__name">24.11, 14:10<small>0 / 5 / 4</small></span><span class="rows__value">8,8</span></li>
-          <li><span class="rows__name">24.11, 14:09<small>169 / 31 / 8</small></span><span class="rows__value low">0,6</span></li>
+        <ul class="rows rows--history">
+          <li><span class="rows__name">24 ноября, 14:12<small>ошибки 2 · предупреждения 5 · примечания 1</small></span><span class="rows__value">7,0 / 10</span></li>
+          <li><span class="rows__name">24 ноября, 14:11<small>ошибки 2 · предупреждения 5 · примечания 1</small></span><span class="rows__value">6,9 / 10</span></li>
+          <li><span class="rows__name">24 ноября, 14:10<small>ошибки 3 · предупреждения 6 · примечания 2</small></span><span class="rows__value">6,4 / 10</span></li>
+          <li><span class="rows__name">24 ноября, 14:09<small>ошибки 169 · предупреждения 31 · примечания 8</small></span><span class="rows__value low">0,6 / 10</span></li>
         </ul>
       </div>
       <div class="span-6 start-7">

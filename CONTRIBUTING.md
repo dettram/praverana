@@ -35,4 +35,6 @@ uv run --with fastapi --with uvicorn --with python-docx --with pypdf --with pyth
     python app/server.py
 ```
 
+Чек-лист ревью — `docs/REVIEW.md`: циклы импортов и модули-обёртки.
+
 Для лендинга — гейты из `docs/LANDING.md` (нужен Node 22 и Chrome/Edge).
