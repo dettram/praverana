@@ -153,14 +153,14 @@ def report(job_id: str, fmt: str) -> FileResponse:
     if not docx_path.exists():
         build_docx(job["result"], docx_path, marked=marked)
     if fmt == "docx":
-        return FileResponse(str(docx_path), filename="Отчёт-аудит.docx",
+        return FileResponse(str(docx_path), filename="praverana-report.docx",
                             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     if not pdf_path.exists():
         try:
             to_pdf(docx_path, pdf_path)
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(500, f"Не удалось собрать PDF: {exc}. DOCX доступен.") from exc
-    return FileResponse(str(pdf_path), filename="Отчёт-аудит.pdf", media_type="application/pdf")
+    return FileResponse(str(pdf_path), filename="praverana-report.pdf", media_type="application/pdf")
 
 
 @app.get("/api/marked/{job_id}.zip")
@@ -177,7 +177,7 @@ def marked_zip(job_id: str) -> FileResponse:
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for f in out_dir.rglob("*.docx"):
                 zf.write(f, f.relative_to(out_dir).as_posix())
-    return FileResponse(str(zip_path), filename="Размеченные-документы.zip",
+    return FileResponse(str(zip_path), filename="praverana-marked.zip",
                         media_type="application/zip")
 
 
