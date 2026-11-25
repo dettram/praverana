@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CORPUS_DEFAULT, norm_code  # noqa: E402
+from common import CORPUS_DEFAULT, norm_code, status_of  # noqa: E402
 
 
 def main() -> int:
@@ -19,9 +19,9 @@ def main() -> int:
     rows = list(csv.DictReader(reg_path.open(encoding="utf-8-sig", newline=""), delimiter=";"))
     rows = [{k: v for k, v in r.items() if k is not None} for r in rows]
 
-    active = [r for r in rows if (r.get("Статус на 18.11.2026") or "").startswith("действ")]
-    unverified = [r for r in rows if "не проверен" in (r.get("Статус на 18.11.2026") or "")]
-    inactive = [r for r in rows if any(k in (r.get("Статус на 18.11.2026") or "").lower()
+    active = [r for r in rows if status_of(r).startswith("действ")]
+    unverified = [r for r in rows if "не проверен" in status_of(r)]
+    inactive = [r for r in rows if any(k in status_of(r).lower()
                                         for k in ("не действ", "отмен", "замен", "не применя"))]
 
     have = set()

@@ -12,7 +12,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CODE_RE, CORPUS_DEFAULT, clean, extract_citations, norm_code, year_of  # noqa: E402
+from common import CODE_RE, CORPUS_DEFAULT, clean, extract_citations, norm_code, status_of, year_of  # noqa: E402
 
 
 def norm_key(text: str) -> str:
@@ -112,7 +112,7 @@ def main() -> int:
             "code": code,
             "vid": row.get("Вид", ""),
             "name": row.get("Наименование", ""),
-            "status": row.get("Статус на 18.11.2026", ""),
+            "status": status_of(row),
             "citations": cites.get(code, 0),
         })
     gaps.sort(key=lambda g: (-g["citations"], g["vid"], g["code"]))

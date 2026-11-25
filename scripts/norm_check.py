@@ -20,6 +20,7 @@ from common import (  # noqa: E402
     extract_citations,
     norm_code,
     pages_of,
+    status_of,
     year_of,
 )
 
@@ -41,7 +42,7 @@ def load_registry(corpus: Path) -> tuple[dict[str, dict], dict[str, dict]]:
                     continue
                 code = norm_code(raw)
                 rows.setdefault(code, row)
-                status = (row.get("Статус на 18.11.2026") or "").lower()
+                status = status_of(row).lower()
                 if "не действ" in status or "отмен" in status:
                     # у недействующей строки поле содержит её замену: регистрируем замену как действующую
                     for m in CODE_RE.finditer(row.get("Заменяет / чем заменён") or ""):
@@ -50,7 +51,7 @@ def load_registry(corpus: Path) -> tuple[dict[str, dict], dict[str, dict]]:
                             continue
                         rows.setdefault(new, {
                             "Шифр": new,
-                            "Статус на 18.11.2026": "действует (по замене)",
+                            "Статус": "действует (по замене)",
                             "Заменяет / чем заменён": f"заменяет {code}",
                             "Источник": row.get("Источник", ""),
                         })
@@ -63,11 +64,25 @@ def load_registry(corpus: Path) -> tuple[dict[str, dict], dict[str, dict]]:
     return rows, replaced_by
 
 
+def registry_date(corpus: Path) -> str:
+    """Дата из заголовка «Статус на <дата>»; не привязана к конкретному дню."""
+    extra = Path(__file__).resolve().parent.parent / "data" / "registry-extra.csv"
+    for path in (corpus / "02-Реестр.csv", extra):
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8-sig", newline="") as fh:
+            header = next(csv.reader(fh, delimiter=";"), [])
+        for name in header:
+            if name and name.strip().lower().startswith("статус на"):
+                return name.split("на", 1)[1].strip() or "дата не определена"
+    return "дата не определена"
+
+
 def _close(code: str, registry: dict[str, dict], active_only: bool = False, cutoff: float = 0.82) -> str | None:
     import difflib
 
     pool = [c for c, r in registry.items()
-            if not active_only or (r.get("Статус на 18.11.2026") or "").startswith("действ")]
+            if not active_only or status_of(r).startswith("действ")]
     matches = difflib.get_close_matches(code, pool, n=1, cutoff=cutoff)
     return matches[0] if matches else None
 
@@ -85,20 +100,22 @@ def classify(code: str, registry: dict[str, dict], replaced_by: dict[str, dict])
 
     row = registry.get(code)
     if row:
-        status = (row.get("Статус на 18.11.2026") or "").strip().lower()
+        status = status_of(row).lower()
         if status.startswith("действ"):
-            return "ok", (row.get("Статус на 18.11.2026") or "действует").strip()
+            return "ok", status_of(row) or "действует"
         if "не проверен" in status:
             hint = _close(code, registry, active_only=True)
             tail = f"; возможно, имелось в виду {hint}" if hint else ""
             return "warn", "статус не подтверждён (строка собрана автоматически)" + tail
         if "не вступ" in status:
-            return "warn", f"принят, но на 18.11.2026 не вступил: {row.get('Статус на 18.11.2026')}"
+            return "warn", f"принят, но не вступил: {status_of(row)}"
         if "не применя" in status:
             return "error", f"не применяется в РБ (п. 1.5 Указа № 217); {row.get('Заменяет / чем заменён')}"
         if "замен" in status or "не действ" in status or "отмен" in status:
-            return "error", f"статус: {row.get('Статус на 18.11.2026')}; {row.get('Заменяет / чем заменён')}"
-        return "ok", (row.get("Статус на 18.11.2026") or "действует").strip()
+            return "error", f"статус: {status_of(row)}; {row.get('Заменяет / чем заменён')}"
+        if not status:
+            return "warn", "статус не подтверждён: в реестре нет колонки или значения статуса"
+        return "warn", f"статус не распознан: {status_of(row)}"
 
     new_row = replaced_by.get(code)
     if new_row:

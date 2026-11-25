@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CORPUS_DEFAULT  # noqa: E402
+from common import CORPUS_DEFAULT, REGISTRY_DATE, status_of  # noqa: E402
 
 SKILL = Path(__file__).resolve().parent.parent
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
@@ -148,7 +148,7 @@ def main() -> int:
     registry = load_registry(corpus)
     docs = load_docs()
 
-    data = {"source": "02-Реестр.csv (состояние на 18.11.2026) + индекс .stroy-audit", "groups": []}
+    data = {"source": f"02-Реестр.csv (состояние на {REGISTRY_DATE}) + индекс .stroy-audit", "groups": []}
     seen: set[str] = set()
     missing: list[str] = []
 
@@ -163,7 +163,7 @@ def main() -> int:
                     "file": "—", "note": "статус не подтверждён — проверить",
                 })
                 continue
-            status = rec.get("Статус на 18.11.2026", "")
+            status = status_of(rec)
             n = docs.get(code, 0)
             items.append({
                 "code": code,
@@ -180,7 +180,7 @@ def main() -> int:
         json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     md = ["# Перечень ТНПА для ПОС/ППР", "",
-          "Источники: `02-Реестр.csv` (18.11.2026), индекс `.stroy-audit/index.sqlite`.", ""]
+          f"Источники: `02-Реестр.csv` ({REGISTRY_DATE}), индекс `.stroy-audit/index.sqlite`.", ""]
     total = 0
     for g in data["groups"]:
         md += [f"## {g['title']}", "", "| Шифр | Наименование | Статус | Файл |", "|---|---|---|---|"]

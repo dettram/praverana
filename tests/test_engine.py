@@ -89,7 +89,7 @@ def test_norms_truncated_code_skipped(auditor):
 
 
 def test_norms_active_code_skipped(auditor):
-    auditor.registry = {"СП 5.03.01-2020": {"Статус на 18.11.2026": "действует"}}
+    auditor.registry = {"СП 5.03.01-2020": {"Статус": "действует"}}
     auditor.replaced = {}
     auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020")])
     auditor._flush_norms()
@@ -139,7 +139,7 @@ def test_pdf_limit_reports_truncation(tmp_path, monkeypatch):
 
 
 def test_clause_checked_for_active_code(auditor):
-    auditor.registry = {"СП 5.03.01-2020": {"Статус на 18.11.2026": "действует"}}
+    auditor.registry = {"СП 5.03.01-2020": {"Статус": "действует"}}
     auditor.replaced = {}
     auditor.db = object()
     auditor.clause_exists = lambda code, clause: False
@@ -150,7 +150,7 @@ def test_clause_checked_for_active_code(auditor):
 
 
 def test_clause_not_checked_without_index(auditor):
-    auditor.registry = {"СП 5.03.01-2020": {"Статус на 18.11.2026": "действует"}}
+    auditor.registry = {"СП 5.03.01-2020": {"Статус": "действует"}}
     auditor.replaced = {}
 
     auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020, п. 99.99.99")])
@@ -171,6 +171,11 @@ def test_clause_checked_for_cancelled_code(auditor):
 def _scan(*severities):
     return Scan(root="x", files_scanned=1,
                 findings=[Finding(s, "x", "f", None, "m") for s in severities])
+
+
+def test_result_meta_keeps_corpus_date():
+    scan = Scan(root="x", corpus="01.01.2027")
+    assert result_dict(scan)["meta"]["corpus"] == "01.01.2027"
 
 
 def test_score_clean():

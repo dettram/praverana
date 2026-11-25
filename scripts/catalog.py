@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CORPUS_DEFAULT, norm_code  # noqa: E402
+from common import CORPUS_DEFAULT, norm_code, status_of  # noqa: E402
 
 
 def sha16(path: Path) -> str:
@@ -102,7 +102,7 @@ def main() -> int:
                     "code": code,
                     "title": r.get("Наименование", ""),
                     "vid": r.get("Вид", ""),
-                    "status": r.get("Статус на 18.11.2026", ""),
+                    "status": status_of(r),
                     "pages": m.get("pages", ""),
                     "chars": m.get("chars", ""),
                     "file": m.get("file", ""),
@@ -119,7 +119,7 @@ def main() -> int:
 
     have = {r["code"] for r in rows}
     file_keys = corpus_present(corpus)
-    active = [c for c, r in reg.items() if (r.get("Статус на 18.11.2026") or "").startswith("действ")]
+    active = [c for c, r in reg.items() if status_of(r).startswith("действ")]
     missing = sorted(c for c in active if c not in have and not any(norm_key(c) in k for k in file_keys))
     lines = [
         "# Покрытие реестра PDF-файлами",
