@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Праверана.by — дизайн на просмотр</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:var(--t-body)/1.6 var(--font-text)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  header{background:var(--surface);border-bottom:1px solid var(--line);padding:18px 0}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:20px}
+  .brand img{width:32px;height:32px}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:var(--t-sm);color:var(--muted)}
+  .chip{border:1px solid var(--line);border-radius:var(--r-pill);padding:4px 10px;background:var(--surface)}
+  .chip.ok{border-color:#cfe0d5;background:var(--green-soft);color:var(--green)}
+  .chip.warn{border-color:#e8dcc0;background:var(--gold-soft);color:var(--gold-text)}
+  h1{font:600 34px/1.15 var(--font-display);letter-spacing:-.02em;margin:26px 0 6px}
+  .sub{color:var(--muted);margin:0 0 24px}
+  section{padding:34px 0;border-top:1px solid var(--line)}
+  h2{font:600 var(--t-h2)/1.3 var(--font-display);margin:0 0 16px}
+  h3{font:600 var(--t-h3)/1.4 var(--font-display);margin:22px 0 10px}
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-surface);padding:18px}
+  .card.dark{background:var(--ink);border-color:#26292b}
+  .label{font-size:var(--t-xs);color:var(--muted);letter-spacing:.02em;margin-bottom:10px}
+  .swatch{height:74px;border-radius:var(--r-ctl);border:1px solid var(--line-soft);margin-bottom:10px}
+  .mono{font-family:var(--font-mono);font-size:var(--t-sm);color:var(--ink-2)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-ctl);
+       height:var(--h-ctl);padding:0 18px;font:600 14px var(--font-text);border:1px solid transparent}
+  .btn--primary{background:var(--ink);color:var(--paper)}
+  .btn--secondary{background:var(--surface);border-color:var(--line);color:var(--ink)}
+  .input{display:flex;align-items:center;height:var(--h-ctl);border:1px solid var(--line-input);
+         border-radius:var(--r-ctl);padding:0 12px;color:var(--muted);font-size:var(--t-sm);background:var(--surface)}
+  .lvl{display:inline-block;font:600 12px var(--font-text);padding:2px 9px;border-radius:var(--r-pill)}
+  .lvl.error{background:var(--red-soft);color:var(--red)}
+  .lvl.warn{background:var(--gold-soft);color:var(--gold-text)}
+  .lvl.info{background:var(--slate-soft);color:var(--slate)}
+  .picto{display:flex;align-items:center;gap:10px;font-size:var(--t-sm)}
+  .picto img{width:26px;height:26px}
+  table{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+  .shot{width:100%;display:block;border:1px solid var(--line);border-radius:var(--r-surface);background:var(--surface)}
+  .shot-link{display:block;text-decoration:none}
+  .shot-link:hover .shot{border-color:var(--line-strong)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  ul.ask{margin:0;padding-left:18px}
+  ul.ask li{margin:6px 0}
+  footer{padding:30px 0 60px;color:var(--muted);font-size:var(--t-sm);border-top:1px solid var(--line)}
+  .kbd{font:12px var(--font-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface)}
+  @media (max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap top">
+    <div class="brand"><img src="assets/logo/mark.svg" alt="">праверана<span style="color:var(--gold-text)">.by</span></div>
+    <div class="meta">
+      <span class="chip ok">GATE: PASS</span>
+      <span class="chip warn">brand health 86</span>
+      <span class="chip">25.11.2026</span>
+      <span class="chip">23 задачи в issues</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Дизайн на просмотр</h1>
+  <p class="sub">Всё, что собрано: знак, палитра, тип, компоненты, иконки и экраны. Смотреть по порядку,
+     замечания — в issues. Каждый блок кликабелен там, где это живой экран.</p>
+
+  <section>
+    <h2>1. Знак и логотип</h2>
+    <div class="grid g3">
+      <div class="card" style="display:grid;place-items:center;min-height:180px">
+        <div class="label" style="justify-self:start">Знак 96 px</div>
+        <img src="assets/logo/mark.svg" alt="Знак" width="96" height="96">
+      </div>
+      <div class="card">
+        <div class="label">Размеры 24 / 32 / 48</div>
+        <div class="row" style="align-items:flex-end">
+          <img src="assets/logo/mark.svg" alt="" width="24" height="24">
+          <img src="assets/logo/mark.svg" alt="" width="32" height="32">
+          <img src="assets/logo/mark.svg" alt="" width="48" height="48">
+          <img src="assets/logo/favicon.svg" alt="" width="16" height="16" style="margin-left:12px">
+          <span class="mono">favicon 16</span>
+        </div>
+      </div>
+      <div class="card" style="display:grid;place-items:center">
+        <div class="label" style="justify-self:start">Монохром</div>
+        <img src="assets/logo/logo-mono.svg" alt="Монохром" width="84">
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card"><div class="label">Горизонтальный · бумага</div>
+        <img src="assets/logo/logo-horizontal.svg" alt="Логотип" style="width:100%;max-width:340px"></div>
+      <div class="card dark"><div class="label" style="color:#a5a6a3">Горизонтальный · инверсия</div>
+        <img src="assets/logo/logo-horizontal-inverse.svg" alt="Логотип на тёмном"
+             style="width:100%;max-width:340px"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Палитра</h2>
+    <div class="grid g4">
+      <div class="card"><div class="swatch" style="background:#15181a"></div><div class="label">Тушь</div><div class="mono">#15181A · 16,93:1</div></div>
+      <div class="card"><div class="swatch" style="background:#faf9f5"></div><div class="label">Бумага</div><div class="mono">#FAF9F5 · фон</div></div>
+      <div class="card"><div class="swatch" style="background:#5d666b"></div><div class="label">Вторичный</div><div class="mono">#5D666B · 5,57:1</div></div>
+      <div class="card"><div class="swatch" style="background:#8a5f14"></div><div class="label">Золото текстом</div><div class="mono">#8A5F14 · 5,35:1</div></div>
+      <div class="card"><div class="swatch" style="background:#a97c22"></div><div class="label">Золото графикой</div><div class="mono">#A97C22</div></div>
+      <div class="card"><div class="swatch" style="background:#c8102e"></div><div class="label">Красный · ошибка</div><div class="mono">#C8102E · 5,58:1</div></div>
+      <div class="card"><div class="swatch" style="background:#23694a"></div><div class="label">Зелёный</div><div class="mono">#23694A · 6,25:1</div></div>
+      <div class="card"><div class="swatch" style="background:#3a4a5a"></div><div class="label">Нейтраль · примечание</div><div class="mono">#3A4A5A · 8,64:1</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Типографика</h2>
+    <div class="card">
+      <div style="font:600 40px/1.1 var(--font-display);letter-spacing:-.03em">Проверка проекта</div>
+      <div style="font:600 26px/1.25 var(--font-display);margin-top:14px">Раздел и подзаголовок</div>
+      <div style="font-size:15px;margin-top:14px;max-width:62ch">Основной текст: пятнадцать пикселей,
+        интерлиньяж 1,5–1,6, до 65 знаков в строке. Onest — интерфейс, JetBrains Mono — шифры и пути.</div>
+      <div class="mono" style="margin-top:12px">СН 1.03.04-2020 · п. 7.7 · фрагм. 12</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>4. Компоненты</h2>
+    <div class="grid g2">
+      <div class="card">
+        <div class="label">Кнопки</div>
+        <div class="row"><span class="btn btn--primary">Проверить папку</span>
+          <span class="btn btn--secondary">Выбрать папку…</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Поле</div>
+        <div class="input">C:\Проекты\АТЛАС</div>
+      </div>
+      <div class="card">
+        <div class="label">Уровни</div>
+        <div class="row"><span class="lvl error">Ошибка</span><span class="lvl warn">Предупреждение</span>
+          <span class="lvl info">Примечание</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Покрытие</div>
+        <div style="font-size:13px;color:var(--muted)">Прочитано файлов: <b style="color:var(--ink)">7</b> из 174.
+          Пропущено без чтения: 164. Сканы без текстового слоя не проверяются.</div>
+      </div>
+      <div class="card" style="grid-column:1/-1">
+        <div class="label">Строка замечания</div>
+        <table>
+          <thead><tr><th>Уровень</th><th>Категория</th><th>Где</th><th>Замечание</th><th>Норма</th></tr></thead>
+          <tbody>
+            <tr><td><span class="lvl error">Ошибка</span></td><td>нормы</td><td class="mono">ПЗ-демо.docx, фрагм. 1</td><td>утратила силу с 01.07.2026; замена — СП 2.04.04-2026</td><td class="mono">СНБ 2.04.02-2000</td></tr>
+            <tr><td><span class="lvl warn">Предупр.</span></td><td>заглушки</td><td class="mono">ПЗ-демо.docx, фрагм. 1</td><td>незаполненный фрагмент «___»</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Иконки</h2>
+    <div class="grid g3">
+      <div class="card picto"><img src="assets/picto/norms.svg" alt="">Нормы</div>
+      <div class="card picto"><img src="assets/picto/clause.svg" alt="">Пункт</div>
+      <div class="card picto"><img src="assets/picto/completeness.svg" alt="">Комплект</div>
+      <div class="card picto"><img src="assets/picto/pos-ppr.svg" alt="">ПОС и ППР</div>
+      <div class="card picto"><img src="assets/picto/placeholder.svg" alt="">Заглушки</div>
+      <div class="card picto"><img src="assets/picto/report.svg" alt="">Отчёт</div>
+      <div class="card picto"><img src="assets/picto/markup.svg" alt="">Разметка</div>
+      <div class="card picto"><img src="assets/picto/history.svg" alt="">История</div>
+      <div class="card picto"><img src="assets/picto/verified.svg" alt="">Проверено</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>6. Экраны</h2>
+    <div class="grid g2">
+      <a class="shot-link" href="/" target="_blank"><div class="label">Лендинг →</div>
+        <img class="shot" src="assets/img/screen-landing.png" alt="Лендинг"></a>
+      <a class="shot-link" href="/app" target="_blank"><div class="label">Инструмент →</div>
+        <img class="shot" src="assets/img/screen-app.png" alt="Инструмент"></a>
+      <a class="shot-link" href="/brand" target="_blank"><div class="label">Бренд-бук →</div>
+        <img class="shot" src="assets/img/screen-brand.png" alt="Бренд-бук"></a>
+      <div>
+        <div class="label">Превью ссылки 1200 × 630</div>
+        <img class="shot" src="assets/img/og.png" alt="OG">
+        <div class="label" style="margin-top:14px">Соцкарточка 1080 × 1080</div>
+        <img class="shot" src="assets/img/social-square.png" alt="Соцкарточка" style="max-width:360px">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>7. Что решить вам</h2>
+    <ul class="ask">
+      <li><b>Оценка /10</b> в шапке отчёта: оставить как внутреннюю метрику или убрать из выдачи заказчику (#19).</li>
+      <li><b>Орнамент:</b> тонкая полоса ромбов под шапкой — оставить, убрать или сделать только в документах.</li>
+      <li><b>Знак:</b> ромб с галочкой — оставляем или пробуем вторую версию (ромб-печать с текстом по кругу).</li>
+      <li><b>Слоган:</b> «Каждое замечание — с нормой, файлом и страницей» — принимаем как основной.</li>
+      <li><b>Health 86</b>: доводить до 90+ (примеры типографики, фото) или достаточно.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  Живые страницы: <a href="/">лендинг</a> · <a href="/app">инструмент</a> · <a href="/brand">бренд-бук</a>.
+  Файлы дизайна — <span class="mono">app/ui/assets/</span> (logo, picto, tokens.css, img), кит — <span class="mono">brand/glyphfield/</span>.
+  Правило: <span class="kbd">нашёл → issue</span>.
+</footer>
+
+</body>
+</html>
+
