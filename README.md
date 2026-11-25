@@ -1,4 +1,4 @@
-# Праверана.by
+﻿# Праверана.by
 
 Локальный аудит проектной документации по ТНПА Республики Беларусь: папка проекта → список
 замечаний → отчёт DOCX/PDF и размеченные копии с комментариями Word.
@@ -64,7 +64,7 @@ uv run --with python-docx --with pypdf python app/engine.py --path "<папка 
 [Issues](https://github.com/dettram/praverana/issues). Ничего не держим в чате и памяти.
 
 ```powershell
-powershell -File tools/new-issue.ps1 -Title "Что не так" -BodyFile body.md -Labels "ui,bug"
+powershell -ExecutionPolicy Bypass -File tools/new-issue.ps1 -Title "Что не так" -BodyFile body.md -Labels "ui,bug"
 ```
 
 Метки: `bug`, `enhancement`, `norms`, `report`, `ui`, `landing`, `accessibility`, `corpus`,
@@ -93,3 +93,4 @@ docs/           архитектура, дизайн и результаты г�
 Код — MIT (`LICENSE`). Шрифты — Onest и JetBrains Mono, SIL Open Font License
 (`app/ui/assets/fonts/OFL.txt`). Тексты нормативных документов в репозиторий не входят
 и не распространяются.
+

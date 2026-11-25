@@ -1,4 +1,4 @@
-# Инструменты дизайна: Glyphfield и DesignHub
+﻿# Инструменты дизайна: Glyphfield и DesignHub
 
 Оба — локальные open-source студии (MIT). Оценены и использованы 25.11.2026.
 
@@ -10,9 +10,9 @@ brand book, фоны. Запуск локально (Node 22, pnpm, порт 301
 **Запуск (detached, переживает закрытие консоли):**
 
 ```powershell
-powershell -File tools/glyphfield.ps1 -Action start   # http://localhost:3012/studio
-powershell -File tools/glyphfield.ps1 -Action status
-powershell -File tools/glyphfield.ps1 -Action stop
+powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action start   # http://localhost:3012/studio
+powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action status
+powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action stop
 ```
 
 Открывать через `localhost`, не `127.0.0.1`: Next.js блокирует cross-origin запросы к dev-ресурсам
@@ -53,3 +53,4 @@ powershell -File tools/glyphfield.ps1 -Action stop
 - Логотип и знак — наши (осмысленный ромб), проверены в системе бренда Glyphfield.
 - Система (цвет, тип, токены, голос) — зафиксирована в Glyphfield и выгружена в репозиторий.
 - Витрина (OG, соцкарточка, бренд-бук) — из Glyphfield + наша типографика.
+

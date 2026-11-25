@@ -1,4 +1,4 @@
-# AGENTS.md — правила работы с этим репозиторием
+﻿# AGENTS.md — правила работы с этим репозиторием
 
 ## Главное правило
 
@@ -19,7 +19,7 @@
 
 ```powershell
 # короткий путь: заголовок, тело из файла, метки
-powershell -File tools/new-issue.ps1 -Title "Поле поиска не получает Onest" `
+powershell -ExecutionPolicy Bypass -File tools/new-issue.ps1 -Title "Поле поиска не получает Onest" `
     -BodyFile "$env:TEMP\body.md" -Labels "ui,bug"
 ```
 
@@ -44,3 +44,4 @@ powershell -File tools/new-issue.ps1 -Title "Поле поиска не полу
 ## Что не публикуем
 
 Тексты ТНПА, проектную документацию заказчиков, персональные данные. См. `CONTRIBUTING.md`.
+
