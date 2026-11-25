@@ -56,8 +56,9 @@ def mark_body(ink: str, background: str) -> str:
 
 
 def svg_wrap(body: str, viewbox: str, label: str, title: str) -> str:
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{viewbox}" role="img" '
-            f'aria-label="{label}"><title>{title}</title>{body}</svg>')
+    _, _, w, h = viewbox.split()
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="{viewbox}" '
+            f'role="img" aria-label="{label}"><title>{title}</title>{body}</svg>')
 
 
 def mark_svg(inverse: bool = False) -> str:
