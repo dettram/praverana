@@ -24,7 +24,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from engine import audit  # noqa: E402
-from history import compare, list_runs, previous, save  # noqa: E402
+from history import compare, fingerprint, list_runs, previous, save  # noqa: E402
 from markdoc import mark_all  # noqa: E402
 from report import build_docx, to_pdf  # noqa: E402
 
@@ -35,18 +35,20 @@ WORK = Path(tempfile.gettempdir()) / "stroy-audit-ui"
 WORK.mkdir(parents=True, exist_ok=True)
 
 
-def run_job(job_id: str, path: Path, include_text: bool) -> None:
+def run_job(job_id: str, path: Path, include_text: bool, history_key: str | None = None) -> None:
     job = JOBS[job_id]
     job["state"] = "running"
     try:
-        prev = previous(str(path), exclude_last=False)
+        prev = previous(str(path), exclude_last=False, key=history_key)
         result = audit(path, include_text=include_text)
         result["meta"]["date"] = __import__("datetime").datetime.now().strftime("%d.%m.%Y %H:%M")
+        if history_key:
+            result["meta"]["history_key"] = history_key
         result["history"] = {
-            "runs": list_runs(str(path)),
+            "runs": list_runs(str(path), key=history_key),
             "previous": compare(prev, result) if prev else None,
         }
-        save(result)
+        save(result, key=history_key)
         job["result"] = result
         job["state"] = "done"
     except Exception as exc:  # noqa: BLE001
@@ -121,7 +123,9 @@ async def upload(files: list[UploadFile] = File(...), include_text: bool = Form(
             shutil.copyfileobj(f.file, fh)
     job_id = uuid.uuid4().hex[:12]
     JOBS[job_id] = {"state": "queued", "path": str(root), "result": None, "error": None}
-    threading.Thread(target=run_job, args=(job_id, root, include_text), daemon=True).start()
+    history_key = fingerprint(root)
+    threading.Thread(target=run_job, args=(job_id, root, include_text, history_key),
+                     daemon=True).start()
     return JSONResponse({"job": job_id, "path": str(root)})
 
 

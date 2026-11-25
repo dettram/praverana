@@ -1,6 +1,6 @@
 """История прогонов аудита и сравнение «стало лучше / стало хуже».
 
-Хранилище: ~/.stroy-audit/audit-runs/<время>-<хеш папки>.json
+Хранилище: ~/.stroy-audit/audit-runs/<время>-<хеш папки или отпечаток состава>.json
 Сравнение — по смыслу замечания: (категория, норма, текст без чисел-счётчиков),
 а не по номеру строки в таблице.
 """
@@ -19,6 +19,15 @@ def _key(root: str) -> str:
     return hashlib.sha1(str(Path(root)).lower().encode("utf-8")).hexdigest()[:8]
 
 
+def fingerprint(root: str | Path) -> str:
+    """Стабильный отпечаток состава папки: относительные имена + размеры."""
+    base = Path(root)
+    h = hashlib.sha1()
+    for path in sorted(p for p in base.rglob("*") if p.is_file()):
+        h.update(f"{path.relative_to(base).as_posix()}\0{path.stat().st_size}\n".encode("utf-8"))
+    return h.hexdigest()[:8]
+
+
 def _norm_text(s: str) -> str:
     s = re.sub(r"\(встречается \d+ раз\)", "", s or "")
     s = re.sub(r"\s+", " ", s).strip().lower()
@@ -29,19 +38,20 @@ def finding_key(f: dict) -> tuple:
     return (f.get("category", ""), f.get("norm", ""), _norm_text(f.get("message", "")))
 
 
-def save(result: dict) -> Path:
+def save(result: dict, key: str | None = None) -> Path:
     HISTORY.mkdir(parents=True, exist_ok=True)
     root = result["meta"]["root"]
+    key = key or result["meta"].get("history_key") or _key(root)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    path = HISTORY / f"{stamp}-{_key(root)}.json"
+    path = HISTORY / f"{stamp}-{key}.json"
     path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return path
 
 
-def previous(root: str, exclude_last: bool = True) -> dict | None:
+def previous(root: str, exclude_last: bool = True, key: str | None = None) -> dict | None:
     """Предыдущий прогон для этой папки (последний сохранённый)."""
     HISTORY.mkdir(parents=True, exist_ok=True)
-    files = sorted(HISTORY.glob(f"*-{_key(root)}.json"), reverse=True)
+    files = sorted(HISTORY.glob(f"*-{key or _key(root)}.json"), reverse=True)
     if exclude_last and files:
         files = files[1:]
     for f in files:
@@ -52,10 +62,10 @@ def previous(root: str, exclude_last: bool = True) -> dict | None:
     return None
 
 
-def list_runs(root: str, limit: int = 6) -> list[dict]:
+def list_runs(root: str, limit: int = 6, key: str | None = None) -> list[dict]:
     HISTORY.mkdir(parents=True, exist_ok=True)
     out = []
-    for f in sorted(HISTORY.glob(f"*-{_key(root)}.json"), reverse=True)[:limit]:
+    for f in sorted(HISTORY.glob(f"*-{key or _key(root)}.json"), reverse=True)[:limit]:
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
