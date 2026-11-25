@@ -138,6 +138,36 @@ def test_pdf_limit_reports_truncation(tmp_path, monkeypatch):
     assert any("предел" in f.message and "PDF" in f.message for f in scan.findings)
 
 
+def test_clause_checked_for_active_code(auditor):
+    auditor.registry = {"СП 5.03.01-2020": {"Статус на 18.11.2026": "действует"}}
+    auditor.replaced = {}
+    auditor.db = object()
+    auditor.clause_exists = lambda code, clause: False
+
+    auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020, п. 99.99.99")])
+    assert any(f.category == "цитаты" and "99.99.99" in f.message
+               for f in auditor.scan.findings)
+
+
+def test_clause_not_checked_without_index(auditor):
+    auditor.registry = {"СП 5.03.01-2020": {"Статус на 18.11.2026": "действует"}}
+    auditor.replaced = {}
+
+    auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020, п. 99.99.99")])
+    assert not any(f.category == "цитаты" for f in auditor.scan.findings)
+
+
+def test_clause_checked_for_cancelled_code(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    auditor.db = object()
+    auditor.clause_exists = lambda code, clause: False
+
+    auditor.check_norms("x.docx", [(1, "СНБ 2.04.02-2000, п. 99.99.99")])
+    auditor._flush_norms()
+    assert any(f.category == "цитаты" and "99.99.99" in f.message
+               for f in auditor.scan.findings)
+
+
 def _scan(*severities):
     return Scan(root="x", files_scanned=1,
                 findings=[Finding(s, "x", "f", None, "m") for s in severities])
