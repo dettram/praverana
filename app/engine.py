@@ -299,6 +299,7 @@ class Auditor:
         started = time.perf_counter()
         allowed = DOC_EXT | (TEXT_EXT if self.include_text else set())
         paths: list[Path] = []
+        omitted = 0
         for p in sorted(self.root.rglob("*")):
             if not p.is_file():
                 continue
@@ -307,9 +308,18 @@ class Auditor:
             if p.suffix.lower() not in allowed:
                 self.scan.skipped += 1
                 continue
-            paths.append(p)
             if len(paths) >= MAX_FILES:
-                break
+                omitted += 1
+                continue
+            paths.append(p)
+
+        if omitted:
+            self.scan.skipped += omitted
+            self.add(Finding(
+                "warn", "комплект", "—", None,
+                f"предел {MAX_FILES} файлов: не прочитано ещё {omitted}", "",
+                "Разбить папку на части или поднять лимит",
+            ))
 
         self.scan.files_total = sum(1 for p in self.root.rglob("*") if p.is_file())
         names = [p.name for p in paths]
@@ -323,6 +333,12 @@ class Auditor:
             except Exception as exc:  # noqa: BLE001
                 self.scan.errors.append(f"{rel}: {type(exc).__name__}: {exc}")
                 continue
+            if p.suffix.lower() == ".pdf" and len(pages) == MAX_PDF_PAGES:
+                self.add(Finding(
+                    "warn", "комплект", rel, None,
+                    f"PDF: прочитано {MAX_PDF_PAGES} страниц — предел; если больше, остальные не проверены", "",
+                    "Проверить остальные страницы вручную",
+                ))
             if not pages:
                 ext = p.suffix.lower()
                 if ext in UNSUPPORTED_EXT:
