@@ -57,3 +57,17 @@ def test_where_tail_counts_files(auditor):
 
     finding = next(f for f in auditor.scan.findings if f.category == "нормы")
     assert finding.file == "00-ПЗ, 01-ПЗ, 02-ПЗ и ещё 2…"
+
+
+def test_completeness_sees_skipped_cad_and_estimate_files(tmp_path, monkeypatch):
+    (tmp_path / "01-ПЗ.txt").write_text("Пояснительная записка", encoding="utf-8")
+    (tmp_path / "02-АР-АТЛАС.dwg").write_bytes(b"x")
+    (tmp_path / "03-КР-АТЛАС.dwg").write_bytes(b"x")
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+
+    scan = engine.Auditor(tmp_path, include_text=True).run()
+    message = "\n".join(f.message for f in scan.findings if f.category == "комплект")
+
+    assert "Архитектурные" not in message
+    assert "Конструкции" not in message

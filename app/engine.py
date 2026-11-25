@@ -326,8 +326,10 @@ class Auditor:
                 "Разбить папку на части или поднять лимит",
             ))
 
-        self.scan.files_total = sum(1 for p in self.root.rglob("*") if p.is_file())
-        names = [p.name for p in paths]
+        all_files = [p for p in self.root.rglob("*") if p.is_file()]
+        self.scan.files_total = len(all_files)
+        # Комплектность — по именам всех файлов: чертёж .dwg или смета .gsfx тоже закрывают раздел.
+        names = [p.name for p in all_files]
         self.check_completeness(names)
 
         for p in paths:
