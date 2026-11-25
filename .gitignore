@@ -19,15 +19,8 @@ marked/
 *.pdf
 !docs/**/*.pdf
 
-# Интерфейс: шрифты включены, скриншоты включены; кит и его сборка — нет
-app/ui/assets/system.css
-app/ui/assets/system.js
-app/ui/assets/ui/
-app/ui/assets/motion/
-app/ui/assets/backgrounds/
-app/ui/assets/layout/
-app/ui/assets/icons/
-app/ui/assets/moments/
+# Интерфейс: шрифты, скриншоты и минимальный кит лендинга включены;
+# демо, фото и сборочные файлы кита — нет
 app/ui/assets/diagrams/
 app/ui/assets/kit/
 

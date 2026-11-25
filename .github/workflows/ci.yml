@@ -29,6 +29,9 @@ jobs:
       - name: imports
         run: uv run python tools/check-imports.py
 
+      - name: assets
+        run: uv run python tools/check-assets.py
+
       - name: compile
         run: uv run python -m compileall -q app scripts tools samples
 

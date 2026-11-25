@@ -205,19 +205,15 @@ docs/pr-assets/<N>/01-after-1440.png
 docs/pr-assets/<N>/02-after-390.png
 ```
 
-`<N>` — номер issue, `NN` — порядок. Репозиторий **приватный**: `raw.githubusercontent.com`
-в issue и PR отдаёт 404, картинка не отображается. Загружаем файл вложением GitHub и вставляем
-полученный URL:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/attach-image.ps1 -Path docs/pr-assets/42/00-before.png
-# → https://github.com/user-attachments/assets/…
-```
+`<N>` — номер issue, `NN` — порядок. Репозиторий **публичный**: `raw.githubusercontent.com`
+работает. В PR — raw по ветке; после merge — `main` или commit SHA, иначе удалённая ветка даст 404.
 
 ```markdown
-![до](https://github.com/user-attachments/assets/…)
-![после](https://github.com/user-attachments/assets/…)
+![до](https://raw.githubusercontent.com/dettram/praverana/<commit-sha>/docs/pr-assets/42/00-before.png)
+![после](https://raw.githubusercontent.com/dettram/praverana/<commit-sha>/docs/pr-assets/42/01-after-1440.png)
 ```
+
+Вложение GitHub (`tools/attach-image.ps1`) — по желанию, если raw недоступен.
 
 Файлы всё равно лежат в `docs/pr-assets/<N>/` — вложение только для показа. Ссылка на `blob`
 картинку в тексте не показывает.
@@ -252,6 +248,7 @@ CI дополнительно проверяет: если в PR менялся 
 | Проверка | Команда | Блокирует |
 |---|---|---|
 | циклы импортов | `uv run python tools/check-imports.py` | да |
+| локальные ассеты | `uv run python tools/check-assets.py` | да |
 | синтаксис | `uv run python -m compileall -q app scripts tools samples` | да |
 | smoke движка | `uv run --with python-docx --with pypdf python app/engine.py --path samples/demo-project --out demo.json` | да |
 | тесты | `uv run --with-requirements requirements-dev.txt python -m pytest -q` | да |

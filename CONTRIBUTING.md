@@ -35,6 +35,9 @@ uv run --with python-docx --with pypdf python app/engine.py --path samples/demo-
 # правило №1 из docs/REVIEW.md: циклы импортов и встречные слои
 uv run python tools/check-imports.py
 
+# локальные ассеты HTML: нет ссылок на отсутствующие файлы
+uv run python tools/check-assets.py
+
 # тесты
 uv run --with-requirements requirements-dev.txt python -m pytest -q
 
