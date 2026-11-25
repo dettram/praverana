@@ -55,6 +55,8 @@ jobs:
           data = json.loads(Path("demo.json").read_text(encoding="utf-8"))
           assert data["meta"]["files_scanned"] >= 1, data["meta"]
           assert isinstance(data["findings"], list), data
+          assert data["findings"], data
+          assert any(f["category"] == "нормы" for f in data["findings"]), data["findings"][:3]
           print(f"files={data['meta']['files_scanned']} findings={len(data['findings'])}")
           PY
 

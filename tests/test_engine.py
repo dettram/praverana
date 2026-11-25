@@ -109,6 +109,35 @@ def test_unsupported_formats_are_not_scans(tmp_path, monkeypatch):
     assert any(".doc" in m and "не проверяется" in m for m in messages)
 
 
+def test_file_limit_reports_omitted(tmp_path, monkeypatch):
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "MAX_FILES", 2)
+    for i in range(3):
+        (tmp_path / f"{i}.txt").write_text("x", encoding="utf-8")
+
+    scan = engine.Auditor(tmp_path, include_text=True).run()
+    assert scan.files_total == 3
+    assert scan.files_scanned == 2
+    assert scan.skipped >= 1
+    assert any("предел 2 файлов" in f.message for f in scan.findings)
+
+
+def test_pdf_limit_reports_truncation(tmp_path, monkeypatch):
+    from pypdf import PdfWriter
+
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "MAX_PDF_PAGES", 2)
+    writer = PdfWriter()
+    for _ in range(3):
+        writer.add_blank_page(width=595, height=842)
+    writer.write(str(tmp_path / "doc.pdf"))
+
+    scan = engine.Auditor(tmp_path).run()
+    assert any("предел" in f.message and "PDF" in f.message for f in scan.findings)
+
+
 def _scan(*severities):
     return Scan(root="x", files_scanned=1,
                 findings=[Finding(s, "x", "f", None, "m") for s in severities])
