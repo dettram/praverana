@@ -12,7 +12,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CORPUS_DEFAULT  # noqa: E402
+from common import CORPUS_DEFAULT, norm_code  # noqa: E402
 from ingest_pdf import process  # noqa: E402
 
 
@@ -43,8 +43,6 @@ def main() -> int:
     if reg_path.exists():
         with reg_path.open(encoding="utf-8-sig", newline="") as fh:
             for r in csv.DictReader(fh, delimiter=";"):
-                from common import norm_code
-
                 titles[norm_code(r.get("Шифр", ""))] = (r.get("Наименование") or "").strip()
     tmp = Path(tempfile.mkdtemp(prefix="ingest-"))
     results = []
