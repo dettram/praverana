@@ -21,6 +21,11 @@ SEV_LABEL = {"error": "Ошибка", "warn": "Предупреждение", "i
 CAT_ORDER = ("нормы", "цитаты", "комплект", "ПОС/ППР", "заглушки", "подписи")
 
 
+def location_unit(file: str) -> str:
+    """PDF — страница; DOCX, .md и .txt — фрагмент."""
+    return "стр." if str(file).lower().endswith(".pdf") else "фрагм."
+
+
 def _font(style) -> None:
     rpr = style.element.get_or_add_rPr()
     rfonts = rpr.find(qn("w:rFonts"))
@@ -193,7 +198,7 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         for i, f in enumerate(findings, 1):
             where = f["file"] if f["file"] != "—" else "комплект проекта"
             if f.get("page"):
-                unit = "фрагм." if str(f.get("file", "")).lower().endswith(".docx") else "стр."
+                unit = location_unit(f.get("file", ""))
                 where += f", {unit} {f['page']}"
             rows.append((i, SEV_LABEL[f["severity"]], f["category"], where,
                          f["message"], f["norm"] or "—", f["action"] or "—"))
