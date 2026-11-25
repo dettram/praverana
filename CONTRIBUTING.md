@@ -1,5 +1,7 @@
 # Как участвовать
 
+Полный протокол — `docs/GITHUB.md`; тесты — `docs/TESTING.md`.
+
 ## Проблемы и задачи
 
 Всё живёт в Issues. Шаблоны:
@@ -29,6 +31,12 @@
 
 ```powershell
 uv run --with python-docx --with pypdf python app/engine.py --path samples/demo-project --out demo.json
+
+# правило №1 из docs/REVIEW.md: циклы импортов и встречные слои
+uv run python tools/check-imports.py
+
+# тесты
+uv run --with-requirements requirements-dev.txt python -m pytest -q
 
 # интерфейс
 uv run --with fastapi --with uvicorn --with python-docx --with pypdf --with python-multipart `

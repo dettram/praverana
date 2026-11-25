@@ -70,6 +70,9 @@ powershell -ExecutionPolicy Bypass -File tools/new-issue.ps1 -Title "Что не
 Метки: `bug`, `enhancement`, `norms`, `report`, `ui`, `landing`, `accessibility`, `corpus`,
 `documentation`. Подробности и требования к телу — `AGENTS.md`.
 
+Полный протокол — `docs/GITHUB.md` (триаж, Definition of Ready, PR, скриншоты, гейты, ревью);
+тесты — `docs/TESTING.md`.
+
 ## Структура
 
 ```
