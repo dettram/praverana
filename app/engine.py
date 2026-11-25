@@ -181,16 +181,15 @@ class Auditor:
                 if SHORT_CODE_RE.match(code) or TRUNCATED_RE.match(code):
                     continue
                 severity, message = classify(code, self.registry, self.replaced)
-                if severity == "ok":
-                    continue
-                hit = self.norm_hits.setdefault(code, {
-                    "severity": severity, "message": message, "norm": code,
-                    "files": [], "count": 0,
-                })
-                hit["count"] += 1
-                if rel_key not in hit["files"] and len(hit["files"]) < 5:
-                    hit["files"].append(rel_key)
-                if severity != "warn":
+                if severity != "ok":
+                    hit = self.norm_hits.setdefault(code, {
+                        "severity": severity, "message": message, "norm": code,
+                        "files": [], "count": 0,
+                    })
+                    hit["count"] += 1
+                    if rel_key not in hit["files"] and len(hit["files"]) < 5:
+                        hit["files"].append(rel_key)
+                if self.db is None:
                     continue
                 for code2, clause in pair_citations(cit["context"]):
                     if code2 != code:
