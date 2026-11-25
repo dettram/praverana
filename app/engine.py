@@ -28,7 +28,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from clause import find_clause  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
-from norm_check import classify, load_registry  # noqa: E402
+from norm_check import classify, load_registry, registry_date  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
 SKILL = Path(__file__).resolve().parent.parent
@@ -82,6 +82,7 @@ class Finding:
 @dataclass
 class Scan:
     root: str
+    corpus: str = ""
     files_total: int = 0
     files_scanned: int = 0
     skipped: int = 0
@@ -144,6 +145,7 @@ class Auditor:
         self.include_text = include_text
         self.scan = Scan(root=str(root))
         self.registry, self.replaced = load_registry(Path(CORPUS_DEFAULT))
+        self.scan.corpus = registry_date(Path(CORPUS_DEFAULT))
         self.db = sqlite3.connect(str(DB)) if DB.exists() else None
         self._clause_cache: dict[tuple[str, str], bool] = {}
         self.composition = (json.loads(COMPOSITION.read_text(encoding="utf-8"))
@@ -396,7 +398,7 @@ def result_dict(scan: Scan) -> dict:
             "skipped": scan.skipped,
             "size_mb": round(scan.size_mb, 1),
             "duration_s": scan.duration_s,
-            "corpus": "18.11.2026",
+            "corpus": scan.corpus or "дата не определена",
         },
         "summary": {**counts, "score": round(min(score, 10.0), 1)},
         "findings": [asdict(f) for f in scan.findings],

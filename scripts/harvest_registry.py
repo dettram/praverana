@@ -23,11 +23,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (  # noqa: E402
-    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, clean, extract_citations, norm_code, year_of,
+    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, REGISTRY_DATE, clean, extract_citations,
+    norm_code, status_key, status_of, year_of,
 )
 
+STATUS_COL = f"Статус на {REGISTRY_DATE}"
 COLUMNS = ["№", "Шифр", "Наименование", "Вид", "Введён (утверждён)",
-           "Последнее изменение", "Статус на 18.11.2026", "Заменяет / чем заменён", "Источник"]
+           "Последнее изменение", STATUS_COL, "Заменяет / чем заменён", "Источник"]
 
 VID = {
     "СН": "СН", "СП": "СП", "ТКП": "ТКП", "ГОСТ": "ГОСТ", "СТБ": "СТБ", "СНБ": "СНБ",
@@ -103,7 +105,7 @@ def stn_rows(path: Path) -> tuple[dict[str, dict], dict[str, set[int]]]:
             "Вид": vid_of(code),
             "Введён (утверждён)": post if post and post != "—" else "",
             "Последнее изменение": "",
-            "Статус на 18.11.2026": "действует",
+            STATUS_COL: "действует",
             "Заменяет / чем заменён": "" if src in ("", "—") else src,
             "Источник": "stn.by/standartisation/splist",
         }
@@ -160,7 +162,7 @@ def mchs_rows(path: Path) -> dict[str, dict]:
             "Вид": vid_of(code),
             "Введён (утверждён)": post,
             "Последнее изменение": "",
-            "Статус на 18.11.2026": "действует",
+            STATUS_COL: "действует",
             "Заменяет / чем заменён": "",
             "Источник": "mchs.gov.by, перечень на 01.11.2026",
         })
@@ -196,7 +198,7 @@ def minenergo_rows(path: Path) -> dict[str, dict]:
             "Вид": "ТКП",
             "Введён (утверждён)": post,
             "Последнее изменение": "",
-            "Статус на 18.11.2026": "действует",
+            STATUS_COL: "действует",
             "Заменяет / чем заменён": "",
             "Источник": "minenergo.gov.by/law/tnpa",
         })
@@ -239,7 +241,7 @@ def corpus_rows(corpus: Path, known: set[str], min_hits: int = 2) -> dict[str, d
             "Вид": vid_of(code),
             "Введён (утверждён)": "",
             "Последнее изменение": "",
-            "Статус на 18.11.2026": "не проверен",
+            STATUS_COL: "не проверен",
             "Заменяет / чем заменён": "",
             "Источник": f"проектные тексты (встречается {n} раз)",
         }
@@ -257,7 +259,7 @@ def reconcile_statuses(rows: dict[str, dict], protected: set[str]) -> int:
         row = rows.get(code)
         if not row:
             continue
-        status = (row.get("Статус на 18.11.2026") or "").lower()
+        status = status_of(row).lower()
         if "не действ" in status or "не вступ" in status:
             continue
         for m in CODE_RE.finditer(row.get("Заменяет / чем заменён") or ""):
@@ -265,15 +267,15 @@ def reconcile_statuses(rows: dict[str, dict], protected: set[str]) -> int:
             if old == code or old not in rows or old in protected:
                 continue
             old_row = rows[old]
-            if (old_row.get("Статус на 18.11.2026") or "").lower().startswith("действ"):
-                old_row["Статус на 18.11.2026"] = "не действует"
+            if status_of(old_row).lower().startswith("действ"):
+                old_row[status_key(old_row) or STATUS_COL] = "не действует"
                 old_row["Заменяет / чем заменён"] = f"заменён на {code}"
                 fixed += 1
     for old, (new, why) in CURATED_OUTDATED.items():
         if old in rows and old not in protected:
-            before = (rows[old].get("Статус на 18.11.2026") or "").lower()
+            before = status_of(rows[old]).lower()
             if not before.startswith("не действ"):
-                rows[old]["Статус на 18.11.2026"] = "не действует"
+                rows[old][status_key(rows[old]) or STATUS_COL] = "не действует"
                 rows[old]["Заменяет / чем заменён"] = f"заменён на {new} ({why})"
                 fixed += 1
     return fixed

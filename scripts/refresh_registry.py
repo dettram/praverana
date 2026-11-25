@@ -17,7 +17,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CODE_RE, CORPUS_DEFAULT, norm_code  # noqa: E402
+from common import CODE_RE, CORPUS_DEFAULT, norm_code, status_of  # noqa: E402
 
 SOURCES = {
     "minskgsn": "https://www.minskgsn.by/ru/story/stroitelnye-normy-respubliki-belarus",
@@ -101,7 +101,7 @@ def main() -> int:
     new = sorted(c for c in found if c not in reg)
     # сравниваем только те виды, которые источник реально публикует
     sn_active = {c for c, r in reg.items()
-                 if (r.get("Статус на 18.11.2026") or "").startswith("действ") and c.startswith("СН ")}
+                 if status_of(r).startswith("действ") and c.startswith("СН ")}
     gone = sorted(c for c in sn_active if c not in by_source.get("minskgsn", set()))
 
     lines = [

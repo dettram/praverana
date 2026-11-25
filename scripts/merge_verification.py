@@ -12,7 +12,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CORPUS_DEFAULT, norm_code  # noqa: E402
+from common import CORPUS_DEFAULT, REGISTRY_DATE, norm_code, status_key  # noqa: E402
 
 
 def main() -> int:
@@ -44,7 +44,7 @@ def main() -> int:
         r = by_code[code]
         if not (r.get("Наименование") or "").strip() and v.get("name"):
             r["Наименование"] = v["name"].strip()
-        r["Статус на 18.11.2026"] = v["status"].strip()
+        r[status_key(r) or f"Статус на {REGISTRY_DATE}"] = v["status"].strip()
         if v.get("replacement"):
             r["Заменяет / чем заменён"] = v["replacement"].strip()
         src = (r.get("Источник") or "").strip()

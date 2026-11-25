@@ -11,6 +11,9 @@ from pathlib import Path
 
 CORPUS_DEFAULT = Path.home() / "Desktop" / "Нормы-Беларусь-2026"
 REGISTRY_DEFAULT = "02-Реестр.csv"
+REGISTRY_DATE = "18.11.2026"
+STATUS_FIELD = "Статус"
+STATUS_PREFIX = "статус на"
 
 TEXT_SUFFIXES = {".md", ".txt", ".csv"}
 SUPPORTED = TEXT_SUFFIXES | {".pdf", ".docx", ".xlsx"}
@@ -48,6 +51,22 @@ CURATED_OUTDATED = {
 def clean(text: str) -> str:
     text = unicodedata.normalize("NFKC", text or "")
     return text.translate(_DASH).translate(_SPACE)
+
+
+def status_key(row: dict) -> str | None:
+    """Имя колонки статуса: «Статус» или «Статус на <дата>»."""
+    for key in row:
+        if not key:
+            continue
+        name = str(key).strip().lower()
+        if name == STATUS_FIELD.lower() or name.startswith(STATUS_PREFIX):
+            return key
+    return None
+
+
+def status_of(row: dict) -> str:
+    key = status_key(row)
+    return (row.get(key) or "").strip() if key else ""
 
 
 def norm_code(raw: str) -> str:
