@@ -33,6 +33,16 @@ body:
       label: Чем подтверждается
       description: Ссылка на карточку нормы, страница, цитата (короткая)
       placeholder: "normy.stn.by, карточка; в документе с. 15"
+  - type: textarea
+    id: done
+    attributes:
+      label: Критерий закрытия
+      description: Что станет проверяемым после исправления
+      placeholder: |
+        Шифр находится в реестре и индексе; на демо-проекте замечание с файлом и страницей
+        Тест: tests/test_norm_check.py::test_registry_code
+    validations:
+      required: true
   - type: checkboxes
     id: legal
     attributes:

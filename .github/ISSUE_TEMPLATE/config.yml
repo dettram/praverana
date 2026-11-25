@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Как вести issue и PR
+    url: https://github.com/dettram/praverana/blob/main/docs/GITHUB.md
+    about: Триаж, Definition of Ready, скриншоты, гейты, ревью, merge
+  - name: Тесты
+    url: https://github.com/dettram/praverana/blob/main/docs/TESTING.md
+    about: Матрица тестов, фикстуры, покрытие, CI по фазам
   - name: Как устроен аудит
     url: https://github.com/dettram/praverana/blob/main/docs/ARCHITECTURE.md
     about: Слои, проверки, оценка, история прогонов

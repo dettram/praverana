@@ -23,6 +23,23 @@ body:
         2. uv run ... python app/engine.py --path samples/demo-project
     validations:
       required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Что считаем исправленным
+      description: Проверяемый результат, а не «стало лучше»
+      placeholder: |
+        На демо-проекте появляется замечание «отменённая норма» с шифром и файлом
+        Тест: tests/test_engine.py::test_outdated_code
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Чем подтвердим
+      description: Тест, JSON-диф, скриншот до/после или страница отчёта
+    validations:
+      required: true
   - type: input
     id: where
     attributes:
@@ -35,10 +52,28 @@ body:
       label: Окружение
       description: ОС, версия Python, наличие корпуса и реестра
       placeholder: "Windows 11, Python 3.13, корпус подключён, фонд 747 файлов"
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - проверки движка
+        - отчёт DOCX/PDF
+        - разметка Word
+        - история прогонов
+        - интерфейс
+        - корпус и реестр
+        - лендинг
+        - документация
+    validations:
+      required: true
   - type: checkboxes
     id: checks
     attributes:
       label: Проверено
       options:
         - label: Повторил на чистой папке
+        - label: Проверил на samples/demo-project или синтетике
+          required: true
         - label: Нет текстов норм и данных заказчика в описании
+          required: true

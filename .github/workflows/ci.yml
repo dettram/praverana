@@ -1,0 +1,83 @@
+name: ci
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: imports
+        run: uv run python tools/check-imports.py
+
+      - name: compile
+        run: uv run python -m compileall -q app scripts tools samples
+
+      - name: tests
+        run: uv run --with-requirements requirements-dev.txt python -m pytest -q
+
+      - name: engine on demo
+        run: >
+          uv run --with python-docx --with pypdf
+          python app/engine.py --path samples/demo-project --out demo.json
+
+      - name: demo json
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path("demo.json").read_text(encoding="utf-8"))
+          assert data["meta"]["files_scanned"] >= 1, data["meta"]
+          assert isinstance(data["findings"], list), data
+          print(f"files={data['meta']['files_scanned']} findings={len(data['findings'])}")
+          PY
+
+  evidence:
+    name: evidence
+    if: >-
+      github.event_name == 'pull_request' &&
+      !contains(github.event.pull_request.labels.*.name, 'no-visual')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: screenshots for UI changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags origin "$BASE_REF"
+          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          if ! echo "$changed" | grep -qE '^app/ui/'; then
+            echo "no UI changes"
+            exit 0
+          fi
+          shots=$(git diff --name-only --diff-filter=AM "origin/$BASE_REF...HEAD" -- docs/pr-assets \
+            | grep -Ei '\.(png|jpe?g|webp)$' || true)
+          if [ -z "$shots" ]; then
+            echo "::error::app/ui changed but no screenshot under docs/pr-assets/"
+            exit 1
+          fi
+          echo "$shots"
