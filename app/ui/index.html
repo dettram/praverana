@@ -237,14 +237,15 @@
 
     <div class="table-wrap" role="region" aria-label="Таблица замечаний" tabindex="0">
     <table id="tbl">
+      <caption class="sr-only">Замечания аудита: уровень, категория, где, замечание, норма, действие</caption>
       <thead>
         <tr>
-          <th style="width:88px">Уровень</th>
-          <th style="width:120px">Категория</th>
-          <th style="width:250px">Где</th>
-          <th>Замечание</th>
-          <th style="width:190px">Норма</th>
-          <th style="width:200px">Действие</th>
+          <th scope="col" style="width:88px">Уровень</th>
+          <th scope="col" style="width:120px">Категория</th>
+          <th scope="col" style="width:250px">Где</th>
+          <th scope="col">Замечание</th>
+          <th scope="col" style="width:190px">Норма</th>
+          <th scope="col" style="width:200px">Действие</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -555,6 +556,7 @@ if (qJob) {
 </script>
 </body>
 </html>
+
 
 
 

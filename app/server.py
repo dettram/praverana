@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+import errno
+import logging
 import shutil
 import tempfile
 import threading
@@ -30,6 +32,21 @@ from report import build_docx, to_pdf  # noqa: E402
 
 app = FastAPI(title="Праверана.by", docs_url=None, redoc_url=None)
 app.mount("/assets", StaticFiles(directory=str(HERE / "ui" / "assets")), name="assets")
+
+log = logging.getLogger("praverana")
+
+
+def friendly_error(exc: BaseException) -> str:
+    """Человеческая причина и шаг; технический текст остаётся в логе сервера."""
+    if isinstance(exc, PermissionError):
+        return "Нет доступа к папке. Проверьте права или выберите другую."
+    if isinstance(exc, FileNotFoundError):
+        return "Папка не найдена. Проверьте путь."
+    if isinstance(exc, OSError) and exc.errno == errno.EBUSY:
+        return "Папка занята другой программой. Закройте её и повторите."
+    if isinstance(exc, OSError) and exc.errno in (errno.EACCES, errno.EPERM):
+        return "Нет доступа к папке. Проверьте права или выберите другую."
+    return "Не удалось выполнить проверку. Подробности — в логе сервера."
 JOBS: dict[str, dict] = {}
 WORK = Path(tempfile.gettempdir()) / "stroy-audit-ui"
 WORK.mkdir(parents=True, exist_ok=True)
@@ -53,7 +70,8 @@ def run_job(job_id: str, path: Path, include_text: bool, history_key: str | None
         job["state"] = "done"
     except Exception as exc:  # noqa: BLE001
         job["state"] = "error"
-        job["error"] = f"{type(exc).__name__}: {exc}"
+        log.exception("audit failed for %s", path)
+        job["error"] = friendly_error(exc)
 
 
 def ensure_marked(job_id: str) -> tuple[Path, list[dict]]:
