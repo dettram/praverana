@@ -1,0 +1,415 @@
+{
+  "artDirection": {
+    "moodboard": "research-wall",
+    "preview": "focus-window",
+    "titleMaxLines": 2
+  },
+  "dossier": {
+    "applications": [
+      "Identity thesis",
+      "Research wall",
+      "Working deck",
+      "Product workspace",
+      "Field notes",
+      "Launch sequence"
+    ],
+    "color": "Paper white, Fog and the near-black Night form a neutral research surface. Signal blue marks the signal window: the active claim, decision or evidence, never a fill for the whole composition.",
+    "graphicDevice": "The signal window is a precise blue frame that isolates the most useful fragment of a larger field. It can crop an image, frame a decision or become a navigation state.",
+    "imagery": "Use candid research, material studies, interface evidence, process photography, taped references, and close crops. The image set should reveal how a system was built rather than simulate a finished luxury campaign.",
+    "layout": "Compose like an authored research wall: one decisive focal frame, quiet annotations, unequal image scales, and generous breathing room. Avoid universal card grids.",
+    "logo": "The mark is a four-point spark with a signal window at its center; with the Starter wordmark it sets orientation and stays small. The identity shows through selection, framing and evidence, not repeated logos.",
+    "motion": "The signal window moves between pieces of evidence, then settles. Transitions are quick but not abrupt; surrounding material stays still so the change of selection is legible.",
+    "personality": "Curious, authored, pragmatic, observant, and quietly opinionated.",
+    "premise": "Starter demonstrates how a new identity grows from research, choices, and repeatable rules. It is a complete neutral example, not an empty template.",
+    "prohibited": [
+      "No generic placeholder copy",
+      "No equal-sized image grid",
+      "No random blue gradients",
+      "No decorative evidence without a stated role"
+    ],
+    "provenance": "Use original Glyphfield compositions and safely licensed research imagery. Every external reference must remain URL-only or research-only until its redistribution status is confirmed.",
+    "renderingRecipe": [
+      "Choose one research question",
+      "Assemble varied evidence",
+      "Frame one signal window in signal blue",
+      "Let adjacent material remain quiet",
+      "Annotate only decisions that change the system"
+    ],
+    "typography": "Switzer provides clear working typography; Instrument Serif adds an authored editorial voice for selected statements. Geist Mono is limited to measurements, source labels, and technical evidence."
+  },
+  "references": [],
+  "applications": [
+    {
+      "category": "foundation",
+      "description": "A decisive opening composition built around the signal window.",
+      "format": "1600 × 1000",
+      "id": "identity",
+      "name": "Starter identity"
+    },
+    {
+      "category": "foundation",
+      "description": "The spark mark with a signal window at its center, the wordmark and a horizontal lockup.",
+      "format": "Responsive family",
+      "id": "logo",
+      "name": "Logo family"
+    },
+    {
+      "category": "product",
+      "description": "A focused planning surface with blue signal states and low-noise scaffolding.",
+      "format": "1440 × 1024",
+      "id": "product",
+      "name": "Workspace"
+    },
+    {
+      "category": "marketing",
+      "description": "One clear announcement scaled through the system.",
+      "format": "16:9 / 4:5",
+      "id": "launch",
+      "name": "Launch story"
+    },
+    {
+      "category": "editorial",
+      "description": "Research, decisions, and progress assembled as a living record.",
+      "format": "A4 / web",
+      "id": "notes",
+      "name": "Field notes"
+    },
+    {
+      "category": "social",
+      "description": "Short updates that use the signal window as a consistent anchor.",
+      "format": "1:1",
+      "id": "social",
+      "name": "Progress cards"
+    },
+    {
+      "category": "editorial",
+      "description": "A title, argument, evidence, system, and next-step slide family.",
+      "format": "16:9",
+      "id": "deck",
+      "name": "Working deck"
+    },
+    {
+      "category": "physical",
+      "description": "Small-scale material applications that preserve the crisp window motif.",
+      "format": "Notebook / card",
+      "id": "kit",
+      "name": "Team kit"
+    }
+  ],
+  "assets": [
+    {
+      "id": "mark-dark",
+      "type": "logo",
+      "label": "Знак на светлом",
+      "alt": "Ромб с галочкой",
+      "surface": "light",
+      "path": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PHBhdGggZD0nTTMyIDIgNjIgMzIgMzIgNjIgMiAzMlonIGZpbGw9JyMxNTE4MWEnLz48cGF0aCBkPSdNMzIgOSA1NSAzMiAzMiA1NSA5IDMyWicgZmlsbD0nI2ZhZjlmNScvPjxwYXRoIGQ9J00yMC41IDMyLjQgMjguNCA0MC4zIDQzLjYgMjQuNScgZmlsbD0nbm9uZScgc3Ryb2tlPScjYTk3YzIyJyBzdHJva2Utd2lkdGg9JzQuNicgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PC9zdmc+",
+      "tags": [
+        "logo"
+      ],
+      "redistribution": "bundled"
+    },
+    {
+      "id": "mark-light",
+      "type": "logo",
+      "label": "Знак на тёмном",
+      "alt": "Ромб с галочкой, инверсия",
+      "surface": "dark",
+      "path": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PHBhdGggZD0nTTMyIDIgNjIgMzIgMzIgNjIgMiAzMlonIGZpbGw9JyNmYWY5ZjUnLz48cGF0aCBkPSdNMzIgOSA1NSAzMiAzMiA1NSA5IDMyWicgZmlsbD0nIzE1MTgxYScvPjxwYXRoIGQ9J00yMC41IDMyLjQgMjguNCA0MC4zIDQzLjYgMjQuNScgZmlsbD0nbm9uZScgc3Ryb2tlPScjYTk3YzIyJyBzdHJva2Utd2lkdGg9JzQuNicgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PC9zdmc+",
+      "tags": [
+        "logo"
+      ],
+      "redistribution": "bundled"
+    },
+    {
+      "id": "wordmark",
+      "type": "logo",
+      "label": "Логотип на светлом",
+      "alt": "праверана.by",
+      "surface": "light",
+      "path": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzNzIgNjQnPjxwYXRoIGQ9J00zMiAyIDYyIDMyIDMyIDYyIDIgMzJaJyBmaWxsPScjMTUxODFhJy8+PHBhdGggZD0nTTMyIDkgNTUgMzIgMzIgNTUgOSAzMlonIGZpbGw9JyNmYWY5ZjUnLz48cGF0aCBkPSdNMjAuNSAzMi40IDI4LjQgNDAuMyA0My42IDI0LjUnIGZpbGw9J25vbmUnIHN0cm9rZT0nI2E5N2MyMicgc3Ryb2tlLXdpZHRoPSc0LjYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjx0ZXh0IHg9JzgwJyB5PSc0MycgZm9udC1mYW1pbHk9J09uZXN0LCBTZWdvZSBVSSwgQXJpYWwsIHNhbnMtc2VyaWYnIGZvbnQtc2l6ZT0nMzQnIGZvbnQtd2VpZ2h0PSc2MDAnIGxldHRlci1zcGFjaW5nPSctMC44JyBmaWxsPScjMTUxODFhJz7Qv9GA0LDQstC10YDQsNC90LA8dHNwYW4gZmlsbD0nI2E5N2MyMic+LmJ5PC90c3Bhbj48L3RleHQ+PC9zdmc+",
+      "tags": [
+        "logo"
+      ],
+      "redistribution": "bundled"
+    },
+    {
+      "id": "wordmark-light",
+      "type": "logo",
+      "label": "Логотип на тёмном",
+      "alt": "праверана.by",
+      "surface": "dark",
+      "path": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzNzIgNjQnPjxwYXRoIGQ9J00zMiAyIDYyIDMyIDMyIDYyIDIgMzJaJyBmaWxsPScjMTUxODFhJy8+PHBhdGggZD0nTTMyIDkgNTUgMzIgMzIgNTUgOSAzMlonIGZpbGw9JyNmYWY5ZjUnLz48cGF0aCBkPSdNMjAuNSAzMi40IDI4LjQgNDAuMyA0My42IDI0LjUnIGZpbGw9J25vbmUnIHN0cm9rZT0nI2E5N2MyMicgc3Ryb2tlLXdpZHRoPSc0LjYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjx0ZXh0IHg9JzgwJyB5PSc0MycgZm9udC1mYW1pbHk9J09uZXN0LCBTZWdvZSBVSSwgQXJpYWwsIHNhbnMtc2VyaWYnIGZvbnQtc2l6ZT0nMzQnIGZvbnQtd2VpZ2h0PSc2MDAnIGxldHRlci1zcGFjaW5nPSctMC44JyBmaWxsPScjZmFmOWY1Jz7Qv9GA0LDQstC10YDQsNC90LA8dHNwYW4gZmlsbD0nI2Q5YTQ0MSc+LmJ5PC90c3Bhbj48L3RleHQ+PC9zdmc+",
+      "tags": [
+        "logo"
+      ],
+      "redistribution": "bundled"
+    },
+    {
+      "id": "mark-mono",
+      "type": "logo",
+      "label": "Одноцветный знак",
+      "alt": "Ромб с галочкой, один цвет",
+      "surface": "any",
+      "path": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PHBhdGggZD0nTTMyIDIgNjIgMzIgMzIgNjIgMiAzMlonIGZpbGw9J25vbmUnIHN0cm9rZT0nIzE1MTgxYScgc3Ryb2tlLXdpZHRoPSc0Jy8+PHBhdGggZD0nTTIwLjUgMzIuNCAyOC40IDQwLjMgNDMuNiAyNC41JyBmaWxsPSdub25lJyBzdHJva2U9JyMxNTE4MWEnIHN0cm9rZS13aWR0aD0nNC42JyBzdHJva2UtbGluZWNhcD0ncm91bmQnLz48L3N2Zz4=",
+      "tags": [
+        "logo"
+      ],
+      "redistribution": "bundled"
+    }
+  ],
+  "audiences": [
+    "ГИП и главные специалисты проектных организаций",
+    "Нормоконтроль и служба качества проекта",
+    "Эксперты и заказчики, принимающие отчёт"
+  ],
+  "builtIn": false,
+  "colors": [
+    {
+      "id": "ink",
+      "name": "Тушь",
+      "hex": "#15181A",
+      "role": "Текст, знак и решительные поверхности"
+    },
+    {
+      "id": "paper",
+      "name": "Бумага",
+      "hex": "#FAF9F5",
+      "role": "Основное поле и поверхность чтения"
+    },
+    {
+      "id": "muted",
+      "name": "Тёплая поверхность",
+      "hex": "#F0EDE4",
+      "role": "Рабочие поверхности, карточки, тихая структура"
+    },
+    {
+      "id": "emphasis",
+      "name": "Золото",
+      "hex": "#8A5F14",
+      "role": "Единственный акцент: выделение, действие, цифра"
+    },
+    {
+      "id": "success",
+      "name": "Зелёный",
+      "hex": "#23694A",
+      "role": "Подтверждённые состояния и рост"
+    },
+    {
+      "id": "warning",
+      "name": "Золото графикой",
+      "hex": "#A97C22",
+      "role": "Предупреждения и места, требующие внимания"
+    },
+    {
+      "id": "progress",
+      "name": "Вторичный",
+      "hex": "#5D666B",
+      "role": "Вторичный текст, даты, метаданные"
+    },
+    {
+      "id": "error",
+      "name": "Красный",
+      "hex": "#C8102E",
+      "role": "Ошибки и отменённые нормы"
+    }
+  ],
+  "contactEmail": "hello@praverana.by",
+  "description": "Локальный аудит проектной документации по ТНПА Республики Беларусь: шифры норм, пункты, комплектность, состав ПОС и ППР. Отчёт DOCX/PDF и разметка Word.",
+  "greetings": [
+    "Observe",
+    "Frame",
+    "Make"
+  ],
+  "graphicSystem": {
+    "device": "Ромб",
+    "description": "Ромб — основа рушникового орнамента; в знаке он держит галочку. В макетах ромб работает как модуль сетки и как разделитель, без вышивки и без герба.",
+    "composition": "Один ромбовидный акцент на макет; текст и таблицы выравниваются по его осям.",
+    "imageDirection": "Документы и интерфейс крупно, без стоковых людей и офисных метафор.",
+    "rules": [
+      "Орнамент — тонкая линия и ромб, не заливка.",
+      "Герб, флаг и их фрагменты не используются.",
+      "Красный — только ошибка, не декор."
+    ],
+    "pattern": "brackets"
+  },
+  "id": "praverana",
+  "kind": "custom",
+  "mission": "Дать инженеру проверяемый ответ до нормоконтроля: каждое замечание с нормой, файлом и страницей, а не «рекомендуем обратить внимание».",
+  "motion": [],
+  "name": "Праверана.by",
+  "positioning": "Не библиотека норм и не ИИ-пересказ, а детерминированная проверка папки проекта: реестр ТНПА, индекс пунктов, отчёт с ограничениями вслух.",
+  "products": [
+    "Аудит папки проекта",
+    "Отчёт DOCX/PDF",
+    "Разметка Word",
+    "История прогонов"
+  ],
+  "proof": [
+    "141 документ ТНПА в перечне, 44 989 пунктов в индексе",
+    "46 документов с полным текстом в фонде, остальные проверены по статусу",
+    "Файлы не покидают машину: обработка локальная"
+  ],
+  "proofAssets": [],
+  "revision": 1,
+  "shortName": "Правер.",
+  "socialHandle": "@praverana",
+  "sourceNotes": [
+    "Complete example intended to be duplicated and renamed",
+    "All copy, colors, applications, and graphic rules are editable",
+    "Uses bundled template marks rather than a third-party identity"
+  ],
+  "strategy": {
+    "challenge": "Early product work scatters across calls, screenshots, documents and opinions. By the time the team meets to decide, nobody can point to the evidence behind a choice or say who owns the next step.",
+    "concept": "One window on what matters now: the signal window frames a single piece of evidence, decision or next step, and everything else stays quiet.",
+    "outcome": "A team can see the decision in front of it, trace that decision back to evidence, and leave every review with a named owner and a date.",
+    "personality": [
+      "Observant",
+      "Plainspoken",
+      "Calm",
+      "Decisive"
+    ],
+    "pillars": [
+      "Evidence sits next to the claim",
+      "One decision in focus per view",
+      "Every next step has an owner",
+      "Progress is written down, not remembered"
+    ],
+    "promise": "Every view shows what we know, what we decided and who moves next."
+  },
+  "style": {
+    "borderRadius": 8,
+    "density": "comfortable",
+    "grid": "none",
+    "imageTreatment": "natural",
+    "logoScale": 48
+  },
+  "tagline": "Каждое замечание — с нормой, файлом и страницей.",
+  "typography": [
+    {
+      "role": "Display",
+      "family": "Onest",
+      "weight": 600,
+      "usage": "Заголовки страниц и разделов, крупные цифры"
+    },
+    {
+      "role": "Body",
+      "family": "Onest",
+      "weight": 400,
+      "usage": "Основной текст, таблицы, интерфейс"
+    },
+    {
+      "role": "Accent",
+      "family": "Onest",
+      "weight": 500,
+      "usage": "Подписи, метки, кнопки"
+    },
+    {
+      "role": "Code",
+      "family": "JetBrains Mono",
+      "weight": 400,
+      "usage": "Шифры норм, пути к файлам, числа прогонов"
+    }
+  ],
+  "values": [
+    "Проверяемость",
+    "Границы вслух",
+    "Решение за инженером",
+    "Локальность"
+  ],
+  "voice": {
+    "principles": [
+      "Адрес вместо оценки: что не так, где и по какой норме.",
+      "Границы вслух: что проверка не делает.",
+      "Решение остаётся инженеру: инструмент показывает, не приговаривает."
+    ],
+    "avoid": [
+      "инновационный",
+      "экосистема",
+      "под ключ",
+      "команда профессионалов",
+      "мы гарантируем соответствие",
+      "полная проверка проекта"
+    ],
+    "phrases": [
+      "Проверить папку",
+      "Прочитано файлов: N из M",
+      "Не проверено: расчёты, чертежи, сканы без текста",
+      "Замечание — с нормой, файлом и страницей"
+    ],
+    "examples": [
+      {
+        "context": "Пустой результат",
+        "avoid": "Ошибок нет!",
+        "write": "Выполненные проверки замечаний не выявили. Это не заключение экспертизы."
+      },
+      {
+        "context": "Ошибка доступа",
+        "avoid": "PermissionError: [WinError 5]",
+        "write": "Нет доступа к папке. Проверьте права или выберите другую."
+      }
+    ]
+  },
+  "website": "praverana.by",
+  "colorPairings": [
+    {
+      "background": "paper",
+      "foreground": "ink",
+      "level": "AA",
+      "usage": "Body text and headlines"
+    },
+    {
+      "background": "muted",
+      "foreground": "ink",
+      "level": "AA",
+      "usage": "Text on quiet surfaces"
+    },
+    {
+      "background": "paper",
+      "foreground": "progress",
+      "level": "AA",
+      "usage": "Secondary text and metadata"
+    },
+    {
+      "background": "success",
+      "foreground": "ink",
+      "level": "AA",
+      "usage": "Text on soft accent fields"
+    },
+    {
+      "background": "emphasis",
+      "foreground": "paper",
+      "level": "AA-large",
+      "usage": "Labels on the accent"
+    },
+    {
+      "background": "error",
+      "foreground": "paper",
+      "level": "AA",
+      "usage": "Reversed text on deep panels"
+    }
+  ],
+  "fonts": [],
+  "productDetails": [
+    {
+      "name": "Research board",
+      "summary": "Pin interviews, screenshots and data next to the question they answer."
+    },
+    {
+      "name": "Decision log",
+      "summary": "Every decision with the evidence behind it, an owner and a date."
+    },
+    {
+      "name": "Working brief",
+      "summary": "A one-page brief that updates itself as decisions land."
+    },
+    {
+      "name": "Shareable review",
+      "summary": "One read-only link for stakeholders, with comments on each decision."
+    }
+  ],
+  "typeScale": {
+    "basePx": 16,
+    "ratio": 1.25
+  }
+}

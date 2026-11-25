@@ -1,0 +1,190 @@
+/* Праверана.by — CSS custom properties. Exported by Glyphfield from project "praverana". */
+
+:root {
+  --brand-color-ink: #15181A; /* Тушь — Текст, знак и решительные поверхности */
+  --brand-color-paper: #FAF9F5; /* Бумага — Основное поле и поверхность чтения */
+  --brand-color-muted: #F0EDE4; /* Тёплая поверхность — Рабочие поверхности, карточки, тихая структура */
+  --brand-color-emphasis: #8A5F14; /* Золото — Единственный акцент: выделение, действие, цифра */
+  --brand-color-success: #23694A; /* Зелёный — Подтверждённые состояния и рост */
+  --brand-color-warning: #A97C22; /* Золото графикой — Предупреждения и места, требующие внимания */
+  --brand-color-progress: #5D666B; /* Вторичный — Вторичный текст, даты, метаданные */
+  --brand-color-error: #C8102E; /* Красный — Ошибки и отменённые нормы */
+
+  --brand-color-ink-50: #F6F7F7; /* oklch(97.5% 0.001 197.1) */
+  --brand-color-ink-100: #DCDEDF; /* oklch(89.9% 0.003 228.8) */
+  --brand-color-ink-200: #C4C6C7; /* oklch(82.5% 0.003 228.8) */
+  --brand-color-ink-300: #ABAEAF; /* oklch(74.9% 0.004 219.5) */
+  --brand-color-ink-400: #949698; /* oklch(67.2% 0.004 247.9) */
+  --brand-color-ink-500: #7D8082; /* oklch(59.8% 0.005 236.5) */
+  --brand-color-ink-600: #676A6C; /* oklch(52.2% 0.005 236.6) */
+  --brand-color-ink-700: #515557; /* oklch(44.7% 0.006 228.9) */
+  --brand-color-ink-800: #3D4043; /* oklch(37% 0.007 248) */
+  --brand-color-ink-900: #2A2D2F; /* oklch(29.5% 0.006 236.7) */
+  --brand-color-ink-950: #15181A; /* oklch(20.7% 0.006 236.9), brand value */
+
+  --brand-color-paper-50: #FAF9F5; /* oklch(98.2% 0.005 95.1), brand value */
+  --brand-color-paper-100: #DFDEDA; /* oklch(90% 0.006 95.1) */
+  --brand-color-paper-200: #C6C5C2; /* oklch(82.3% 0.004 91.5) */
+  --brand-color-paper-300: #AEADAA; /* oklch(74.8% 0.004 91.5) */
+  --brand-color-paper-400: #979693; /* oklch(67.3% 0.005 91.5) */
+  --brand-color-paper-500: #807F7C; /* oklch(59.6% 0.005 91.5) */
+  --brand-color-paper-600: #6A6966; /* oklch(52.1% 0.005 91.5) */
+  --brand-color-paper-700: #555451; /* oklch(44.6% 0.005 91.5) */
+  --brand-color-paper-800: #41403D; /* oklch(37.1% 0.005 91.5) */
+  --brand-color-paper-900: #2D2D2A; /* oklch(29.6% 0.005 106.7) */
+  --brand-color-paper-950: #1B1B19; /* oklch(22.1% 0.004 106.7) */
+
+  --brand-color-muted-50: #F0EDE4; /* oklch(94.6% 0.012 91.5), brand value */
+  --brand-color-muted-100: #E1DED5; /* oklch(90% 0.013 91.5) */
+  --brand-color-muted-200: #C8C5BD; /* oklch(82.4% 0.012 89.7) */
+  --brand-color-muted-300: #B0ADA5; /* oklch(74.8% 0.012 89.7) */
+  --brand-color-muted-400: #99968E; /* oklch(67.3% 0.012 89.8) */
+  --brand-color-muted-500: #827F78; /* oklch(59.7% 0.011 87.5) */
+  --brand-color-muted-600: #6C6962; /* oklch(52.1% 0.011 87.5) */
+  --brand-color-muted-700: #56544E; /* oklch(44.6% 0.01 91.6) */
+  --brand-color-muted-800: #42403A; /* oklch(37.1% 0.01 91.6) */
+  --brand-color-muted-900: #2E2D28; /* oklch(29.6% 0.009 97.6) */
+  --brand-color-muted-950: #1C1B16; /* oklch(22.1% 0.01 97.8) */
+
+  --brand-color-emphasis-50: #FFF5E8; /* oklch(97.4% 0.02 74.7) */
+  --brand-color-emphasis-100: #F0DABC; /* oklch(89.9% 0.047 75.6) */
+  --brand-color-emphasis-200: #DFC095; /* oklch(82.4% 0.067 75.7) */
+  --brand-color-emphasis-300: #CCA772; /* oklch(75% 0.082 75.9) */
+  --brand-color-emphasis-400: #B78E52; /* oklch(67.3% 0.092 75.6) */
+  --brand-color-emphasis-500: #A27634; /* oklch(59.7% 0.099 74.7) */
+  --brand-color-emphasis-600: #8A5F14; /* oklch(51.9% 0.102 75.4), brand value */
+  --brand-color-emphasis-700: #724B00; /* oklch(44.6% 0.094 74.9) */
+  --brand-color-emphasis-800: #583900; /* oklch(37.2% 0.078 75) */
+  --brand-color-emphasis-900: #3F2700; /* oklch(29.6% 0.063 73.9) */
+  --brand-color-emphasis-950: #281700; /* oklch(22.2% 0.047 73.4) */
+
+  --brand-color-success-50: #ECFBF3; /* oklch(97.5% 0.019 162.9) */
+  --brand-color-success-100: #C9E6D6; /* oklch(89.9% 0.037 161.5) */
+  --brand-color-success-200: #A8D1BA; /* oklch(82.5% 0.054 160.4) */
+  --brand-color-success-300: #89BBA0; /* oklch(74.9% 0.066 160.7) */
+  --brand-color-success-400: #6BA587; /* oklch(67.3% 0.076 160.9) */
+  --brand-color-success-500: #4F8F6F; /* oklch(59.8% 0.083 160.7) */
+  --brand-color-success-600: #357959; /* oklch(52.3% 0.086 160.8) */
+  --brand-color-success-700: #23694A; /* oklch(46.8% 0.087 160.8), brand value */
+  --brand-color-success-800: #004D31; /* oklch(37.1% 0.083 160.8) */
+  --brand-color-success-900: #003721; /* oklch(29.7% 0.067 159.9) */
+  --brand-color-success-950: #002212; /* oklch(22.2% 0.051 158.9) */
+
+  --brand-color-warning-50: #FFF6E6; /* oklch(97.6% 0.023 82.1) */
+  --brand-color-warning-100: #F4DAB0; /* oklch(90% 0.062 79.7) */
+  --brand-color-warning-200: #E3C084; /* oklch(82.4% 0.087 80.5) */
+  --brand-color-warning-300: #D0A65D; /* oklch(74.8% 0.104 79.9) */
+  --brand-color-warning-400: #BB8E3A; /* oklch(67.4% 0.114 80.1) */
+  --brand-color-warning-500: #A97C22; /* oklch(61.6% 0.116 80), brand value */
+  --brand-color-warning-600: #8A6100; /* oklch(52.2% 0.108 79.7) */
+  --brand-color-warning-700: #6F4D00; /* oklch(44.6% 0.093 79.4) */
+  --brand-color-warning-800: #553A00; /* oklch(37% 0.077 79.3) */
+  --brand-color-warning-900: #3D2800; /* oklch(29.5% 0.061 78.3) */
+  --brand-color-warning-950: #261700; /* oklch(21.9% 0.046 77.1) */
+
+  --brand-color-progress-50: #F5F7F8; /* oklch(97.5% 0.003 228.8) */
+  --brand-color-progress-100: #DADFE1; /* oklch(90% 0.006 223.5) */
+  --brand-color-progress-200: #C0C6CA; /* oklch(82.3% 0.009 236.6) */
+  --brand-color-progress-300: #A7AFB3; /* oklch(74.9% 0.011 228.9) */
+  --brand-color-progress-400: #8F989C; /* oklch(67.4% 0.012 226.1) */
+  --brand-color-progress-500: #788186; /* oklch(59.7% 0.013 231.8) */
+  --brand-color-progress-600: #5D666B; /* oklch(50.4% 0.014 231.9), brand value */
+  --brand-color-progress-700: #4D565B; /* oklch(44.7% 0.014 231.9) */
+  --brand-color-progress-800: #394146; /* oklch(37% 0.014 235.2) */
+  --brand-color-progress-900: #272E32; /* oklch(29.6% 0.012 232.9) */
+  --brand-color-progress-950: #151C1F; /* oklch(22.1% 0.012 225.8) */
+
+  --brand-color-error-50: #FFF4F3; /* oklch(97.5% 0.012 23.7) */
+  --brand-color-error-100: #FFD1CE; /* oklch(89.9% 0.052 22.5) */
+  --brand-color-error-200: #FFACA8; /* oklch(82.4% 0.098 22.5) */
+  --brand-color-error-300: #FF8381; /* oklch(74.9% 0.151 22.3) */
+  --brand-color-error-400: #F5595E; /* oklch(67.2% 0.191 22) */
+  --brand-color-error-500: #DF3643; /* oklch(59.7% 0.204 22.3) */
+  --brand-color-error-600: #C8102E; /* oklch(53% 0.207 22.3), brand value */
+  --brand-color-error-700: #A10020; /* oklch(44.8% 0.18 22.5) */
+  --brand-color-error-800: #7D0016; /* oklch(37.2% 0.15 22.7) */
+  --brand-color-error-900: #5B000D; /* oklch(29.7% 0.12 22.8) */
+  --brand-color-error-950: #3B0005; /* oklch(22.2% 0.09 23.4) */
+
+  --brand-background: #FAF9F5; /* paper */
+  --brand-surface: #FAF9F5; /* paper */
+  --brand-surface-muted: #F0EDE4; /* muted */
+  --brand-foreground: #15181A; /* ink */
+  --brand-foreground-muted: #676A6C; /* ink.600 */
+  --brand-border: #DCDEDF; /* ink.100 */
+  --brand-primary: #8A5F14; /* emphasis */
+  --brand-primary-foreground: #FAF9F5; /* paper */
+  --brand-focus: #8A5F14; /* emphasis */
+  --brand-positive: #23694A; /* success */
+  --brand-caution: #A97C22; /* warning */
+  --brand-negative: #C8102E; /* error */
+
+  --brand-font-kerning: normal;
+  --brand-font-feature-settings: "kern" 1;
+  --brand-font-optical-sizing: auto;
+  --brand-font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-display-size: 3.815rem; /* display, 61.04px */
+  --brand-font-display-weight: 550;
+  --brand-font-display-leading: 0.96;
+  --brand-font-display-tracking: -0.049em; /* -3px at 61.04px */
+  --brand-font-body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-body-size: 1rem; /* body, 16px */
+  --brand-font-body-weight: 400;
+  --brand-font-body-leading: 1.5;
+  --brand-font-body-tracking: 0; /* 0px at 16px */
+  --brand-font-accent: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-accent-size: 1.25rem; /* lead, 20px */
+  --brand-font-accent-weight: 500;
+  --brand-font-accent-leading: 1.5;
+  --brand-font-accent-tracking: 0; /* 0px at 20px */
+  --brand-font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --brand-font-code-size: 0.8rem; /* small, 12.8px */
+  --brand-font-code-weight: 400;
+  --brand-font-code-leading: 1.5;
+  --brand-font-code-tracking: 0; /* 0px at 12.8px */
+
+  --brand-text-caption: 0.64rem; /* 10.24px */
+  --brand-text-small: 0.8rem; /* 12.8px */
+  --brand-text-body: 1rem; /* 16px */
+  --brand-text-lead: 1.25rem; /* 20px */
+  --brand-text-h4: 1.5625rem; /* 25px */
+  --brand-text-h3: 1.9531rem; /* 31.25px */
+  --brand-text-h2: 2.4413rem; /* 39.06px */
+  --brand-text-h1: 3.0519rem; /* 48.83px */
+  --brand-text-display: 3.815rem; /* 61.04px */
+
+  --brand-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not(.light) {
+    --brand-background: #15181A; /* ink */
+    --brand-surface: #15181A; /* ink */
+    --brand-surface-muted: #2A2D2F; /* ink.900 */
+    --brand-foreground: #FAF9F5; /* paper */
+    --brand-foreground-muted: #949698; /* ink.400 */
+    --brand-border: #2A2D2F; /* ink.900 */
+    --brand-primary: #8A5F14; /* emphasis */
+    --brand-primary-foreground: #FAF9F5; /* paper */
+    --brand-focus: #8A5F14; /* emphasis */
+    --brand-positive: #357959; /* success.600 */
+    --brand-caution: #A97C22; /* warning */
+    --brand-negative: #C8102E; /* error */
+  }
+}
+
+:root[data-theme="dark"],
+.dark {
+  --brand-background: #15181A; /* ink */
+  --brand-surface: #15181A; /* ink */
+  --brand-surface-muted: #2A2D2F; /* ink.900 */
+  --brand-foreground: #FAF9F5; /* paper */
+  --brand-foreground-muted: #949698; /* ink.400 */
+  --brand-border: #2A2D2F; /* ink.900 */
+  --brand-primary: #8A5F14; /* emphasis */
+  --brand-primary-foreground: #FAF9F5; /* paper */
+  --brand-focus: #8A5F14; /* emphasis */
+  --brand-positive: #357959; /* success.600 */
+  --brand-caution: #A97C22; /* warning */
+  --brand-negative: #C8102E; /* error */
+}

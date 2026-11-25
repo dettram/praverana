@@ -62,7 +62,8 @@
     <a href="#" aria-label="Праверана.by"><img src="../assets/logo/logo-horizontal.svg" alt="Праверана.by"></a>
     <nav aria-label="Разделы бренд-бука">
       <a href="#mark">Знак</a><a href="#logo">Логотип</a><a href="#slogan">Слоган</a>
-      <a href="#color">Палитра</a><a href="#type">Тип</a><a href="#ui">Компоненты</a><a href="#rules">Правила</a>
+      <a href="#color">Палитра</a><a href="#type">Тип</a><a href="#ui">Компоненты</a>
+      <a href="#kit">Кит</a><a href="#rules">Правила</a>
     </nav>
   </div>
   <div class="ornament" aria-hidden="true"></div>
@@ -223,8 +224,36 @@
     </ul>
   </section>
 
+  <section id="kit">
+    <h2>7. Кит и генерация</h2>
+    <p class="lead">Бренд собран в Glyphfield (локальная студия, MIT): одна запись идентичности даёт
+      токены, brand.md и фоны. Здоровье бренда — <b>86 из 100, «needs work»</b>: не хватает
+      типографических примеров и фотоматериала, это следующая задача.</p>
+    <table style="margin-top:20px">
+      <thead><tr><th>Файл</th><th>Что это</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">brand/glyphfield/praverana.css</td><td>CSS-переменные <span class="mono">--brand-*</span></td></tr>
+        <tr><td class="mono">praverana.tokens.json</td><td>W3C Design Tokens (DTCG)</td></tr>
+        <tr><td class="mono">praverana.md</td><td>brand.md для кодирующих агентов</td></tr>
+        <tr><td class="mono">praverana.tailwind.css</td><td>Tailwind v4 <span class="mono">@theme</span></td></tr>
+        <tr><td class="mono">og.svg / og.png</td><td>Превью ссылки 1200 × 630</td></tr>
+        <tr><td class="mono">social-square.svg / .png</td><td>Соцкарточка 1080 × 1080</td></tr>
+      </tbody>
+    </table>
+    <div class="grid g2" style="margin-top:24px">
+      <div class="card"><div class="label">Превью ссылки</div>
+        <img src="../assets/img/og.png" alt="Превью: Проект проверен. Праверана." style="width:100%;border-radius:var(--r-ctl)"></div>
+      <div class="card"><div class="label">Соцкарточка</div>
+        <img src="../assets/img/social-square.png" alt="Соцкарточка: каждое замечание — с нормой, файлом и страницей" style="width:100%;border-radius:var(--r-ctl)"></div>
+    </div>
+    <div class="do"><b>Что берём из генератора:</b> фоновый узор (точки, сетка) как слой под типографику,
+      и токены из одной записи бренда.</div>
+    <div class="dont"><b>Что отклонили:</b> градиентные фоны (туманное золото) — против правила «плоская
+      поверхность»; авто-знак из DesignHub — случайная геометрия без смысла, наш ромб с галочкой сильнее.</div>
+  </section>
+
   <section id="rules">
-    <h2>7. Правила и запреты</h2>
+    <h2>8. Правила и запреты</h2>
     <div class="grid g2" style="margin-top:22px">
       <div class="card">
         <h3 style="margin-top:0">Делаем</h3>
@@ -265,4 +294,5 @@
 
 </body>
 </html>
+
 

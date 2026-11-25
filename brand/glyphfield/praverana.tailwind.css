@@ -1,0 +1,195 @@
+/* Праверана.by — Tailwind CSS v4 theme. Exported by Glyphfield from project "praverana". */
+/* Usage: bg-paper text-ink, bg-ink-700, bg-background text-foreground bg-primary, font-display text-display, rounded-brand. */
+
+@theme {
+  --color-ink: #15181A;
+  --color-paper: #FAF9F5;
+  --color-muted: #F0EDE4;
+  --color-emphasis: #8A5F14;
+  --color-success: #23694A;
+  --color-warning: #A97C22;
+  --color-progress: #5D666B;
+  --color-error: #C8102E;
+
+  --color-ink-50: #F6F7F7;
+  --color-ink-100: #DCDEDF;
+  --color-ink-200: #C4C6C7;
+  --color-ink-300: #ABAEAF;
+  --color-ink-400: #949698;
+  --color-ink-500: #7D8082;
+  --color-ink-600: #676A6C;
+  --color-ink-700: #515557;
+  --color-ink-800: #3D4043;
+  --color-ink-900: #2A2D2F;
+  --color-ink-950: #15181A;
+  --color-paper-50: #FAF9F5;
+  --color-paper-100: #DFDEDA;
+  --color-paper-200: #C6C5C2;
+  --color-paper-300: #AEADAA;
+  --color-paper-400: #979693;
+  --color-paper-500: #807F7C;
+  --color-paper-600: #6A6966;
+  --color-paper-700: #555451;
+  --color-paper-800: #41403D;
+  --color-paper-900: #2D2D2A;
+  --color-paper-950: #1B1B19;
+  --color-muted-50: #F0EDE4;
+  --color-muted-100: #E1DED5;
+  --color-muted-200: #C8C5BD;
+  --color-muted-300: #B0ADA5;
+  --color-muted-400: #99968E;
+  --color-muted-500: #827F78;
+  --color-muted-600: #6C6962;
+  --color-muted-700: #56544E;
+  --color-muted-800: #42403A;
+  --color-muted-900: #2E2D28;
+  --color-muted-950: #1C1B16;
+  --color-emphasis-50: #FFF5E8;
+  --color-emphasis-100: #F0DABC;
+  --color-emphasis-200: #DFC095;
+  --color-emphasis-300: #CCA772;
+  --color-emphasis-400: #B78E52;
+  --color-emphasis-500: #A27634;
+  --color-emphasis-600: #8A5F14;
+  --color-emphasis-700: #724B00;
+  --color-emphasis-800: #583900;
+  --color-emphasis-900: #3F2700;
+  --color-emphasis-950: #281700;
+  --color-success-50: #ECFBF3;
+  --color-success-100: #C9E6D6;
+  --color-success-200: #A8D1BA;
+  --color-success-300: #89BBA0;
+  --color-success-400: #6BA587;
+  --color-success-500: #4F8F6F;
+  --color-success-600: #357959;
+  --color-success-700: #23694A;
+  --color-success-800: #004D31;
+  --color-success-900: #003721;
+  --color-success-950: #002212;
+  --color-warning-50: #FFF6E6;
+  --color-warning-100: #F4DAB0;
+  --color-warning-200: #E3C084;
+  --color-warning-300: #D0A65D;
+  --color-warning-400: #BB8E3A;
+  --color-warning-500: #A97C22;
+  --color-warning-600: #8A6100;
+  --color-warning-700: #6F4D00;
+  --color-warning-800: #553A00;
+  --color-warning-900: #3D2800;
+  --color-warning-950: #261700;
+  --color-progress-50: #F5F7F8;
+  --color-progress-100: #DADFE1;
+  --color-progress-200: #C0C6CA;
+  --color-progress-300: #A7AFB3;
+  --color-progress-400: #8F989C;
+  --color-progress-500: #788186;
+  --color-progress-600: #5D666B;
+  --color-progress-700: #4D565B;
+  --color-progress-800: #394146;
+  --color-progress-900: #272E32;
+  --color-progress-950: #151C1F;
+  --color-error-50: #FFF4F3;
+  --color-error-100: #FFD1CE;
+  --color-error-200: #FFACA8;
+  --color-error-300: #FF8381;
+  --color-error-400: #F5595E;
+  --color-error-500: #DF3643;
+  --color-error-600: #C8102E;
+  --color-error-700: #A10020;
+  --color-error-800: #7D0016;
+  --color-error-900: #5B000D;
+  --color-error-950: #3B0005;
+
+  --font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-caption: 0.64rem;
+  --text-small: 0.8rem;
+  --text-small--line-height: 1.5;
+  --text-small--letter-spacing: 0;
+  --text-small--font-weight: 400;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0;
+  --text-body--font-weight: 400;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: 0;
+  --text-lead--font-weight: 500;
+  --text-h4: 1.5625rem;
+  --text-h3: 1.9531rem;
+  --text-h2: 2.4413rem;
+  --text-h1: 3.0519rem;
+  --text-display: 3.815rem;
+  --text-display--line-height: 0.96;
+  --text-display--letter-spacing: -0.049em;
+  --text-display--font-weight: 550;
+
+  --radius-brand: 8px;
+}
+
+/* Semantic roles: light by default, dark with prefers-color-scheme, data-theme="dark" or .dark. */
+@theme inline {
+  --color-background: var(--brand-background);
+  --color-surface: var(--brand-surface);
+  --color-surface-muted: var(--brand-surface-muted);
+  --color-foreground: var(--brand-foreground);
+  --color-foreground-muted: var(--brand-foreground-muted);
+  --color-border: var(--brand-border);
+  --color-primary: var(--brand-primary);
+  --color-primary-foreground: var(--brand-primary-foreground);
+  --color-focus: var(--brand-focus);
+  --color-positive: var(--brand-positive);
+  --color-caution: var(--brand-caution);
+  --color-negative: var(--brand-negative);
+}
+
+:root {
+  --brand-background: #FAF9F5; /* paper */
+  --brand-surface: #FAF9F5; /* paper */
+  --brand-surface-muted: #F0EDE4; /* muted */
+  --brand-foreground: #15181A; /* ink */
+  --brand-foreground-muted: #676A6C; /* ink.600 */
+  --brand-border: #DCDEDF; /* ink.100 */
+  --brand-primary: #8A5F14; /* emphasis */
+  --brand-primary-foreground: #FAF9F5; /* paper */
+  --brand-focus: #8A5F14; /* emphasis */
+  --brand-positive: #23694A; /* success */
+  --brand-caution: #A97C22; /* warning */
+  --brand-negative: #C8102E; /* error */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not(.light) {
+    --brand-background: #15181A; /* ink */
+    --brand-surface: #15181A; /* ink */
+    --brand-surface-muted: #2A2D2F; /* ink.900 */
+    --brand-foreground: #FAF9F5; /* paper */
+    --brand-foreground-muted: #949698; /* ink.400 */
+    --brand-border: #2A2D2F; /* ink.900 */
+    --brand-primary: #8A5F14; /* emphasis */
+    --brand-primary-foreground: #FAF9F5; /* paper */
+    --brand-focus: #8A5F14; /* emphasis */
+    --brand-positive: #357959; /* success.600 */
+    --brand-caution: #A97C22; /* warning */
+    --brand-negative: #C8102E; /* error */
+  }
+}
+
+:root[data-theme="dark"],
+.dark {
+  --brand-background: #15181A; /* ink */
+  --brand-surface: #15181A; /* ink */
+  --brand-surface-muted: #2A2D2F; /* ink.900 */
+  --brand-foreground: #FAF9F5; /* paper */
+  --brand-foreground-muted: #949698; /* ink.400 */
+  --brand-border: #2A2D2F; /* ink.900 */
+  --brand-primary: #8A5F14; /* emphasis */
+  --brand-primary-foreground: #FAF9F5; /* paper */
+  --brand-focus: #8A5F14; /* emphasis */
+  --brand-positive: #357959; /* success.600 */
+  --brand-caution: #A97C22; /* warning */
+  --brand-negative: #C8102E; /* error */
+}
