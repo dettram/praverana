@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 
 import engine
 from engine import Finding, Scan, pair_citations, result_dict
@@ -142,7 +142,7 @@ def test_clause_checked_for_active_code(auditor):
     auditor.registry = {"СП 5.03.01-2020": {"Статус": "действует"}}
     auditor.replaced = {}
     auditor.db = object()
-    auditor.clause_exists = lambda code, clause: False
+    auditor.clause_state = lambda code, clause: "no_clause"
 
     auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020, п. 99.99.99")])
     assert any(f.category == "цитаты" and "99.99.99" in f.message
@@ -160,7 +160,7 @@ def test_clause_not_checked_without_index(auditor):
 def test_clause_checked_for_cancelled_code(auditor):
     auditor.registry, auditor.replaced = {}, {}
     auditor.db = object()
-    auditor.clause_exists = lambda code, clause: False
+    auditor.clause_state = lambda code, clause: "no_clause"
 
     auditor.check_norms("x.docx", [(1, "СНБ 2.04.02-2000, п. 99.99.99")])
     auditor._flush_norms()
@@ -196,3 +196,4 @@ def test_score_warn_cap():
 
 def test_score_info_cap():
     assert result_dict(_scan(*["info"] * 30))["summary"]["score"] == 9.0
+

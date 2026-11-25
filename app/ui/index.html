@@ -365,7 +365,8 @@ function friendly(text) {
 function render() {
   const s = result.summary, m = result.meta;
   $('score').textContent = String(s.score).replace('.', ',');
-  $('verdict').textContent = s.score >= 8 ? 'пригодно к проверке'
+  $('verdict').textContent = (m.files_scanned || 0) === 0 ? 'документы не прочитаны'
+    : s.score >= 8 ? 'пригодно к проверке'
     : s.score >= 5 ? 'требуются исправления' : 'существенные дефекты';
   $('c-error').textContent = s.error;
   $('c-warn').textContent = s.warn;

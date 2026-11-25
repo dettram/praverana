@@ -135,7 +135,8 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
 
     doc.add_heading("1 Сводка", level=1)
     score = summary["score"]
-    verdict = ("документация в целом пригодна к проверке" if score >= 8
+    verdict = ("документы не прочитаны: оценка не выставляется" if meta.get("files_scanned", 0) == 0
+               else "документация в целом пригодна к проверке" if score >= 8
                else "требуются исправления до передачи" if score >= 5
                else "существенные дефекты, требуется переработка")
     p = doc.add_paragraph()

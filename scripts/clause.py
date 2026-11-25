@@ -2,6 +2,10 @@
 
   uv run scripts/clause.py --code "СП 5.03.01-2020" --clause 6.3.4.1
   uv run scripts/clause.py --text ".\объект\ПЗ.md"
+
+Различает три состояния: пункт найден (`ok`), текста нормы нет в индексе (`no_text`),
+текст есть, пункта нет (`no_clause`). Первое и второе нельзя смешивать: иначе движок
+пишет «пункт не найден» для нормы, которой нет в фонде.
 """
 from __future__ import annotations
 
@@ -18,47 +22,70 @@ from common import CODE_RE, extract_citations, norm_code  # noqa: E402
 DEFAULT_DB = Path.home() / ".stroy-audit" / "index.sqlite"
 
 
-def digits(text: str) -> str:
-    return re.sub(r"\D", "", text or "")
+def codes_in(text: str) -> set[str]:
+    """Все канонические шифры из строки (имя файла, колонка code)."""
+    return {norm_code(m.group(0)) for m in CODE_RE.finditer(text or "")}
 
 
 def docs_for_code(db: sqlite3.Connection, code: str) -> list[tuple[int, str]]:
-    key = digits(code)
+    """Документы фонда с этим шифром. Сравнение по канону, без склейки СН и СП."""
+    target = norm_code(code)
+    if not target:
+        return []
     out = []
     for doc_id, rel, dcode in db.execute("SELECT id, rel, code FROM docs WHERE status='ok'"):
-        if key and (key in digits(rel) or key == digits(dcode)):
+        if target in (codes_in(dcode) | codes_in(rel)):
             out.append((doc_id, rel))
     return out
 
 
-def find_clause(db: sqlite3.Connection, code: str, clause: str, limit: int = 3) -> list[dict]:
-    indexed = []
+def _indexed_hits(db: sqlite3.Connection, code: str, clause: str, limit: int) -> list[dict]:
     try:
         rows = db.execute(
             """SELECT d.rel, c.page, c.title FROM clauses c JOIN docs d ON d.id = c.doc_id
                WHERE c.code=? AND c.clause=? LIMIT ?""",
             (code, clause, limit),
         ).fetchall()
-        indexed = [{"file": r[0], "page": r[1], "snippet": f"{clause} — {r[2]}"} for r in rows]
     except sqlite3.OperationalError:
-        indexed = []
-    if indexed:
-        return indexed
+        return []
+    return [{"file": r[0], "page": r[1], "snippet": f"{clause} — {r[2]}"} for r in rows]
+
+
+def clause_status(db: sqlite3.Connection, code: str, clause: str,
+                  limit: int = 3) -> tuple[str, list[dict]]:
+    """('ok' | 'no_text' | 'no_clause', hits)."""
+    hits = _indexed_hits(db, code, clause, limit)
+    if hits:
+        return "ok", hits
+
+    docs = docs_for_code(db, code)
+    if not docs:
+        return "no_text", []
 
     pattern = re.compile(rf"(?<![\d.]){re.escape(clause)}(?![\d])")
-    hits = []
-    for doc_id, rel in docs_for_code(db, code):
+    found: list[dict] = []
+    chunks = 0
+    for doc_id, rel in docs:
         rows = db.execute("SELECT page, text FROM chunks WHERE doc_id=?", (doc_id,)).fetchall()
+        chunks += len(rows)
         for page, text in rows:
-            if pattern.search(text):
-                m = pattern.search(text)
-                start = max(0, m.start() - 80)
-                snippet = re.sub(r"\s+", " ", text[start:m.end() + 160]).strip()
-                hits.append({"file": rel, "page": page, "snippet": snippet})
-                break
-        if len(hits) >= limit:
+            m = pattern.search(text)
+            if not m:
+                continue
+            start = max(0, m.start() - 80)
+            snippet = re.sub(r"\s+", " ", text[start:m.end() + 160]).strip()
+            found.append({"file": rel, "page": page, "snippet": snippet})
             break
-    return hits
+        if len(found) >= limit:
+            break
+    if found:
+        return "ok", found
+    return ("no_text" if chunks == 0 else "no_clause"), []
+
+
+def find_clause(db: sqlite3.Connection, code: str, clause: str, limit: int = 3) -> list[dict]:
+    state, hits = clause_status(db, code, clause, limit)
+    return hits if state == "ok" else []
 
 
 def parse_citations(text: str) -> list[dict]:
@@ -91,28 +118,30 @@ def main() -> int:
         text = Path(args.text).read_text(encoding="utf-8", errors="replace")
         results = []
         for cit in parse_citations(text):
-            hits = find_clause(db, cit["code"], cit["clause"])
-            results.append({**cit, "found": bool(hits), "hits": hits})
+            state, hits = clause_status(db, cit["code"], cit["clause"])
+            results.append({**cit, "state": state, "found": state == "ok", "hits": hits})
         if args.json:
             print(json.dumps(results, ensure_ascii=False, indent=2))
         else:
             for r in results:
-                mark = "OK " if r["found"] else "НЕТ"
-                where = f"{r['hits'][0]['file']}:{r['hits'][0]['page']}" if r["found"] else "не найдено в корпусе"
-                print(f"{mark} {r['code']} {r['kind']} {r['clause']} — {where}")
+                label = {"ok": "OK ", "no_text": "НЕТ ТЕКСТА", "no_clause": "НЕТ ПУНКТА"}[r["state"]]
+                where = f"{r['hits'][0]['file']}:{r['hits'][0]['page']}" if r["found"] else ""
+                print(f"{label} {r['code']} {r['kind']} {r['clause']} — {where}".rstrip(" —"))
         return 0 if all(r["found"] for r in results) else 1
 
     if not args.code or not args.clause:
         print(json.dumps({"error": "need --code/--clause or --text"}, ensure_ascii=False))
         return 2
-    hits = find_clause(db, norm_code(args.code), args.clause)
+    state, hits = clause_status(db, norm_code(args.code), args.clause)
     if args.json:
-        print(json.dumps(hits, ensure_ascii=False, indent=2))
+        print(json.dumps({"state": state, "hits": hits}, ensure_ascii=False, indent=2))
     else:
         for h in hits:
             print(f"{h['file']}:{h['page']}\n   {h['snippet']}\n")
-        if not hits:
-            print("Не найдено: пункта нет в проиндексированном тексте этой нормы.")
+        if state == "no_text":
+            print("Текста этой нормы нет в проиндексированном фонде — пункт не проверялся.")
+        elif state == "no_clause":
+            print("Пункта нет в проиндексированном тексте этой нормы.")
     return 0 if hits else 1
 
 

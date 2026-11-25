@@ -1,4 +1,4 @@
-"""Движок аудита папки проекта: файлы → замечания со ссылкой на норму.
+﻿"""Движок аудита папки проекта: файлы → замечания со ссылкой на норму.
 
   uv run --with python-docx --with pypdf python app/engine.py --path "<папка проекта>" --out result.json
 
@@ -26,7 +26,7 @@ import sys
 SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from clause import find_clause  # noqa: E402
+from clause import clause_status  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
 from norm_check import classify, load_registry, registry_date  # noqa: E402
 
@@ -147,7 +147,7 @@ class Auditor:
         self.registry, self.replaced = load_registry(Path(CORPUS_DEFAULT))
         self.scan.corpus = registry_date(Path(CORPUS_DEFAULT))
         self.db = sqlite3.connect(str(DB)) if DB.exists() else None
-        self._clause_cache: dict[tuple[str, str], bool] = {}
+        self._clause_cache: dict[tuple[str, str], str] = {}
         self.composition = (json.loads(COMPOSITION.read_text(encoding="utf-8"))
                             if COMPOSITION.exists() else {"pos": [], "ppr": []})
         self._seen: set[tuple] = set()
@@ -161,18 +161,19 @@ class Auditor:
         self._seen.add(key)
         self.scan.findings.append(f)
 
-    def clause_exists(self, code: str, clause: str) -> bool:
+    def clause_state(self, code: str, clause: str) -> str:
+        """ok | no_text | no_clause | unknown — «нет пункта» и «нет текста» не смешиваем."""
         key = (code, clause)
         if key in self._clause_cache:
             return self._clause_cache[key]
-        ok = False
+        state = "unknown"
         if self.db is not None:
             try:
-                ok = bool(find_clause(self.db, code, clause, limit=1))
+                state, _ = clause_status(self.db, code, clause, limit=1)
             except Exception:
-                ok = False
-        self._clause_cache[key] = ok
-        return ok
+                state = "unknown"
+        self._clause_cache[key] = state
+        return state
 
     # -- 1–2. нормы и цитаты ---------------------------------------------- #
     def check_norms(self, rel: str, pages: list[tuple[int, str]]) -> None:
@@ -196,13 +197,16 @@ class Auditor:
                 for code2, clause in pair_citations(cit["context"]):
                     if code2 != code:
                         continue
-                    if not self.clause_exists(code, clause):
-                        self.add(Finding(
-                            "warn", "цитаты", rel, page_no,
-                            f"пункт {clause} не найден в тексте {code} (фонд/индекс)",
-                            f"{code}, п. {clause}",
-                            "Проверить нумерацию пункта по действующей редакции",
-                        ))
+                    state = self.clause_state(code, clause)
+                    if state != "no_clause":
+                        # «нет текста нормы» — не ошибка проекта; индекса нет — молчим.
+                        continue
+                    self.add(Finding(
+                        "warn", "цитаты", rel, page_no,
+                        f"пункт {clause} не найден в тексте {code} (фонд/индекс)",
+                        f"{code}, п. {clause}",
+                        "Проверить нумерацию пункта по действующей редакции",
+                    ))
 
     # -- 3. комплектность -------------------------------------------------- #
     def check_completeness(self, names: list[str]) -> None:
@@ -360,6 +364,12 @@ class Auditor:
             self.check_composition(rel, pages)
             self.check_placeholders(rel, pages)
 
+        if self.scan.files_scanned == 0:
+            self.add(Finding(
+                "warn", "комплект", "—", None,
+                "текстовые документы не прочитаны: нет DOCX/PDF с текстовым слоем", "",
+                "Добавить DOCX или PDF с текстом; сканы без OCR не проверяются",
+            ))
         self._flush_norms()
 
         if self.db is not None:
@@ -390,6 +400,9 @@ def result_dict(scan: Scan) -> dict:
     penalty = min(6.0, 1.0 * counts["error"]) + min(3.0, 0.2 * counts["warn"]) \
         + min(1.0, 0.05 * counts["info"])
     score = max(0.0, round(10.0 - penalty, 1))
+    if scan.files_scanned == 0:
+        # Ни одного текстового документа: оценка не выставляется, а не «почти отлично».
+        score = 0.0
     return {
         "meta": {
             "root": scan.root,
@@ -432,3 +445,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
