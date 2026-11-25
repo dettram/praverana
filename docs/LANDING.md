@@ -31,4 +31,4 @@ node <kit>\scripts\gate.mjs
 
 Текущее состояние: **GATE: PASS**, copy-lint 0 FAIL, consistency 0 FAIL на 1440, 390 и обходе 320.
 Waiver'ы — в `.taste-skill/waivers.json` (только `hero-lines` и `hero-maxchars`: чекер подставляет
-45 знаков вместо фактических 26 в заголовке).
+45 знаков вместо фактических 26 в заголовке). После обновления знака (25.11.2026) — 11 WARN, 0 FAIL.

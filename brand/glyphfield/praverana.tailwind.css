@@ -1,6 +1,21 @@
 /* Праверана.by — Tailwind CSS v4 theme. Exported by Glyphfield from project "praverana". */
 /* Usage: bg-paper text-ink, bg-ink-700, bg-background text-foreground bg-primary, font-display text-display, rounded-brand. */
 
+@font-face {
+  font-family: "Onest";
+  src: url("../fonts/cyrillic-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/cyrillic-400-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 @theme {
   --color-ink: #15181A;
   --color-paper: #FAF9F5;
@@ -107,15 +122,15 @@
 
   --text-caption: 0.64rem;
   --text-small: 0.8rem;
-  --text-small--line-height: 1.5;
+  --text-small--line-height: 1.45;
   --text-small--letter-spacing: 0;
   --text-small--font-weight: 400;
   --text-body: 1rem;
-  --text-body--line-height: 1.5;
+  --text-body--line-height: 1.55;
   --text-body--letter-spacing: 0;
   --text-body--font-weight: 400;
   --text-lead: 1.25rem;
-  --text-lead--line-height: 1.5;
+  --text-lead--line-height: 1.3;
   --text-lead--letter-spacing: 0;
   --text-lead--font-weight: 500;
   --text-h4: 1.5625rem;
@@ -123,8 +138,8 @@
   --text-h2: 2.4413rem;
   --text-h1: 3.0519rem;
   --text-display: 3.815rem;
-  --text-display--line-height: 0.96;
-  --text-display--letter-spacing: -0.049em;
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.02em;
   --text-display--font-weight: 550;
 
   --radius-brand: 8px;
@@ -148,11 +163,11 @@
 
 :root {
   --brand-background: #FAF9F5; /* paper */
-  --brand-surface: #FAF9F5; /* paper */
+  --brand-surface: #F0EDE4; /* muted */
   --brand-surface-muted: #F0EDE4; /* muted */
   --brand-foreground: #15181A; /* ink */
-  --brand-foreground-muted: #676A6C; /* ink.600 */
-  --brand-border: #DCDEDF; /* ink.100 */
+  --brand-foreground-muted: #5D666B; /* progress */
+  --brand-border: #F0EDE4; /* muted */
   --brand-primary: #8A5F14; /* emphasis */
   --brand-primary-foreground: #FAF9F5; /* paper */
   --brand-focus: #8A5F14; /* emphasis */
@@ -165,14 +180,14 @@
   :root:not([data-theme="light"]):not(.light) {
     --brand-background: #15181A; /* ink */
     --brand-surface: #15181A; /* ink */
-    --brand-surface-muted: #2A2D2F; /* ink.900 */
+    --brand-surface-muted: #15181A; /* ink */
     --brand-foreground: #FAF9F5; /* paper */
-    --brand-foreground-muted: #949698; /* ink.400 */
-    --brand-border: #2A2D2F; /* ink.900 */
+    --brand-foreground-muted: #F0EDE4; /* muted */
+    --brand-border: #5D666B; /* progress */
     --brand-primary: #8A5F14; /* emphasis */
     --brand-primary-foreground: #FAF9F5; /* paper */
     --brand-focus: #8A5F14; /* emphasis */
-    --brand-positive: #357959; /* success.600 */
+    --brand-positive: #23694A; /* success */
     --brand-caution: #A97C22; /* warning */
     --brand-negative: #C8102E; /* error */
   }
@@ -182,14 +197,14 @@
 .dark {
   --brand-background: #15181A; /* ink */
   --brand-surface: #15181A; /* ink */
-  --brand-surface-muted: #2A2D2F; /* ink.900 */
+  --brand-surface-muted: #15181A; /* ink */
   --brand-foreground: #FAF9F5; /* paper */
-  --brand-foreground-muted: #949698; /* ink.400 */
-  --brand-border: #2A2D2F; /* ink.900 */
+  --brand-foreground-muted: #F0EDE4; /* muted */
+  --brand-border: #5D666B; /* progress */
   --brand-primary: #8A5F14; /* emphasis */
   --brand-primary-foreground: #FAF9F5; /* paper */
   --brand-focus: #8A5F14; /* emphasis */
-  --brand-positive: #357959; /* success.600 */
+  --brand-positive: #23694A; /* success */
   --brand-caution: #A97C22; /* warning */
   --brand-negative: #C8102E; /* error */
 }

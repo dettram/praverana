@@ -4,10 +4,16 @@
     "app.glyphfield": {
       "identityId": "praverana",
       "name": "Праверана.by",
-      "revision": 1,
+      "revision": 2,
       "typeScale": {
         "basePx": 16,
-        "ratio": 1.25
+        "ratio": 1.25,
+        "roleSteps": {
+          "Display": "display",
+          "Body": "body",
+          "Accent": "lead",
+          "Code": "small"
+        }
       }
     }
   },
@@ -16,7 +22,8 @@
       "$description": "Текст, знак и решительные поверхности",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Тушь"
+          "name": "Тушь",
+          "proportion": 24
         }
       },
       "$type": "color",
@@ -34,7 +41,8 @@
       "$description": "Основное поле и поверхность чтения",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Бумага"
+          "name": "Бумага",
+          "proportion": 58
         }
       },
       "$type": "color",
@@ -52,7 +60,8 @@
       "$description": "Рабочие поверхности, карточки, тихая структура",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Тёплая поверхность"
+          "name": "Тёплая поверхность",
+          "proportion": 8
         }
       },
       "$type": "color",
@@ -70,7 +79,8 @@
       "$description": "Единственный акцент: выделение, действие, цифра",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Золото"
+          "name": "Золото",
+          "proportion": 5
         }
       },
       "$type": "color",
@@ -88,7 +98,8 @@
       "$description": "Подтверждённые состояния и рост",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Зелёный"
+          "name": "Зелёный",
+          "proportion": 1
         }
       },
       "$type": "color",
@@ -106,7 +117,8 @@
       "$description": "Предупреждения и места, требующие внимания",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Золото графикой"
+          "name": "Золото в графике",
+          "proportion": 1
         }
       },
       "$type": "color",
@@ -124,7 +136,8 @@
       "$description": "Вторичный текст, даты, метаданные",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Вторичный"
+          "name": "Вторичный",
+          "proportion": 2
         }
       },
       "$type": "color",
@@ -142,7 +155,8 @@
       "$description": "Ошибки и отменённые нормы",
       "$extensions": {
         "app.glyphfield": {
-          "name": "Красный"
+          "name": "Красный",
+          "proportion": 1
         }
       },
       "$type": "color",
@@ -1353,7 +1367,7 @@
       "surface": {
         "$description": "Cards, panels, inputs and menus",
         "$type": "color",
-        "$value": "{color.paper}"
+        "$value": "{color.muted}"
       },
       "surface-muted": {
         "$description": "Quiet fills, hover rows and table headers",
@@ -1368,12 +1382,12 @@
       "foreground-muted": {
         "$description": "Secondary text, hints and metadata",
         "$type": "color",
-        "$value": "{palette.ink.600}"
+        "$value": "{color.progress}"
       },
       "border": {
         "$description": "Dividers, outlines and input borders",
         "$type": "color",
-        "$value": "{palette.ink.100}"
+        "$value": "{color.muted}"
       },
       "primary": {
         "$description": "Primary actions, selection and links",
@@ -1420,7 +1434,7 @@
       "surface-muted": {
         "$description": "Quiet fills, hover rows and table headers",
         "$type": "color",
-        "$value": "{palette.ink.900}"
+        "$value": "{color.ink}"
       },
       "foreground": {
         "$description": "Body text, headings and icons",
@@ -1430,12 +1444,12 @@
       "foreground-muted": {
         "$description": "Secondary text, hints and metadata",
         "$type": "color",
-        "$value": "{palette.ink.400}"
+        "$value": "{color.muted}"
       },
       "border": {
         "$description": "Dividers, outlines and input borders",
         "$type": "color",
-        "$value": "{palette.ink.900}"
+        "$value": "{color.progress}"
       },
       "primary": {
         "$description": "Primary actions, selection and links",
@@ -1455,7 +1469,7 @@
       "positive": {
         "$description": "Success and healthy states",
         "$type": "color",
-        "$value": "{palette.success.600}"
+        "$value": "{color.success}"
       },
       "caution": {
         "$description": "Warnings that need attention",
@@ -1544,9 +1558,9 @@
         "fontWeight": "{font.weight.display}",
         "letterSpacing": {
           "unit": "px",
-          "value": -3
+          "value": -1.2
         },
-        "lineHeight": 0.96
+        "lineHeight": 1.08
       }
     },
     "body": {
@@ -1560,7 +1574,7 @@
           "unit": "px",
           "value": 0
         },
-        "lineHeight": 1.5
+        "lineHeight": 1.55
       }
     },
     "accent": {
@@ -1574,7 +1588,7 @@
           "unit": "px",
           "value": 0
         },
-        "lineHeight": 1.5
+        "lineHeight": 1.3
       }
     },
     "code": {
@@ -1588,7 +1602,7 @@
           "unit": "px",
           "value": 0
         },
-        "lineHeight": 1.5
+        "lineHeight": 1.45
       }
     }
   }

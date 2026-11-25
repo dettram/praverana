@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Праверана.by — бренд-бук</title>
+<link rel="icon" href="../assets/logo/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../assets/tokens.css">
 <style>
@@ -82,30 +83,50 @@
 
   <section id="mark">
     <h2>1. Знак</h2>
-    <p class="lead">Ромб — основа белорусского орнамента; внутри галочка: «праверана» значит «проверено».
-      Знак читается и как печать, и как узел вышивки.</p>
+    <p class="lead">Ромб — основа белорусского орнамента. Подрезанные концы делают его концом тканой
+      ленты, золотая нитка внутри читается как шитьё, вырезанная галочка — как штамп «проверено».
+      Ни герба, ни флага: только геометрия и цвет.</p>
     <div class="grid g2" style="margin-top:28px">
       <div class="card" style="display:grid;place-items:center;min-height:220px">
-        <img src="../assets/logo/mark.svg" alt="Знак: ромб с галочкой" width="120" height="120">
+        <img src="../assets/logo/mark.svg" alt="Знак: ромб с подрезанными концами и вырезанной галочкой" width="120" height="120">
       </div>
       <div class="card">
         <h3 style="margin-top:0">Построение</h3>
         <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:var(--t-sm)">
-          <li>Внешний ромб — квадрат, повёрнутый на 45°, поле 64 × 64.</li>
-          <li>Внутренний ромб — 80 % внешнего, цвет бумаги.</li>
-          <li>Галочка — золото <span class="mono">#A97C22</span>, толщина 4,6 при поле 64.</li>
-          <li>В одном макете — один знак. Не обводить, не добавлять тень и объём.</li>
+          <li>Ромб — квадрат, повёрнутый на 45°, полудиагональ 30 в поле 64 × 64.</li>
+          <li>Четыре конца срезаны на 6 единиц: силуэт тканой ленты, а не чистого ромба.</li>
+          <li>Золотая нитка — ромб 22 в поле 64, толщина 1,1, <span class="mono">#A97C22</span>.</li>
+          <li>Галочка вырезана бумагой, толщина 7,6, концы и излом круглые.</li>
+          <li>В одном макете — один знак. Не обводить, не добавлять тень, объём и градиент.</li>
         </ul>
-        <p class="fine" style="margin-top:14px">Минимальный размер: 24 px в интерфейсе, 8 мм в печати.
-          Охранное поле — половина высоты знака со всех сторон.</p>
+        <p class="fine" style="margin-top:14px">Минимальный размер: 16 px для вкладки (там же бумажная
+          плашка), 24 px в интерфейсе, 8 мм в печати. Охранное поле — половина высоты знака со всех
+          сторон.</p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card">
+        <div class="label">Размеры 16 / 24 / 32 / 48</div>
+        <div class="row" style="align-items:flex-end">
+          <img src="../assets/logo/mark.svg" alt="" width="16" height="16">
+          <img src="../assets/logo/mark.svg" alt="" width="24" height="24">
+          <img src="../assets/logo/mark.svg" alt="" width="32" height="32">
+          <img src="../assets/logo/mark.svg" alt="" width="48" height="48">
+          <img src="../assets/logo/favicon.svg" alt="" width="16" height="16" style="margin-left:12px">
+          <span class="mono">favicon 16</span>
+        </div>
+      </div>
+      <div class="card" style="background:var(--ink);display:grid;place-items:center">
+        <div class="label" style="color:#a5a6a3;justify-self:start">На тушь</div>
+        <img src="../assets/logo/mark-inverse.svg" alt="Знак в инверсии" width="96" height="96">
       </div>
     </div>
   </section>
 
   <section id="logo">
     <h2>2. Логотип</h2>
-    <p class="lead">Четыре файла, один источник: <span class="mono">app/ui/assets/logo/</span>.
-      В интерфейсе — горизонтальный, в подписи и печати — вертикальный, в один цвет — монохром.</p>
+    <p class="lead">Один источник: <span class="mono">app/ui/assets/logo/</span> — знак и его инверсия,
+      горизонтальный логотип, вертикальный, монохром и знак для вкладки. Генератор — <span class="mono">tools/logo.py</span>.</p>
     <div class="grid g2" style="margin-top:28px">
       <div class="card" style="background:var(--paper)">
         <div class="label">Горизонтальный · бумага</div>
@@ -125,8 +146,17 @@
         <div class="label">Монохром · один цвет</div>
         <img src="../assets/logo/logo-mono.svg" alt="Монохромный знак" width="110">
       </div>
+      <div class="card" style="display:grid;place-items:center">
+        <div class="label">Знак для вкладки</div>
+        <div class="row" style="align-items:flex-end">
+          <img src="../assets/logo/favicon.svg" alt="Фавикон" width="16" height="16">
+          <img src="../assets/logo/favicon.svg" alt="" width="24" height="24">
+          <img src="../assets/logo/favicon.svg" alt="" width="32" height="32">
+        </div>
+      </div>
     </div>
-    <div class="do"><b>Можно:</b> ставить на бумагу, белый и тёмный фон; уменьшать до 24 px (знак) и 120 px (логотип).</div>
+    <div class="do"><b>Можно:</b> ставить на бумагу, белый и тёмный фон; уменьшать до 24 px (знак),
+      16 px (знак для вкладки) и 120 px (логотип).</div>
     <div class="dont"><b>Нельзя:</b> растягивать, менять наклон, перекрашивать галочку в красный, ставить на фотографию
       без подложки, добавлять обводку, использовать герб вместо знака.</div>
   </section>
@@ -243,11 +273,13 @@
   <section id="kit">
     <h2>7. Кит и генерация</h2>
     <p class="lead">Бренд собран в Glyphfield (локальная студия, MIT): одна запись идентичности даёт
-      токены, brand.md и фоны. Здоровье бренда — <b>86 из 100, «needs work»</b>: не хватает
-      типографических примеров и фотоматериала, это следующая задача.</p>
+      токены, brand.md и фоны. Здоровье бренда — <b>100 из 100, «strong»</b>: все проверки пройдены —
+      13 пар контраста, 8 файлов шрифтов с лицензией, 5 вариантов логотипа, 3 скриншота, 4 продукта
+      с описанием и 4 примера голоса.</p>
     <table style="margin-top:20px">
       <thead><tr><th>Файл</th><th>Что это</th></tr></thead>
       <tbody>
+        <tr><td class="mono">brand/glyphfield/praverana.identity.json</td><td>Запись бренда целиком (для повторной проверки)</td></tr>
         <tr><td class="mono">brand/glyphfield/praverana.css</td><td>CSS-переменные <span class="mono">--brand-*</span></td></tr>
         <tr><td class="mono">praverana.tokens.json</td><td>W3C Design Tokens (DTCG)</td></tr>
         <tr><td class="mono">praverana.md</td><td>brand.md для кодирующих агентов</td></tr>
@@ -265,7 +297,8 @@
     <div class="do"><b>Что берём из генератора:</b> фоновый узор (точки, сетка) как слой под типографику,
       и токены из одной записи бренда.</div>
     <div class="dont"><b>Что отклонили:</b> градиентные фоны (туманное золото) — против правила «плоская
-      поверхность»; авто-знак из DesignHub — случайная геометрия без смысла, наш ромб с галочкой сильнее.</div>
+      поверхность»; авто-знак из DesignHub — случайная геометрия без смысла, наш ромб с подрезанными
+      концами и золотой ниткой сильнее.</div>
   </section>
 
   <section id="rules">
@@ -293,8 +326,7 @@
     <h3>Применение</h3>
     <table>
       <tbody>
-        <tr><td>Фавикон</td><td class="mono">logo/favicon.svg</td></tr>
-        <tr><td>Превью ссылки</td><td>1200 × 630, знак на бумаге, слоган одной строкой</td></tr>
+        <tr><td>Фавикон</td><td class="mono">logo/favicon.svg</td></tr>        <tr><td>Превью ссылки</td><td>1200 × 630, знак на бумаге, слоган одной строкой</td></tr>
         <tr><td>Подпись письма</td><td>логотип 120 px + строка «Праверана.by — проверка проекта до нормоконтроля»</td></tr>
         <tr><td>Документы DOCX/PDF</td><td>Times New Roman, колонтитул «2026-АТЛ · ПОС v0.2», без знака в теле</td></tr>
       </tbody>
