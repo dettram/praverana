@@ -124,14 +124,23 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     folder = Path(meta["root"]).name or meta["root"]
-    _table(doc, ("Параметр", "Значение"), (
+    skipped = meta.get("skipped", 0)
+    read_errors = result.get("errors") or []
+    header_rows = [
         ("Объект (папка)", folder),
         ("Путь", meta["root"]),
         ("Дата отчёта", datetime.now().strftime("%d.%m.%Y %H:%M")),
         ("Файлов в папке / прочитано", f"{meta['files_total']} / {meta['files_scanned']}"),
+    ]
+    if skipped:
+        header_rows.append(("Пропущено без чтения", f"{skipped} (чертежи, модели, архивы)"))
+    if read_errors:
+        header_rows.append(("Не удалось прочитать", str(len(read_errors))))
+    header_rows += [
         ("Объём прочитанного", f"{meta['size_mb']} МБ, {meta['duration_s']} с"),
         ("База ТНПА", f"реестр и индекс фонда: {meta['corpus']}"),
-    ), widths=(5.0, 11.5), size=10)
+    ]
+    _table(doc, ("Параметр", "Значение"), header_rows, widths=(5.0, 11.5), size=10)
 
     doc.add_heading("1 Сводка", level=1)
     score = summary["score"]
@@ -148,6 +157,18 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         "выполненные инструментом (шифры, пункты, комплектность, заглушки); расчёты, "
         "чертежи и решения специалистов не проверялись."
     )
+
+    coverage = (f"Прочитан текст из {meta['files_scanned']} файлов из {meta['files_total']}."
+                + (f" Пропущено без чтения: {skipped} (чертежи, модели, архивы,"
+                   " неподдерживаемые форматы)." if skipped else "")
+                + " Сканы без текстового слоя не проверяются.")
+    doc.add_paragraph(coverage)
+    if read_errors:
+        doc.add_paragraph(
+            f"Не удалось прочитать файлов: {len(read_errors)}. Они не проверены; причины ниже."
+        )
+        _table(doc, ("Файл и причина",), [(str(e)[:180],) for e in read_errors[:10]],
+               widths=(16.0,), size=8)
 
     by_cat: dict[str, list[int]] = {}
     for f in findings:
