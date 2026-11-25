@@ -28,6 +28,9 @@
   width: 40px; height: 40px; flex: none; display: inline-block;
   background: url("assets/logo/png/mark.png") center / contain no-repeat;
 }
+/* кит задаёт .footer .nav__logo .mark = .8em — в подвале это 17,6 px */
+.closing .nav__logo .mark,
+.closing__links .nav__logo .mark { width: 40px; height: 40px; }
 .nav__logo { font-weight: 600; letter-spacing: -.01em; min-width: 0; }
 .nav__logo .wm { white-space: nowrap; }
 .nav__bar { min-width: 0; }
@@ -41,6 +44,8 @@
   .nav__actions .btn { padding-inline: 12px; font-size: 13px; }
   .nav__logo { font-size: 17px; }
   .mark { width: 32px; height: 32px; }
+  .closing .nav__logo .mark,
+  .closing__links .nav__logo .mark { width: 32px; height: 32px; }
 }
 .nav__logo .tld { color: #8a5f14; }
 .hero__kicker .dot { background: #23694a; }
