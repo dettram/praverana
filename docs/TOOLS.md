@@ -7,6 +7,18 @@
 `Kevin-Liu-01/Glyphfield` · local-first студия бренда: одна запись идентичности → активы, токены,
 brand book, фоны. Запуск локально (Node 22, pnpm, порт 3012).
 
+**Запуск (detached, переживает закрытие консоли):**
+
+```powershell
+powershell -File tools/glyphfield.ps1 -Action start   # http://localhost:3012/studio
+powershell -File tools/glyphfield.ps1 -Action status
+powershell -File tools/glyphfield.ps1 -Action stop
+```
+
+Открывать через `localhost`, не `127.0.0.1`: Next.js блокирует cross-origin запросы к dev-ресурсам
+(HMR, шрифты) и студия теряет горячую перезагрузку. Для API разницы нет.
+
+
 **Как использован:**
 
 | Шаг | Что сделано |
