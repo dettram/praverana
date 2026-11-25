@@ -9,7 +9,7 @@ if (-not (Test-Path $Clone)) { $Clone = Join-Path $env:LOCALAPPDATA "Temp\harves
 $Node = Join-Path $env:LOCALAPPDATA "node22\node.exe"
 $Out = Join-Path $env:LOCALAPPDATA "Temp\harvest\gf-dev.log"
 $Err = Join-Path $env:LOCALAPPDATA "Temp\harvest\gf-dev.err.log"
-$Port = 3012
+$Port = 3013
 
 function Get-PortPid([int]$port) {
   $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |

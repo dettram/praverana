@@ -5,12 +5,16 @@
 ## Glyphfield
 
 `Kevin-Liu-01/Glyphfield` · local-first студия бренда: одна запись идентичности → активы, токены,
-brand book, фоны. Запуск локально (Node 22, pnpm, порт 3012).
+brand book, фоны. Запуск локально (Node 22, pnpm, порт 3013).
+
+Клон — `%LOCALAPPDATA%\design-tools\glyphfield` (не Temp); `tools/glyphfield.ps1` берёт его оттуда
+и откатывается на Temp, если папки нет. Порт **3013**: 3012 занимает dev-gateway Nodus
+(`apps/gateway/dist/main.js`, `GATEWAY_PORT=3012`), его не трогаем.
 
 **Запуск (detached, переживает закрытие консоли):**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action start   # http://localhost:3012/studio
+powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action start   # http://localhost:3013/studio
 powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action status
 powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action stop
 ```
@@ -58,4 +62,5 @@ powershell -ExecutionPolicy Bypass -File tools/glyphfield.ps1 -Action stop
 - Логотип и знак — наши (штамп с буквой П), проверены в системе бренда Glyphfield.
 - Система (цвет, тип, токены, голос) — зафиксирована в Glyphfield и выгружена в репозиторий.
 - Витрина (OG, соцкарточка, бренд-бук) — из Glyphfield + наша типографика.
+
 
