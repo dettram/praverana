@@ -4,12 +4,15 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.coverage
+.pytest_cache/
 
 # Локальные данные и артефакты
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
 .stroy-audit/
+demo.json
 report-*/
 marked/
 *.docx
