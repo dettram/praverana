@@ -46,17 +46,14 @@ powershell -ExecutionPolicy Bypass -File tools/new-issue.ps1 -Title "Поле п
 
 ## Скриншоты и картинки
 
-Репозиторий **приватный**: `raw.githubusercontent.com` в issue и PR не отображается (404).
-Кадры кладём в `docs/pr-assets/<N>/`, а в текст вставляем вложения GitHub:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/attach-image.ps1 -Path docs/pr-assets/35/01.png
-# → https://github.com/user-attachments/assets/…
-```
+Репозиторий **публичный**: `raw.githubusercontent.com` работает. Кадры кладём в
+`docs/pr-assets/<N>/`, в текст — raw по ветке или коммиту:
 
 ```markdown
-![подпись](https://github.com/user-attachments/assets/…)
+![подпись](https://raw.githubusercontent.com/dettram/praverana/<commit-sha>/docs/pr-assets/35/01.png)
 ```
+
+Вложение GitHub (`tools/attach-image.ps1`) — по желанию, если raw недоступен.
 
 Подробности — `docs/GITHUB.md`, раздел 6.3. Для `fix/` — «до/после»; для UI — телефон и десктоп.
 
