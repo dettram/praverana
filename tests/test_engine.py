@@ -1,5 +1,6 @@
 import pytest
 
+import engine
 from engine import Finding, Scan, pair_citations, result_dict
 
 
@@ -93,6 +94,19 @@ def test_norms_active_code_skipped(auditor):
     auditor.check_norms("x.docx", [(1, "СП 5.03.01-2020")])
     auditor._flush_norms()
     assert auditor.scan.findings == []
+
+
+def test_unsupported_formats_are_not_scans(tmp_path, monkeypatch):
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    (tmp_path / "a.xlsx").write_bytes(b"x")
+    (tmp_path / "b.doc").write_bytes(b"x")
+
+    scan = engine.Auditor(tmp_path).run()
+    messages = [f.message for f in scan.findings]
+    assert not any("скан без OCR" in m for m in messages)
+    assert any(".xlsx" in m and "не проверяется" in m for m in messages)
+    assert any(".doc" in m and "не проверяется" in m for m in messages)
 
 
 def _scan(*severities):

@@ -36,6 +36,7 @@ COMPOSITION = SKILL / "data" / "pos-ppr.json"
 
 TEXT_EXT = {".md", ".txt", ".csv"}
 DOC_EXT = {".docx", ".pdf", ".xlsx", ".doc"}
+UNSUPPORTED_EXT = {".xlsx", ".doc"}
 SKIP_EXT = {".dwg", ".rvt", ".rfa", ".ifc", ".png", ".jpg", ".jpeg", ".tif", ".tiff",
             ".zip", ".rar", ".7z", ".exe", ".lnk", ".bak", ".tmp"}
 MAX_FILES = 600
@@ -323,9 +324,17 @@ class Auditor:
                 self.scan.errors.append(f"{rel}: {type(exc).__name__}: {exc}")
                 continue
             if not pages:
-                self.add(Finding("info", "комплект", rel, None,
-                                 "текст не извлечён (скан без OCR или пустой файл)", "",
-                                 "Прогнать OCR или исключить файл из аудита"))
+                ext = p.suffix.lower()
+                if ext in UNSUPPORTED_EXT:
+                    self.add(Finding(
+                        "info", "комплект", rel, None,
+                        f"формат {ext} не проверяется (только DOCX/PDF); нужен ручной просмотр", "",
+                        "Открыть файл вручную или выгрузить в DOCX/PDF",
+                    ))
+                else:
+                    self.add(Finding("info", "комплект", rel, None,
+                                     "текст не извлечён (скан без OCR или пустой файл)", "",
+                                     "Прогнать OCR или исключить файл из аудита"))
                 continue
             self.scan.files_scanned += 1
             self.scan.documents.append({"file": rel, "pages": len(pages),
