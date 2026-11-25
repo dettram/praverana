@@ -3,12 +3,12 @@ param(
   [string]$Repo = "dettram/praverana"
 )
 
-# Репозиторий приватный: raw.githubusercontent.com отдаёт 404, поэтому картинки для issue/PR
-# загружаются как вложения GitHub (user-attachments) и вставляются готовым URL.
-# Требуется авторизованный gh; корпоративный TLS — curl --ssl-no-revoke.
+# Private repo: raw.githubusercontent.com returns 404, so issue/PR images are uploaded
+# as GitHub user attachments and pasted as the returned URL.
+# Requires an authenticated gh; corporate TLS -> curl --ssl-no-revoke.
 
 $ErrorActionPreference = "Stop"
-if (-not (Test-Path $Path)) { throw "файл не найден: $Path" }
+if (-not (Test-Path $Path)) { throw "file not found: $Path" }
 
 $gh = Join-Path $env:LOCALAPPDATA "Programs\gh\gh.exe"
 if (-not (Test-Path $gh)) { $gh = "gh" }
@@ -36,5 +36,5 @@ $response = curl.exe -sS --ssl-no-revoke -X POST `
   --data-binary "@$($file.FullName)" $url
 
 $json = $response | ConvertFrom-Json
-if (-not $json.url) { throw "загрузка не удалась: $response" }
+if (-not $json.url) { throw "upload failed: $response" }
 $json.url
