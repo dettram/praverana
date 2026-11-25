@@ -37,3 +37,5 @@ Desktop.ini
 .vscode/
 .idea/
 *.log
+
+samples/demo-project/
