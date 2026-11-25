@@ -289,18 +289,23 @@ PS_SCRIPT = r"""
 $ErrorActionPreference = "Stop"
 $cfg = Get-Content -LiteralPath $args[0] -Raw -Encoding UTF8 | ConvertFrom-Json
 $w = New-Object -ComObject Word.Application
-$w.Visible = $false
-$w.DisplayAlerts = 0
-foreach ($p in $cfg) {
-    $doc = $w.Documents.Open($p.docx, $false, $false)
-    try {
-        $doc.Save()
-        $doc.ExportAsFixedFormat($p.pdf, 17)
-    } finally {
-        $doc.Close($false)
+try {
+    $w.Visible = $false
+    $w.DisplayAlerts = 0
+    foreach ($p in $cfg) {
+        $doc = $w.Documents.Open($p.docx, $false, $false)
+        try {
+            $doc.Save()
+            $doc.ExportAsFixedFormat($p.pdf, 17)
+        } finally {
+            $doc.Close($false)
+        }
     }
+} finally {
+    # Word не должен оставаться в фоне, даже если Open или Export упали
+    $w.Quit()
+    [void][Runtime.InteropServices.Marshal]::ReleaseComObject($w)
 }
-$w.Quit()
 """
 
 
