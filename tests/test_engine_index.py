@@ -37,3 +37,23 @@ def test_zero_scanned_files_score_zero(tmp_path, monkeypatch):
     assert result["summary"]["score"] == 0.0
     assert any("текстовые документы не прочитаны" in finding["message"]
                for finding in result["findings"])
+
+
+def test_where_counts_unique_files_not_occurrences(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    auditor.check_norms("01-ПЗ.docx", [(1, "СП 5.03.01-2020"), (2, "СП 5.03.01-2020")])
+    auditor._flush_norms()
+
+    finding = next(f for f in auditor.scan.findings if f.category == "нормы")
+    assert finding.file == "01-ПЗ"
+    assert "и ещё" not in finding.file
+
+
+def test_where_tail_counts_files(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    for i in range(5):
+        auditor.check_norms(f"0{i}-ПЗ.docx", [(1, "СП 5.03.01-2020")])
+    auditor._flush_norms()
+
+    finding = next(f for f in auditor.scan.findings if f.category == "нормы")
+    assert finding.file == "00-ПЗ, 01-ПЗ, 02-ПЗ и ещё 2…"
