@@ -205,6 +205,13 @@ def test_history_line_uses_previous_run(tmp_path):
     assert "ошибки 2 → 1 (-1)" in text
 
 
+def test_norm_replacement_is_printed(tmp_path):
+    result = _result()
+    result["findings"][0]["replacement"] = "СП 2.04.04-2026"
+    text = _text(Document(str(build_docx(result, tmp_path / "replacement.docx"))))
+    assert "СНБ 2.04.02-2000 → СП 2.04.04-2026" in text
+
+
 def test_bullets_are_rendered(tmp_path):
     text = _text(Document(str(build_docx(_result(), tmp_path / "bullets.docx"))))
     assert "Сканы без OCR" in text

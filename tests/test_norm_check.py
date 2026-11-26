@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 import harvest_registry
-from norm_check import classify, registry_date
+from norm_check import classify, registry_date, replacement_for
 
 REGISTRY = {
     "СП 5.03.01-2020": {"Статус": "действует", "Заменяет / чем заменён": ""},
@@ -25,6 +25,13 @@ def test_gost_r_is_foreign_error():
     severity, message = classify("ГОСТ Р 21.1101-2013", {}, {})
     assert severity == "error"
     assert "ГОСТ Р" in message
+
+
+def test_replacement_for_curated_and_registry():
+    assert replacement_for("СНБ 2.04.02-2000", {}, {}) == "СП 2.04.04-2026"
+    registry = {"СП 5.03.01-2021": {"Заменяет / чем заменён": "СП 5.03.01-2022"}}
+    assert replacement_for("СП 5.03.01-2021", registry, {}) == "СП 5.03.01-2022"
+    assert replacement_for("СП 9.99.99-2020", {}, {}) == ""
 
 
 def test_curated_outdated_has_replacement():

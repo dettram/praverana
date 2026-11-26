@@ -360,7 +360,8 @@ def _address(f: dict, docs) -> tuple[str, str]:
 def _norm_text(f: dict) -> str:
     norm = (f.get("norm") or "").strip()
     if norm:
-        return norm
+        replacement = (f.get("replacement") or "").strip()
+        return f"{norm} → {replacement}" if replacement else norm
     if f.get("category") in ("заглушки", "комплект"):
         return "не требуется для этой проверки"
     return "—"
@@ -616,10 +617,10 @@ def _register(doc: Document, result: dict) -> None:
             _fmt(p, 3, 3, 11)
             _run(p, _brief(f.get("message", "")), 8.5, INK)
 
-            norm = (f.get("norm") or "").strip()
+            norm = _norm_text(f)
             p = cells[3].paragraphs[0]
             _fmt(p, 3, 3, 11)
-            _run(p, norm or "—", 8, INK if norm else MUTED)
+            _run(p, norm, 8, INK if norm != "—" else MUTED)
 
         _fixed(table, (1.1, 3.6, 7.0, 5.3), pad_y=0.1)
         _gap(doc, 6)

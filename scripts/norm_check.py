@@ -88,6 +88,25 @@ def _close(code: str, registry: dict[str, dict], active_only: bool = False, cuto
     return matches[0] if matches else None
 
 
+def replacement_for(code: str, registry: dict[str, dict],
+                    replaced_by: dict[str, dict]) -> str:
+    """Чем заменён шифр: только однозначный новый код, иначе пусто."""
+    if code in CURATED_OUTDATED:
+        return CURATED_OUTDATED[code][0]
+    row = registry.get(code) or {}
+    text = row.get("Заменяет / чем заменён") or ""
+    for m in CODE_RE.finditer(text):
+        new = norm_code(m.group(0))
+        if new and new != code:
+            return new
+    new_row = replaced_by.get(code)
+    if new_row:
+        new = norm_code(new_row.get("Шифр", ""))
+        if new and new != code:
+            return new
+    return ""
+
+
 def classify(code: str, registry: dict[str, dict], replaced_by: dict[str, dict]) -> tuple[str, str]:
     """→ (severity, message): error | warn | ok."""
     if code.upper().startswith("СНИП"):

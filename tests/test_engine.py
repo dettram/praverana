@@ -133,6 +133,14 @@ def test_norms_tail_counts_unique_files(auditor):
     assert "встречается 8 раз" in finding.message
 
 
+def test_norms_finding_has_replacement_chain(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    auditor.check_norms("a.docx", [(1, "СНБ 2.04.02-2000")])
+    auditor._flush_norms()
+    finding = auditor.scan.findings[0]
+    assert finding.replacement == "СП 2.04.04-2026"
+
+
 def test_norms_truncated_code_skipped(auditor):
     auditor.registry, auditor.replaced = {}, {}
     auditor.check_norms("x.docx", [(1, "СП 5.03.01")])

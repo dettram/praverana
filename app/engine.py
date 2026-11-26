@@ -29,7 +29,7 @@ sys.path.insert(0, str(SCRIPTS))
 from clause import clause_status, pair_citations  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
 from composition import missing_sections  # noqa: E402
-from norm_check import classify, load_registry, registry_date  # noqa: E402
+from norm_check import classify, load_registry, registry_date, replacement_for  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
 
@@ -57,6 +57,7 @@ class Finding:
     norm: str = ""
     action: str = ""
     files: list[str] = field(default_factory=list)
+    replacement: str = ""
 
 
 @dataclass
@@ -174,6 +175,7 @@ class Auditor:
                     hit = self.norm_hits.setdefault(code, {
                         "severity": severity, "message": message, "norm": code,
                         "files": [], "count": 0,
+                        "replacement": replacement_for(code, self.registry, self.replaced),
                     })
                     hit["count"] += 1
                     if rel_key not in hit["files"]:
@@ -380,7 +382,7 @@ class Auditor:
                       else "Подтвердить шифр и год по реестру ТНПА")
             self.add(Finding(hit["severity"], "нормы", where, None,
                              f"{hit['message']} (встречается {hit['count']} раз)",
-                             code, action, list(files)))
+                             code, action, list(files), hit.get("replacement", "")))
 
 
 # --------------------------------------------------------------------------- #
