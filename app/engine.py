@@ -28,8 +28,8 @@ sys.path.insert(0, str(SCRIPTS))
 
 from clause import clause_status, docs_for_code  # noqa: E402
 from composition import missing_blocks  # noqa: E402
-from common import (CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, extract_citations,  # noqa: E402
-                    norm_code, read_text, status_of)
+from common import (CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, clean,  # noqa: E402
+                    extract_citations, norm_code, read_text, status_of)
 from norm_check import classify, load_registry, registry_date, replacement_hint  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
@@ -96,6 +96,90 @@ def pair_citations(line: str) -> list[tuple[str, str]]:
     return out
 
 
+def build_excerpt(text: str, start: int, end: int, max_len: int = 200) -> tuple[str, str, str]:
+    """Вырезает контекст (before, match, after) вокруг [start, end) в пределах строки
+    длиной до max_len знаков с обрезкой по границам слов."""
+    if not text or start < 0 or end <= start or start >= len(text):
+        return "", "", ""
+    end = min(end, len(text))
+    line_start = text.rfind("\n", 0, start)
+    line_start = 0 if line_start == -1 else line_start + 1
+    line_end = text.find("\n", end)
+    line_end = len(text) if line_end == -1 else line_end
+
+    raw_line = text[line_start:line_end]
+    m_start = start - line_start
+    m_end = end - line_start
+
+    raw_before = re.sub(r"\s+", " ", raw_line[:m_start]).lstrip()
+    match = re.sub(r"\s+", " ", raw_line[m_start:m_end]).strip()
+    raw_after = re.sub(r"\s+", " ", raw_line[m_end:]).rstrip()
+    if not match:
+        return "", "", ""
+    if len(match) >= max_len:
+        return "", match[:max_len - 1].rstrip() + "…", ""
+    if len(raw_before) + len(match) + len(raw_after) <= max_len:
+        return raw_before, match, raw_after
+
+    budget = max(16, max_len - len(match) - 2)
+    half = budget // 2
+    if len(raw_before) <= half:
+        left_limit = len(raw_before)
+        right_limit = budget - left_limit
+    elif len(raw_after) <= budget - half:
+        right_limit = len(raw_after)
+        left_limit = budget - right_limit
+    else:
+        left_limit = half
+        right_limit = budget - half
+
+    if len(raw_before) > left_limit:
+        tail = raw_before[-left_limit:]
+        if not raw_before[-left_limit - 1].isspace():
+            sp = tail.find(" ")
+            if 0 <= sp < len(tail) - 1:
+                tail = tail[sp + 1:]
+        before = "…" + tail.lstrip()
+    else:
+        before = raw_before
+
+    if len(raw_after) > right_limit:
+        head = raw_after[:right_limit]
+        if not raw_after[right_limit].isspace():
+            sp = head.rfind(" ")
+            if sp > 0:
+                head = head[:sp]
+        after = head.rstrip(" ,;:-–—") + "…"
+    else:
+        after = raw_after
+
+    return before, match, after
+
+
+def _code_excerpt(text: str, code: str, max_len: int = 200) -> tuple[str, str, str]:
+    cleaned = clean(text)
+    for m in CODE_RE.finditer(cleaned):
+        if norm_code(m.group(0)) == code:
+            return build_excerpt(cleaned, m.start(), m.end(), max_len=max_len)
+    return "", "", ""
+
+
+def _clause_excerpt(text: str, code: str, clause: str, max_len: int = 200) -> tuple[str, str, str]:
+    for line in clean(text).splitlines():
+        codes = [(m.start(), m.end(), norm_code(m.group(0))) for m in CODE_RE.finditer(line)]
+        for m in CITATION_RE.finditer(line):
+            kind, num = m.group("kind"), m.group("num")
+            if clause_key(kind, num) != clause:
+                continue
+            prev = [c for c in codes if c[0] < m.start() and m.start() - c[0] <= 80]
+            if not prev or prev[-1][2] != code:
+                continue
+            c_start = prev[-1][0]
+            span_start = c_start if m.end() - c_start <= 60 else m.start()
+            return build_excerpt(line, span_start, m.end(), max_len=max_len)
+    return _code_excerpt(text, code, max_len=max_len)
+
+
 @dataclass
 class Finding:
     severity: str          # error | warn | info
@@ -107,6 +191,12 @@ class Finding:
     action: str = ""
     files: list[str] = field(default_factory=list)   # все файлы, если замечание свёрнуто
     replacement: str = ""                            # «СП … (с дата)» — чем заменена норма
+    quote: str = ""                                  # выдержка из документа с контекстом
+    quote_before: str = ""                           # контекст до проблемного фрагмента
+    quote_match: str = ""                            # проблемный фрагмент (для подсветки)
+    quote_after: str = ""                            # контекст после проблемного фрагмента
+    quote_file: str = ""                             # файл, из которого взята выдержка
+    quote_page: int | None = None                    # страница или фрагмент выдержки
 
 
 @dataclass
@@ -277,6 +367,15 @@ class Auditor:
                     hit["count"] += 1
                     if rel_key not in hit["files"]:
                         hit["files"].append(rel_key)
+                    if not hit.get("quote_match"):
+                        q_before, q_match, q_after = _code_excerpt(text, code)
+                        if q_match:
+                            hit["quote"] = f"{q_before}{q_match}{q_after}"
+                            hit["quote_before"] = q_before
+                            hit["quote_match"] = q_match
+                            hit["quote_after"] = q_after
+                            hit["quote_file"] = rel
+                            hit["quote_page"] = page_no
                 if self.db is None:
                     continue
                 for code2, clause in pair_citations(cit["context"]):
@@ -286,11 +385,18 @@ class Auditor:
                     if state != "no_clause":
                         # «нет текста нормы» — не ошибка проекта; индекса нет — молчим.
                         continue
+                    q_before, q_match, q_after = _clause_excerpt(text, code, clause)
                     self.add(Finding(
                         "warn", "цитаты", rel, page_no,
                         f"ссылка «{clause}» не найдена в тексте {code} (фонд/индекс)",
                         f"{code}, {clause}",
                         "Проверить нумерацию пункта по действующей редакции",
+                        quote=f"{q_before}{q_match}{q_after}" if q_match else "",
+                        quote_before=q_before,
+                        quote_match=q_match,
+                        quote_after=q_after,
+                        quote_file=rel,
+                        quote_page=page_no,
                     ))
 
     # -- 3. комплектность -------------------------------------------------- #
@@ -362,26 +468,46 @@ class Auditor:
 
     # -- 5–6. заглушки и подписи ------------------------------------------ #
     def check_placeholders(self, rel: str, pages: list[tuple[int, str]]) -> None:
-        hard: dict[str, int] = {}
-        soft: dict[str, int] = {}
+        hard: dict[str, tuple[int, str, str, str]] = {}
+        soft: dict[str, tuple[int, str, str, str]] = {}
         for page_no, text in pages:
             for m in PLACEHOLDER_RE.finditer(text):
-                hard.setdefault(m.group(0).strip().lower(), page_no)
+                key = m.group(0).strip().lower()
+                if key not in hard:
+                    hard[key] = (page_no, *build_excerpt(text, m.start(), m.end()))
             for m in SOFT_PLACEHOLDER_RE.finditer(text):
-                soft.setdefault(m.group(0).strip().lower(), page_no)
-        for i, (frag, page_no) in enumerate(hard.items()):
+                key = m.group(0).strip().lower()
+                if key not in soft:
+                    soft[key] = (page_no, *build_excerpt(text, m.start(), m.end()))
+        for i, (frag, (page_no, q_before, q_match, q_after)) in enumerate(hard.items()):
             if i >= 8:
                 self.add(Finding("warn", "заглушки", rel, None,
                                  f"ещё {len(hard) - 8} незаполненных фрагментов в файле", "",
                                  "Проверить документ на заглушки"))
                 break
-            self.add(Finding("warn", "заглушки", rel, page_no,
-                             f"незаполненный фрагмент «{frag}»", "",
-                             "Заменить на конкретное значение или решение"))
-        for frag, page_no in list(soft.items())[:3]:
-            self.add(Finding("info", "заглушки", rel, page_no,
-                             f"формулировка без конкретики «{frag}»", "",
-                             "Проверить, не заменяет ли фраза конкретное решение"))
+            self.add(Finding(
+                "warn", "заглушки", rel, page_no,
+                f"незаполненный фрагмент «{frag}»", "",
+                "Заменить на конкретное значение или решение",
+                quote=f"{q_before}{q_match}{q_after}" if q_match else "",
+                quote_before=q_before,
+                quote_match=q_match,
+                quote_after=q_after,
+                quote_file=rel,
+                quote_page=page_no,
+            ))
+        for frag, (page_no, q_before, q_match, q_after) in list(soft.items())[:3]:
+            self.add(Finding(
+                "info", "заглушки", rel, page_no,
+                f"формулировка без конкретики «{frag}»", "",
+                "Проверить, не заменяет ли фраза конкретное решение",
+                quote=f"{q_before}{q_match}{q_after}" if q_match else "",
+                quote_before=q_before,
+                quote_match=q_match,
+                quote_after=q_after,
+                quote_file=rel,
+                quote_page=page_no,
+            ))
 
     def check_signatures(self, rel: str, pages: list[tuple[int, str]]) -> None:
         """Пустые поля подписи у ролей листа согласования (детерминированная эвристика)."""
@@ -393,10 +519,17 @@ class Auditor:
                 tail = line[m.end():]
                 if SIGNATURE_NAME_RE.search(tail) and not SIGNATURE_EMPTY_RE.search(tail):
                     continue          # рядом с ролью есть фамилия — подпись заполнена
+                q_before, q_match, q_after = build_excerpt(line, m.start(), m.end())
                 self.add(Finding(
                     "warn", "подписи", rel, page_no,
                     f"не заполнено поле подписи: {m.group(1).strip()}", "",
                     "Указать фамилию и инициалы или поставить подпись",
+                    quote=f"{q_before}{q_match}{q_after}" if q_match else "",
+                    quote_before=q_before,
+                    quote_match=q_match,
+                    quote_after=q_after,
+                    quote_file=rel,
+                    quote_page=page_no,
                 ))
 
     # -- обход ------------------------------------------------------------- #
@@ -501,9 +634,17 @@ class Auditor:
                                         if len(files) > len(shown) else "")
             action = ("Заменить на действующий документ" if hit["severity"] == "error"
                       else "Подтвердить шифр и год по реестру ТНПА")
-            self.add(Finding(hit["severity"], "нормы", where, None,
-                             f"{hit['message']} (встречается {hit['count']} раз)",
-                             code, action, list(files), hit.get("replacement", "")))
+            self.add(Finding(
+                hit["severity"], "нормы", where, None,
+                f"{hit['message']} (встречается {hit['count']} раз)",
+                code, action, list(files), hit.get("replacement", ""),
+                quote=hit.get("quote", ""),
+                quote_before=hit.get("quote_before", ""),
+                quote_match=hit.get("quote_match", ""),
+                quote_after=hit.get("quote_after", ""),
+                quote_file=hit.get("quote_file", ""),
+                quote_page=hit.get("quote_page"),
+            ))
 
 
 # --------------------------------------------------------------------------- #

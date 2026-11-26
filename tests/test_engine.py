@@ -1,7 +1,7 @@
 ﻿import pytest
 
 import engine
-from engine import Finding, Scan, pair_citations, result_dict
+from engine import Finding, Scan, build_excerpt, pair_citations, result_dict
 
 
 @pytest.mark.parametrize("line, expected", [
@@ -248,4 +248,66 @@ def test_score_info_cap():
 ])
 def test_pair_citations_kinds(line, expected):
     assert pair_citations(line) == expected
+
+
+def test_build_excerpt_word_boundaries_and_limit():
+    prefix = "В соответствии с требованиями действующего законодательства и техническим заданием расчёт конструкций выполнен по "
+    target = "СНБ 2.04.02-2000"
+    suffix = " с учётом пространственной работы монолитного каркаса здания и неравномерных деформаций основания."
+    text = prefix + target + suffix
+    start = len(prefix)
+    end = start + len(target)
+
+    before, match, after = build_excerpt(text, start, end, max_len=120)
+    assert match == target
+    full = f"{before}{match}{after}"
+    assert len(full) <= 120
+    assert before.startswith("…")
+    assert after.endswith("…")
+    # На стыках с многоточием слова не должны обрываться посередине
+    first_word = before[1:].split()[0]
+    assert first_word in prefix.split()
+    last_word = after[:-1].split()[-1].strip(".,;:")
+    assert any(w.strip(".,;:") == last_word for w in suffix.split())
+
+
+def test_engine_populates_quotes_for_text_checks(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    auditor.db = object()
+    auditor.clause_state = lambda code, clause: "no_clause"
+
+    pages = [
+        (2, "Расчёт выполнен по СНБ 2.04.02-2000, п. 99.99.99 для каркаса.\n"
+            "Ведомость отделки: ХХХ.\n"
+            "Ограждающие конструкции — по проекту.\n"
+            "Разработал: ______"),
+    ]
+    auditor.check_norms("01-ПЗ.docx", pages)
+    auditor._flush_norms()
+    auditor.check_placeholders("01-ПЗ.docx", pages)
+    auditor.check_signatures("01-ПЗ.docx", pages)
+    auditor.check_completeness([])
+
+    by_cat = {}
+    for f in auditor.scan.findings:
+        by_cat.setdefault(f.category, []).append(f)
+
+    for cat, expected_match in (
+        ("нормы", "СНБ 2.04.02-2000"),
+        ("цитаты", "СНБ 2.04.02-2000, п. 99.99.99"),
+        ("заглушки", "ХХХ"),
+        ("подписи", "Разработал"),
+    ):
+        item = by_cat[cat][0]
+        assert item.quote_match == expected_match
+        assert item.quote == f"{item.quote_before}{item.quote_match}{item.quote_after}"
+        assert expected_match in item.quote
+        assert item.quote_file == "01-ПЗ.docx"
+        assert item.quote_page == 2
+
+    # Проверка комплектности не привязана к фрагменту текста — выдержка пустая
+    comp = by_cat["комплект"][0]
+    assert comp.quote == ""
+    assert comp.quote_match == ""
+
 

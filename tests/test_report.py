@@ -2,7 +2,7 @@ import pytest
 from docx import Document
 from docx.oxml.ns import qn
 
-from report import build_docx, location_unit
+from report import MAX_QUOTE_BLOCKS, build_docx, location_unit
 
 
 @pytest.mark.parametrize("file, unit", [
@@ -149,3 +149,149 @@ def test_build_docx_lists_registry_amendments(tmp_path):
     text = "\n".join(p.text for p in doc.paragraphs)
     assert "В реестре учтены изменения: СП 5.03.01-2020 (изм. № 1 (пост. № 33))" in text
     assert "проверьте актуальность" in text
+
+
+def test_build_docx_section_order_and_norms_appendix(tmp_path):
+    norms = [
+        {"code": "СНБ 2.04.02-2000", "status": "не действует",
+         "replacement": "СП 2.04.04-2026", "changed": "утратила силу",
+         "source": "реестр", "has_full_text": True},
+        {"code": "СП 5.03.01-2020", "status": "действует",
+         "replacement": "", "changed": "изм. № 1",
+         "source": "реестр", "has_full_text": True},
+    ]
+    doc = Document(build_docx(_result(norms=norms), tmp_path / "report.docx"))
+    h1 = [p.text for p in doc.paragraphs if p.style.name == "Heading 1"]
+    assert h1 == [
+        "1 Сводка",
+        "2 Замечания",
+        "3 Прочитанные документы",
+        "4 Разметка документов",
+        "5 Ограничения аудита",
+        "6 Порядок использования",
+        "7 Приложение. Нормы ТНПА в проекте",
+    ]
+    h2 = [p.text for p in doc.paragraphs if p.style.name == "Heading 2"]
+    assert h2 == [
+        "2.1 Ошибки (1)",
+        "2.2 Предупреждения (1)",
+        "2.3 Сводная таблица замечаний",
+    ]
+    table_text = "\n".join(
+        cell.text for table in doc.tables for row in table.rows for cell in row.cells
+    )
+    assert "Что проверено автоматически" in table_text
+    assert "Что не проверялось (требует инженера)" in table_text
+    assert "Замена: СП 2.04.04-2026" in table_text
+    assert "полный текст (индекс)" in table_text
+
+
+def test_build_docx_finding_quote_highlight_and_no_empty_quotes(tmp_path):
+    findings = [
+        {
+            "severity": "error",
+            "category": "нормы",
+            "file": "01-ПЗ",
+            "page": None,
+            "message": "СНБ 2.04.02-2000 утратила силу",
+            "norm": "СНБ 2.04.02-2000",
+            "replacement": "СП 2.04.04-2026",
+            "action": "Заменить на действующий документ",
+            "quote": "Нагрузки приняты по СНБ 2.04.02-2000 и СНиП.",
+            "quote_before": "Нагрузки приняты по ",
+            "quote_match": "СНБ 2.04.02-2000",
+            "quote_after": " и СНиП.",
+            "quote_file": "01-ПЗ.docx",
+            "quote_page": 1,
+        },
+        {
+            "severity": "info",
+            "category": "комплект",
+            "file": "07-Смета.xlsx",
+            "page": None,
+            "message": "формат .xlsx не проверяется",
+            "norm": "",
+            "action": "Открыть вручную",
+            "quote": "",
+            "quote_before": "",
+            "quote_match": "",
+            "quote_after": "",
+        },
+    ]
+    doc = Document(build_docx(_result(findings=findings), tmp_path / "report.docx"))
+    quote_paragraphs = [p for p in doc.paragraphs if p.text.startswith("Выдержка")]
+    # Только одно замечание имеет выдержку; для второго пустой абзац не создаётся
+    assert len(quote_paragraphs) == 1
+    qp = quote_paragraphs[0]
+    assert "01-ПЗ.docx, фрагм. 1" in qp.text
+    assert "«Нагрузки приняты по СНБ 2.04.02-2000 и СНиП.»" in qp.text
+
+    highlighted = [
+        r for r in qp.runs if r.text == "СНБ 2.04.02-2000"
+    ]
+    assert len(highlighted) == 1
+    run = highlighted[0]
+    assert run.bold is True
+    assert run.font.highlight_color is not None
+    assert run.font.color.rgb is not None
+    assert run.font.name == "Times New Roman"
+
+    # Проверка цепочки замены и неразрывности карточек
+    body_paragraphs = [p for p in doc.paragraphs if "→ СП 2.04.04-2026" in p.text]
+    assert len(body_paragraphs) == 1
+    assert body_paragraphs[0].paragraph_format.keep_with_next is True
+    assert body_paragraphs[0].paragraph_format.keep_together is True
+
+
+def test_build_docx_quote_fallback_from_plain_quote_field(tmp_path):
+    findings = [
+        {
+            "severity": "warn",
+            "category": "заглушки",
+            "file": "01-ПЗ.docx",
+            "page": 2,
+            "message": "незаполненный фрагмент «ххх»",
+            "norm": "",
+            "action": "Заменить",
+            "quote": "Ведомость отделки помещений: ХХХ по проекту.",
+        },
+    ]
+    doc = Document(build_docx(_result(findings=findings), tmp_path / "report.docx"))
+    quote_paragraphs = [p for p in doc.paragraphs if p.text.startswith("Выдержка")]
+    assert len(quote_paragraphs) == 1
+    highlighted = [r for r in quote_paragraphs[0].runs if r.font.highlight_color is not None]
+    assert len(highlighted) == 1
+    assert highlighted[0].text == "ХХХ"
+    assert highlighted[0].bold is True
+
+
+def test_build_docx_limits_quote_blocks(tmp_path):
+    total = MAX_QUOTE_BLOCKS + 5
+    findings = [
+        {
+            "severity": "warn",
+            "category": "заглушки",
+            "file": f"doc-{i}.docx",
+            "page": 1,
+            "message": f"незаполненный фрагмент «ххх-{i}»",
+            "norm": "",
+            "action": "Заменить",
+            "quote": f"Фрагмент текста документа № {i}: ХХХ-{i}.",
+            "quote_before": f"Фрагмент текста документа № {i}: ",
+            "quote_match": f"ХХХ-{i}",
+            "quote_after": ".",
+            "quote_file": f"doc-{i}.docx",
+            "quote_page": 1,
+        }
+        for i in range(1, total + 1)
+    ]
+    doc = Document(build_docx(_result(findings=findings), tmp_path / "report.docx"))
+    quote_paragraphs = [p for p in doc.paragraphs if p.text.startswith("Выдержка")]
+    assert len(quote_paragraphs) == MAX_QUOTE_BLOCKS
+    full_text = "\n".join(p.text for p in doc.paragraphs)
+    assert f"показаны для первых {MAX_QUOTE_BLOCKS} замечаний из {total}" in full_text
+    # В сводной таблице замечаний присутствуют все total строк (+1 шапка)
+    findings_table = next(
+        t for t in doc.tables if t.rows[0].cells[0].text == "№" and len(t.columns) == 7
+    )
+    assert len(findings_table.rows) == total + 1
