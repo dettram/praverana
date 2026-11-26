@@ -66,6 +66,24 @@ def test_placeholders_hard_and_soft(auditor):
     assert len(soft) == 1
 
 
+def test_signatures_flag_empty_fields(auditor):
+    auditor.check_signatures("01-ПЗ.docx", [
+        (1, "Разработал: ______\nПроверил: Иванов И.И.\nГИП\nУтверждаю"),
+    ])
+    findings = [f for f in auditor.scan.findings if f.category == "подписи"]
+    assert len(findings) == 3
+    assert all(f.severity == "warn" for f in findings)
+    assert all("не заполнено поле подписи" in f.message for f in findings)
+
+
+def test_signatures_skip_filled_and_sentence_use(auditor):
+    auditor.check_signatures("01-ПЗ.docx", [
+        (1, "Разработал Петров П.П.\nПроверил соответствие проектной документации.\n"
+            "Главный инженер проекта: Сидоров С.С."),
+    ])
+    assert not any(f.category == "подписи" for f in auditor.scan.findings)
+
+
 def test_add_deduplicates(auditor):
     finding = Finding("warn", "заглушки", "x.docx", 1, "текст")
     auditor.add(finding)

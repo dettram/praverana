@@ -51,6 +51,13 @@ CITATION_RE = re.compile(
 )
 PLACEHOLDER_RE = re.compile(r"(ХХХ|___|\bзаполнить\b|\bне заполнено\b|\[вставить)", re.IGNORECASE)
 SOFT_PLACEHOLDER_RE = re.compile(r"(по проекту|уточнить по проекту)", re.IGNORECASE)
+SIGNATURE_RE = re.compile(
+    r"(?<![А-Яа-яЁёA-Za-z])(ГИП|главн\w*\s+инженер\w*(?:\s+проекта)?|нормоконтрол\w*|"
+    r"разработал\w*|проверил\w*|утвержда\w*|согласовал\w*)\b",
+    re.IGNORECASE,
+)
+SIGNATURE_EMPTY_RE = re.compile(r"^[\s:.\-_–—]*$|___|заполнить", re.IGNORECASE)
+SIGNATURE_NAME_RE = re.compile(r"[А-Яа-яЁёA-Za-z]{2,}")
 SHORT_CODE_RE = re.compile(r"^(СН|СП|ГОСТ|СТБ|ТКП)\s*\d{1,2}$")
 TRUNCATED_RE = re.compile(r"^(СН|СП|СТБ|ГОСТ|ТКП)\s*\d+(?:\.\d+){1,3}$")
 
@@ -376,6 +383,22 @@ class Auditor:
                              f"формулировка без конкретики «{frag}»", "",
                              "Проверить, не заменяет ли фраза конкретное решение"))
 
+    def check_signatures(self, rel: str, pages: list[tuple[int, str]]) -> None:
+        """Пустые поля подписи у ролей листа согласования (детерминированная эвристика)."""
+        for page_no, text in pages:
+            for line in text.splitlines():
+                m = SIGNATURE_RE.search(line)
+                if not m:
+                    continue
+                tail = line[m.end():]
+                if SIGNATURE_NAME_RE.search(tail) and not SIGNATURE_EMPTY_RE.search(tail):
+                    continue          # рядом с ролью есть фамилия — подпись заполнена
+                self.add(Finding(
+                    "warn", "подписи", rel, page_no,
+                    f"не заполнено поле подписи: {m.group(1).strip()}", "",
+                    "Указать фамилию и инициалы или поставить подпись",
+                ))
+
     # -- обход ------------------------------------------------------------- #
     def run(self) -> Scan:
         started = time.perf_counter()
@@ -451,6 +474,7 @@ class Auditor:
             self.check_norms(rel, pages)
             self.check_composition(rel, pages)
             self.check_placeholders(rel, pages)
+            self.check_signatures(rel, pages)
 
         if self.scan.files_scanned == 0:
             self.add(Finding(
