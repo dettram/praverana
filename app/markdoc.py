@@ -10,6 +10,7 @@ marks: [{"text": "ГОСТ 24045-2016", "severity": "warn", "message": "нет �
 from __future__ import annotations
 
 import copy
+import re
 import shutil
 from pathlib import Path
 
@@ -48,13 +49,31 @@ def _split_run(run: Run, pos: int):
 
 
 def _paragraphs(doc: Document):
-    for p in doc.paragraphs:
-        yield p
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for p in cell.paragraphs:
-                    yield p
+    """Абзацы документа, включая вложенные таблицы, колонтитулы и штампы секций."""
+    seen: set[int] = set()
+
+    def walk(paragraphs):
+        for p in paragraphs:
+            if id(p._p) in seen:      # связанные колонтитулы секций дают тот же элемент
+                continue
+            seen.add(id(p._p))
+            yield p
+
+    def tables(items):
+        for table in items:
+            for row in table.rows:
+                for cell in row.cells:
+                    yield from walk(cell.paragraphs)
+                    yield from tables(cell.tables)
+
+    yield from walk(doc.paragraphs)
+    yield from tables(doc.tables)
+    for section in doc.sections:
+        parts = (section.header, section.first_page_header, section.even_page_header,
+                 section.footer, section.first_page_footer, section.even_page_footer)
+        for part in parts:
+            yield from walk(part.paragraphs)
+            yield from tables(part.tables)
 
 
 def _comment_span(doc: Document, paragraph, start: int, end: int, text: str,
@@ -104,17 +123,20 @@ def mark_document(src: Path, dst: Path, marks: list[dict], limit: int = 80) -> d
         needle = mark["text"]
         if not needle or done[needle] >= 3 or placed >= limit:
             continue
+        # Правая граница: «ГОСТ 27751» не должен совпадать с «ГОСТ 27751-2014»,
+        # но точка в конце предложения совпадению не мешает.
+        pattern = re.compile(re.escape(needle) + r"(?!\d|[.\-]\d)", re.IGNORECASE)
         for p in paragraphs:
             hay = p.text
             if not hay:
                 continue
-            idx = hay.lower().find(needle.lower())
-            if idx < 0:
-                continue
-            if _comment_span(doc, p, idx, idx + len(needle),
-                             f"{mark['message']} (найдено автоматически)", mark["severity"]):
-                done[needle] += 1
-                placed += 1
+            for m in pattern.finditer(hay):
+                if _comment_span(doc, p, m.start(), m.end(),
+                                 f"{mark['message']} (найдено автоматически)", mark["severity"]):
+                    done[needle] += 1
+                    placed += 1
+                if done[needle] >= 3 or placed >= limit:
+                    break
             if done[needle] >= 3 or placed >= limit:
                 break
     if placed:
