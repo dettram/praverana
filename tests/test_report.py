@@ -147,6 +147,23 @@ def test_report_coverage_distinguishes_limit(tmp_path):
     assert "не вошли в лимит (2)" in text
 
 
+def test_report_lists_skipped_errors_and_units(tmp_path):
+    result = _result()
+    result["meta"]["files_total"] = 5
+    result["meta"]["files_scanned"] = 2
+    result["meta"]["skipped"] = 3
+    result["documents"] = [
+        {"file": "ПЗ.pdf", "pages": 3, "chars": 100},
+        {"file": "АР.docx", "pages": 2, "chars": 50},
+    ]
+    result["errors"] = ["битый.pdf: PdfReadError: broken"]
+    text = _text(Document(str(build_docx(result, tmp_path / "coverage.docx"))))
+    assert "ошибок чтения: 1" in text
+    assert "Ошибки чтения: битый.pdf" in text
+    assert "3 стр." in text
+    assert "2 фрагм." in text
+
+
 def test_marking_section_lists_marked_files(tmp_path):
     marked = [{"file": "ПЗ.docx", "comments": 3}]
     text = _text(Document(str(build_docx(_result(), tmp_path / "marked.docx", marked))))
