@@ -1,5 +1,6 @@
 import pytest
 from docx import Document
+from docx.oxml.ns import qn
 
 from report import PS_SCRIPT, build_docx, location_unit
 
@@ -177,3 +178,34 @@ def test_pdf_script_quits_word_on_open_failure():
     assert "$doc.Save()" not in PS_SCRIPT
     # внешний finally должен стоять до Open, иначе сбой Open оставит WINWORD
     assert PS_SCRIPT.index("try {") < PS_SCRIPT.index("$w.Documents.Open")
+
+
+def test_register_table_repeats_header(tmp_path):
+    doc = Document(str(build_docx(_result(), tmp_path / "header.docx")))
+    tables = [t for t in doc.tables
+              if t.rows and any(c.text.strip() == "№" for c in t.rows[0].cells)]
+    assert tables
+    for table in tables:
+        tr_pr = table.rows[0]._tr.trPr
+        assert tr_pr is not None
+        assert tr_pr.find(qn("w:tblHeader")) is not None
+
+
+def test_history_line_uses_previous_run(tmp_path):
+    result = _result()
+    result["history"] = {"previous": {
+        "old": {"score": 6.0, "error": 2, "warn": 1, "info": 0},
+        "new": {"score": 6.8, "error": 1, "warn": 1, "info": 0},
+        "delta": {"score": 0.8, "error": -1, "warn": 0, "info": 0},
+        "scope_changed": False,
+    }}
+    text = _text(Document(str(build_docx(result, tmp_path / "history.docx"))))
+    assert "С прошлого прогона" in text
+    assert "оценка 6,0 → 6,8 (+0,8)" in text
+    assert "ошибки 2 → 1 (-1)" in text
+
+
+def test_bullets_are_rendered(tmp_path):
+    text = _text(Document(str(build_docx(_result(), tmp_path / "bullets.docx"))))
+    assert "Сканы без OCR" in text
+    assert "—" in text
