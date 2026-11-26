@@ -173,9 +173,9 @@ def test_build_docx_section_order_and_norms_appendix(tmp_path):
     ]
     h2 = [p.text for p in doc.paragraphs if p.style.name == "Heading 2"]
     assert h2 == [
-        "2.1 Ошибки (1)",
-        "2.2 Предупреждения (1)",
-        "2.3 Сводная таблица замечаний",
+        "2.1 Сводная таблица замечаний",
+        "2.2 Ошибки (1)",
+        "2.3 Предупреждения (1)",
     ]
     table_text = "\n".join(
         cell.text for table in doc.tables for row in table.rows for cell in row.cells

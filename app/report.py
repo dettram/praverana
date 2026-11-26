@@ -264,20 +264,20 @@ def _render_finding_block(doc: Document, idx: int, f: dict) -> None:
     qparts = extract_quote_parts(f)
 
     p_head = doc.add_paragraph()
-    p_head.paragraph_format.space_before = Pt(6)
-    p_head.paragraph_format.space_after = Pt(1)
+    p_head.paragraph_format.space_before = Pt(8)
+    p_head.paragraph_format.space_after = Pt(2)
     p_head.paragraph_format.keep_with_next = True
     p_head.paragraph_format.keep_together = True
     _add_run(
         p_head,
-        f"№ {idx}  [{SEV_LABEL.get(sev, sev)}]",
+        f"№ {idx}  {SEV_LABEL.get(sev, sev)}",
         size=10.5,
         bold=True,
         color=SEV_COLOR.get(sev),
     )
     _add_run(
         p_head,
-        f"  Категория: {f['category']}  |  Где: {where}",
+        f"  ·  {f['category']}  ·  {where}",
         size=10,
         bold=True,
     )
@@ -285,19 +285,35 @@ def _render_finding_block(doc: Document, idx: int, f: dict) -> None:
     p_body = doc.add_paragraph()
     p_body.paragraph_format.left_indent = Cm(0.4)
     p_body.paragraph_format.space_before = Pt(0)
-    p_body.paragraph_format.space_after = Pt(2 if qparts else 5)
-    p_body.paragraph_format.keep_with_next = bool(qparts)
+    p_body.paragraph_format.space_after = Pt(1)
+    p_body.paragraph_format.keep_with_next = True
     p_body.paragraph_format.keep_together = True
-    _add_run(p_body, "Замечание: ", size=10, bold=True)
+    _add_run(p_body, "Замечание. ", size=10, bold=True)
     _add_run(p_body, f.get("message", ""), size=10)
+
     if f.get("norm") or f.get("replacement"):
-        _add_run(p_body, "  |  Норма: ", size=10, bold=True)
-        _add_run(p_body, f.get("norm") or "—", size=10)
+        p_norm = doc.add_paragraph()
+        p_norm.paragraph_format.left_indent = Cm(0.4)
+        p_norm.paragraph_format.space_before = Pt(0)
+        p_norm.paragraph_format.space_after = Pt(1)
+        p_norm.paragraph_format.keep_with_next = bool(f.get("action") or qparts is not None)
+        p_norm.paragraph_format.keep_together = True
+        _add_run(p_norm, "Норма. ", size=10, bold=True)
+        _add_run(p_norm, f.get("norm") or "—", size=10)
         if f.get("replacement"):
-            _add_run(p_body, f" → {f['replacement']}", size=10, bold=True)
+            _add_run(p_norm, f" → {f['replacement']}", size=10, bold=True)
+
     if f.get("action"):
-        _add_run(p_body, "  |  Действие: ", size=10, bold=True)
-        _add_run(p_body, f["action"], size=10)
+        p_act = doc.add_paragraph()
+        p_act.paragraph_format.left_indent = Cm(0.4)
+        p_act.paragraph_format.space_before = Pt(0)
+        p_act.paragraph_format.space_after = Pt(2 if qparts is not None else 6)
+        p_act.paragraph_format.keep_with_next = qparts is not None
+        p_act.paragraph_format.keep_together = True
+        _add_run(p_act, "Действие. ", size=10, bold=True)
+        _add_run(p_act, f["action"], size=10)
+    elif qparts is None:
+        p_body.paragraph_format.space_after = Pt(6)
 
     if qparts is not None:
         before, match, after = qparts
@@ -529,8 +545,28 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         doc.add_paragraph("Замечаний не выявлено выполненными проверками.")
     else:
         indexed = list(enumerate(findings, 1))
+        rows = []
+        for i, f in indexed:
+            rows.append((
+                i,
+                SEV_LABEL[f["severity"]],
+                f["category"],
+                _finding_where(f),
+                f["message"],
+                _finding_norm(f),
+                f.get("action") or "—",
+            ))
+        doc.add_heading("2.1 Сводная таблица замечаний", level=2)
+        _table(
+            doc,
+            ("№", "Уровень", "Категория", "Где", "Замечание", "Норма", "Действие"),
+            rows,
+            widths=(0.8, 2.5, 2.1, 3.6, 3.5, 2.0, 2.3),
+            size=8,
+        )
+
         rendered_blocks = 0
-        sub_idx = 0
+        sub_idx = 1
         for sev in ("error", "warn", "info"):
             group = [(i, f) for i, f in indexed if f["severity"] == sev]
             if not group:
@@ -549,31 +585,10 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
                 p_lim,
                 f"Детальные карточки с выдержками показаны для первых {MAX_QUOTE_BLOCKS} "
                 f"замечаний из {len(findings)}; остальные {len(findings) - MAX_QUOTE_BLOCKS} "
-                "приведены в сводной таблице ниже.",
+                "приведены в сводной таблице выше.",
                 size=10,
                 italic=True,
             )
-
-        sub_idx += 1
-        doc.add_heading(f"2.{sub_idx} Сводная таблица замечаний", level=2)
-        rows = []
-        for i, f in indexed:
-            rows.append((
-                i,
-                SEV_LABEL[f["severity"]],
-                f["category"],
-                _finding_where(f),
-                f["message"],
-                _finding_norm(f),
-                f.get("action") or "—",
-            ))
-        _table(
-            doc,
-            ("№", "Уровень", "Категория", "Где", "Замечание", "Норма", "Действие"),
-            rows,
-            widths=(0.8, 2.5, 2.1, 3.6, 3.5, 2.0, 2.3),
-            size=8,
-        )
 
     doc.add_heading("3 Прочитанные документы", level=1)
     if docs:
@@ -649,15 +664,20 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
             chain_parts = []
             if n.get("replacement"):
                 chain_parts.append(f"Замена: {n['replacement']}")
-            if n.get("changed") and n["changed"] != "—":
-                chain_parts.append(f"Изм.: {n['changed']}")
+            changed = (n.get("changed") or "").strip()
+            if changed and changed != "—":
+                chain_parts.append(changed[0].upper() + changed[1:])
             chain = "; ".join(chain_parts) if chain_parts else "—"
-            coverage_label = (
-                "полный текст (индекс)" if n.get("has_full_text") else "только статус (реестр)"
-            )
+            status = n.get("status", "—")
+            if n.get("has_full_text"):
+                coverage_label = "полный текст (индекс)"
+            elif str(status).startswith("нет в реестре"):
+                coverage_label = "не проверялась"
+            else:
+                coverage_label = "только статус (реестр)"
             norm_rows.append((
                 n.get("code", "—"),
-                n.get("status", "—"),
+                status,
                 chain,
                 coverage_label,
             ))
