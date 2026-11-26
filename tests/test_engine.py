@@ -101,12 +101,16 @@ def test_unsupported_formats_are_not_scans(tmp_path, monkeypatch):
     monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
     (tmp_path / "a.xlsx").write_bytes(b"x")
     (tmp_path / "b.doc").write_bytes(b"x")
+    (tmp_path / "c.dwg").write_bytes(b"x")
+    (tmp_path / "d.rvt").write_bytes(b"x")
 
     scan = engine.Auditor(tmp_path).run()
     messages = [f.message for f in scan.findings]
     assert not any("скан без OCR" in m for m in messages)
     assert any(".xlsx" in m and "не проверяется" in m for m in messages)
     assert any(".doc" in m and "не проверяется" in m for m in messages)
+    assert scan.unsupported == 2
+    assert engine.result_dict(scan)["meta"]["unsupported"] == 2
 
 
 def test_file_limit_reports_omitted(tmp_path, monkeypatch):
@@ -120,6 +124,7 @@ def test_file_limit_reports_omitted(tmp_path, monkeypatch):
     assert scan.files_total == 3
     assert scan.files_scanned == 2
     assert scan.skipped >= 1
+    assert scan.limit_omitted == 1
     assert any("предел 2 файлов" in f.message for f in scan.findings)
 
 

@@ -109,6 +109,8 @@ class Scan:
     files_total: int = 0
     files_scanned: int = 0
     skipped: int = 0
+    unsupported: int = 0
+    limit_omitted: int = 0
     truncated: int = 0
     size_mb: float = 0.0
     duration_s: float = 0.0
@@ -387,6 +389,7 @@ class Auditor:
                 continue
             if p.suffix.lower() not in allowed:
                 self.scan.skipped += 1
+                self.scan.unsupported += 1
                 continue
             if len(paths) >= MAX_FILES:
                 omitted += 1
@@ -395,6 +398,7 @@ class Auditor:
 
         if omitted:
             self.scan.skipped += omitted
+            self.scan.limit_omitted = omitted
             self.add(Finding(
                 "warn", "комплект", "—", None,
                 f"предел {MAX_FILES} файлов: не прочитано ещё {omitted}", "",
@@ -495,6 +499,8 @@ def result_dict(scan: Scan) -> dict:
             "files_total": scan.files_total,
             "files_scanned": scan.files_scanned,
             "skipped": scan.skipped,
+            "unsupported": scan.unsupported,
+            "limit_omitted": scan.limit_omitted,
             "truncated": scan.truncated,
             "size_mb": round(scan.size_mb, 1),
             "duration_s": scan.duration_s,

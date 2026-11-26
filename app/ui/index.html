@@ -379,9 +379,12 @@ function render() {
     `${m.files_scanned} док. · ${m.size_mb} МБ · ${m.duration_s} с`;
 
   const skipped = m.skipped || 0;
+  const unsupported = m.unsupported ?? skipped;
+  const omitted = m.limit_omitted || 0;
   const errorsCount = (result.errors || []).length;
   let coverage = `Прочитано файлов: <b>${m.files_scanned}</b> из ${m.files_total}.`;
-  if (skipped) coverage += ` Пропущено без чтения: ${skipped} (чертежи, модели, архивы).`;
+  if (unsupported) coverage += ` Пропущено по формату: ${unsupported} (чертежи, модели, архивы).`;
+  if (omitted) coverage += ` Не прочитано из-за предела файлов: ${omitted}.`;
   if (errorsCount) coverage += ` Не удалось прочитать: ${errorsCount}.`;
   coverage += ' Сканы без текстового слоя не проверяются.';
   $('coverage').innerHTML = coverage;
@@ -426,7 +429,7 @@ function renderDynamics() {
   }
   if (h.runs && h.runs.length) {
     parts.push('<div class="history">Прогоны: ' + h.runs.map(r =>
-      `<span>${r.date} — <b>${String(r.score).replace('.', ',')}</b> (${r.error}/${r.warn}/${r.info})</span>`
+      `<span>${r.date} — <b>${String(r.score).replace('.', ',')}</b> (${r.error}/${r.warn}/${r.info})${r.source === 'upload' ? ' · браузер' : ''}</span>`
     ).join('') + '</div>');
   }
   if (!parts.length) { box.classList.add('hide'); box.innerHTML = ''; return; }
@@ -451,8 +454,8 @@ function drawRows() {
     const tr = document.createElement('tr');
     const label = f.severity === 'error' ? 'Ошибка'
       : f.severity === 'warn' ? 'Предупр.' : 'Прим.';
-    const isDocx = /\.docx$/i.test(f.file || '');
-    const place = f.page ? `${isDocx ? 'фрагм.' : 'стр.'} ${f.page}` : '';
+    const isPdf = /\.pdf$/i.test(f.file || '');
+    const place = f.page ? `${isPdf ? 'стр.' : 'фрагм.'} ${f.page}` : '';
     const where = f.file === '—' ? 'комплект проекта' : f.file + (place ? `, ${place}` : '');
     tr.innerHTML = `
       <td><span class="lvl ${f.severity}">${label}</span></td>
@@ -516,8 +519,9 @@ for (const [id, what] of [['dl-docx', 'DOCX'], ['dl-pdf', 'PDF'], ['dl-marked', 
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
+      const ext = { 'dl-docx': 'docx', 'dl-pdf': 'pdf', 'dl-marked': 'zip' }[id] || 'bin';
       a.download = res.headers.get('content-disposition')?.match(/filename="?([^";]+)/i)?.[1]
-        || `praverana-${what}.bin`;
+        || `praverana-${what}.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
