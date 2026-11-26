@@ -91,6 +91,14 @@ def test_extract_citations_recognises_new_prefixes():
                      "ГОСТ Р 21.1101-2013"]
 
 
+def test_extract_citations_context_starts_near_code():
+    line = "А" * 300 + " согласно СП 5.03.01-2020, п. 99.99.99 принимаем бетон."
+    citation = extract_citations(line)[0]
+    assert "СП 5.03.01-2020" in citation["context"]
+    assert "п. 99.99.99" in citation["context"]
+    assert len(citation["context"]) <= 240
+
+
 def test_status_key_ignores_status_narusheniy():
     assert status_of({"Статус нарушений": "3"}) == ""
     assert status_of({"Статус на 18.11.2026": "действует"}) == "действует"

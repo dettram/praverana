@@ -84,6 +84,12 @@ def test_signatures_skip_filled_and_sentence_use(auditor):
     assert not any(f.category == "подписи" for f in auditor.scan.findings)
 
 
+def test_pair_citations_from_long_paragraph():
+    line = "А" * 300 + " согласно СП 5.03.01-2020, п. 99.99.99 принимаем бетон."
+    citation = engine.extract_citations(line)[0]
+    assert pair_citations(citation["context"]) == [("СП 5.03.01-2020", "99.99.99")]
+
+
 def test_add_deduplicates(auditor):
     finding = Finding("warn", "заглушки", "x.docx", 1, "текст")
     auditor.add(finding)

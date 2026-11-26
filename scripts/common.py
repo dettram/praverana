@@ -103,17 +103,21 @@ def year_of(code: str) -> int | None:
 
 
 def extract_citations(text: str) -> list[dict]:
-    """Все ссылки на ТНПА в тексте с номером строки и контекстом."""
+    """Все ссылки на ТНПА в тексте с номером строки и контекстом вокруг шифра."""
     out: list[dict] = []
     for lineno, line in enumerate(clean(text).splitlines(), 1):
         for m in CODE_RE.finditer(line):
             code = norm_code(m.group(0))
             if len(code.split()) < 2:
                 continue
+            # Окно вокруг шифра, а не первые 240 знаков строки: в длинном абзаце
+            # «шифр … п. X» иначе терялся, и пункт не проверялся.
+            start = max(0, m.start() - 40)
+            end = min(len(line), m.end() + 180)
             out.append({
                 "code": code,
                 "line": lineno,
-                "context": line.strip()[:240],
+                "context": line[start:end].strip(),
             })
     return out
 

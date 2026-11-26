@@ -59,6 +59,25 @@ def test_where_tail_counts_files(auditor):
     assert finding.file == "00-ПЗ, 01-ПЗ, 02-ПЗ и ещё 2…"
 
 
+def test_clause_in_long_paragraph_is_checked(tmp_path, monkeypatch):
+    dbfile = tmp_path / "index.sqlite"
+    _empty_index(dbfile)
+    conn = sqlite3.connect(dbfile)
+    conn.execute("INSERT INTO docs VALUES(1, 'СП 5.03.01-2020.pdf', 'СП 5.03.01-2020', 'ok')")
+    conn.execute("INSERT INTO chunks VALUES(1, 1, 'Текст нормы без нужного пункта')")
+    conn.commit()
+    conn.close()
+    monkeypatch.setattr(engine, "DB", dbfile)
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "load_registry", lambda corpus: ({}, {}))
+
+    auditor = engine.Auditor(tmp_path)
+    line = "А" * 300 + " согласно СП 5.03.01-2020, п. 99.99.99 принимаем бетон."
+    auditor.check_norms("01-ПЗ.docx", [(1, line)])
+
+    assert any("99.99.99" in f.message for f in auditor.scan.findings)
+
+
 def test_norm_passport_reads_amendments(auditor):
     auditor.registry = {"СП 5.03.01-2020": {
         "Статус": "действует",
