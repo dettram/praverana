@@ -49,6 +49,33 @@ def test_composition_ppr_missing_blocks(auditor):
     assert any("приложения В" in f.message for f in auditor.scan.findings)
 
 
+def test_composition_ppr_text_headers_pass(auditor):
+    text = ("Календарный график производства работ. Строительный генеральный план. "
+            "Технологические карты. Охрана труда. Пояснительная записка. "
+            "Новое строительство.")
+    auditor.check_composition("ППР-01.docx", [(1, text)])
+    messages = [f.message for f in auditor.scan.findings]
+    assert not any("приложения В" in m for m in messages)
+    assert not any("В.10" in m or "В.11" in m for m in messages)
+
+
+def test_composition_ppr_reconstruction_needs_v5(auditor):
+    text = ("Календарный график. Строительный генеральный план. Технологические карты. "
+            "Охрана труда. Пояснительная записка. Реконструкция объекта.")
+    auditor.check_composition("ППР-01.docx", [(1, text)])
+    messages = [f.message for f in auditor.scan.findings]
+    assert any("В.5" in m for m in messages)
+    assert not any("В.10" in m or "В.11" in m for m in messages)
+
+
+def test_composition_pos_text_headers_pass(auditor):
+    text = ("Пояснительная записка. Календарный план строительства. "
+            "Строительный генеральный план. Организационно-технологические схемы. "
+            "Ведомость строительных машин. Потребность в кадрах.")
+    auditor.check_composition("ПОС-01.docx", [(1, text)])
+    assert not any("приложения Г" in f.message for f in auditor.scan.findings)
+
+
 def test_composition_km_is_info(auditor):
     auditor.check_composition("ППР-КМ-01.docx", [(1, "монтаж")])
     assert len(auditor.scan.findings) == 1

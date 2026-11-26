@@ -5,12 +5,11 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
-SKILL = Path(__file__).resolve().parent.parent
-DATA = SKILL / "data" / "pos-ppr.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from composition import missing_sections  # noqa: E402
 
 
 def doc_text(path: Path) -> str:
@@ -30,15 +29,11 @@ def main() -> int:
     ap.add_argument("--path", required=True)
     args = ap.parse_args()
 
-    data = json.loads(DATA.read_text(encoding="utf-8"))
-    text = doc_text(Path(args.path)).lower()
+    path = Path(args.path)
+    text = doc_text(path)
+    missing = missing_sections(args.kind, text, path.name)
 
-    missing = []
-    for b in data[args.kind]:
-        if b["clause"].lower() not in text:
-            missing.append(b["clause"])
-
-    print(f"Проверено разделов: {len(data[args.kind])}; отсутствуют: {len(missing)}")
+    print(f"Проверено разделов: база; отсутствуют: {len(missing)}")
     for m in missing:
         print("  -", m)
     return 1 if missing else 0

@@ -28,11 +28,10 @@ sys.path.insert(0, str(SCRIPTS))
 
 from clause import clause_status  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
+from composition import missing_sections  # noqa: E402
 from norm_check import classify, load_registry, registry_date  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
-SKILL = Path(__file__).resolve().parent.parent
-COMPOSITION = SKILL / "data" / "pos-ppr.json"
 
 TEXT_EXT = {".md", ".txt", ".csv"}
 DOC_EXT = {".docx", ".pdf", ".xlsx", ".doc"}
@@ -156,8 +155,6 @@ class Auditor:
         self.scan.corpus = registry_date(Path(CORPUS_DEFAULT))
         self.db = sqlite3.connect(str(DB)) if DB.exists() else None
         self._clause_cache: dict[tuple[str, str], str] = {}
-        self.composition = (json.loads(COMPOSITION.read_text(encoding="utf-8"))
-                            if COMPOSITION.exists() else {"pos": [], "ppr": []})
         self._seen: set[tuple] = set()
         self.norm_hits: dict[str, dict] = {}
 
@@ -266,16 +263,14 @@ class Auditor:
                 kind = "ppr"
             else:
                 return
-        blocks = self.composition.get(kind, [])
-        missing = [b["clause"] for b in blocks
-                   if not re.search(rf"(?<![\d.]){re.escape(b['clause'].lower())}(?![\d])", low)]
+        missing = missing_sections(kind, text, name)
         if missing:
             self.add(Finding(
                 "warn", "ПОС/ППР", rel, None,
-                f"нет блоков приложения {'В' if kind == 'ppr' else 'Г'}: "
+                f"нет обязательных разделов приложения {'В' if kind == 'ppr' else 'Г'}: "
                 + ", ".join(missing[:12]) + ("…" if len(missing) > 12 else ""),
                 "СН 1.03.04-2020, прил. " + ("В" if kind == "ppr" else "Г"),
-                "Дополнить документ отсутствующими блоками",
+                "Дополнить документ отсутствующими разделами",
             ))
         if "не может служить основанием" not in re.sub(r"\s+", " ", low) and kind == "pos":
             self.add(Finding(
