@@ -81,6 +81,16 @@ def test_norms_deduplicate_by_code(auditor):
     assert "2 раз" in auditor.scan.findings[0].message
 
 
+def test_norms_tail_counts_unique_files(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    for name in ("a.docx", "b.docx", "c.docx", "d.docx"):
+        auditor.check_norms(name, [(1, "СНБ 2.04.02-2000"), (2, "СНБ 2.04.02-2000")])
+    auditor._flush_norms()
+    finding = auditor.scan.findings[0]
+    assert finding.file == "a, b, c и ещё 1…"
+    assert "встречается 8 раз" in finding.message
+
+
 def test_norms_truncated_code_skipped(auditor):
     auditor.registry, auditor.replaced = {}, {}
     auditor.check_norms("x.docx", [(1, "СП 5.03.01")])

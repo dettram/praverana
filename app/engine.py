@@ -198,7 +198,7 @@ class Auditor:
                         "files": [], "count": 0,
                     })
                     hit["count"] += 1
-                    if rel_key not in hit["files"] and len(hit["files"]) < 5:
+                    if rel_key not in hit["files"]:
                         hit["files"].append(rel_key)
                 if self.db is None:
                     continue
@@ -396,8 +396,8 @@ class Auditor:
         """Свёртка по шифрам: один шифр — одна строка со списком файлов."""
         for code, hit in self.norm_hits.items():
             files = hit["files"]
-            where = ", ".join(files[:3]) + (f" и ещё {hit['count'] - len(files[:3])}…"
-                                             if hit["count"] > len(files[:3]) else "")
+            tail = len(files) - len(files[:3])
+            where = ", ".join(files[:3]) + (f" и ещё {tail}…" if tail > 0 else "")
             action = ("Заменить на действующий документ" if hit["severity"] == "error"
                       else "Подтвердить шифр и год по реестру ТНПА")
             self.add(Finding(hit["severity"], "нормы", where, None,
