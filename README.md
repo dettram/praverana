@@ -35,13 +35,19 @@
 git clone <этот репозиторий>
 cd praverana
 
-# интерфейс (нужен Python 3.11+ и uv)
-uv run --with fastapi --with uvicorn --with python-docx --with pypdf --with python-multipart `
-    python app/server.py        # http://127.0.0.1:8765
+# интерфейс (нужен Python 3.11+ и uv): ставит зафиксированные версии и открывает браузер
+tools\start-praverana.cmd      # http://127.0.0.1:8765/app
+
+# то же вручную
+uv sync --locked
+uv run --locked python app/server.py
 
 # CLI без интерфейса
-uv run --with python-docx --with pypdf python app/engine.py --path "<папка проекта>" --out result.json
+uv run --locked python app/engine.py --path "<папка проекта>" --out result.json
 ```
+
+`pyproject.toml` и `uv.lock` фиксируют версии; `uv sync --locked` не меняет lock-файл и
+работает офлайн после первой установки.
 
 ## Что нужно подготовить самому
 
