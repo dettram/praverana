@@ -22,8 +22,8 @@
 |---|---|---|---|
 | Unit | чистые функции: шифры, пары, оценка, история | мс | `tests/test_*.py` |
 | Contract | FastAPI через `TestClient`, JSON-схема, коды ответов | секунды | `tests/test_server.py` |
-| Integration | движок на демо-папке, DOCX/разметка, ZIP | секунды | `tests/test_integration.py` |
-| E2E | браузер: `/app`, загрузка, таблица, выгрузки | десятки секунд | `tests/test_ui.py` (`ui`) |
+| Integration | движок на демо-папке, DOCX/разметка, ZIP | секунды | `tests/test_demo_project.py`, `tests/test_report.py` |
+| E2E | браузер: `/app`, загрузка, таблица, выгрузки | десятки секунд | `tests/test_ui.py` — **план** |
 | Manual | Word→PDF, лендинг-гейт, вкус, реальный корпус | — | чек-лист PR |
 
 ## 3. Матрица по модулям
@@ -233,7 +233,8 @@ pypdf; Playwright — по желанию, отдельной группой). �
 
 ## 13. Первые пять файлов
 
-Каркас уже в `tests/` — 59 тестов на `common`, `norm_check`, `engine` и гейт импортов.
+Каркас уже в `tests/` — тесты на `common`, `norm_check`, `engine`, `report`, `markdoc`,
+`history` и гейт импортов; актуальное число даёт `pytest -q`.
 Дальше по одному PR на файл:
 
 1. `tests/test_history.py` — сохранение, сравнение, смена выборки.

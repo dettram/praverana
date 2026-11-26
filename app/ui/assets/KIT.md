@@ -15,7 +15,8 @@
 | `icons/icon.css` | иконки |
 | `moments/moments.js`, `moments/lib.js`, `moments/cursor-spotlight/*` | момент `cursor-spotlight` |
 
-Полный кит (включая демо и галереи) ставится `tools/setup-kit.ps1` и в git не попадает.
-После обновления кита проверь `uv run python tools/check-assets.py` и гейт лендинга.
+Полный кит (включая демо и галереи) ставится `tools/setup-kit.ps1` в отслеживаемую
+папку `app/ui/assets` — в git он попадает. После обновления кита проверь
+`uv run python tools/check-assets.py` и гейт лендинга.
 
 Лицензия кита — MIT; исходный текст: <https://github.com/Leonxlnx/taste-skill/blob/main/LICENSE>.

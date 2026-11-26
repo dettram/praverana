@@ -59,6 +59,8 @@ uv run --locked python app/engine.py --path "<папка проекта>" --out 
 2. **Индекс** — `~/.stroy-audit/index.sqlite`, строится `scripts/build_index.py`,
    `scripts/build_clauses.py`, `scripts/build_stems.py`.
 3. **Реестр** — `scripts/refresh_registry.py`, `scripts/harvest_registry.py`.
+4. **Кит лендинга** — `tools/setup-kit.ps1` копирует полный кит в `app/ui/assets`
+   (папка отслеживается git); после обновления — `uv run python tools/check-assets.py`.
 
 Без корпуса интерфейс и отчёт работают, но проверки норм и пунктов дадут пустой результат:
 это ограничение, а не ошибка.

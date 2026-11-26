@@ -109,6 +109,7 @@ class Scan:
     files_total: int = 0
     files_scanned: int = 0
     skipped: int = 0
+    truncated: int = 0
     size_mb: float = 0.0
     duration_s: float = 0.0
     findings: list[Finding] = field(default_factory=list)
@@ -134,6 +135,12 @@ def docx_text(path: Path) -> list[tuple[int, str]]:
         return []
     size = 3000
     return [(i // size + 1, text[i:i + size]) for i in range(0, len(text), size)]
+
+
+def pdf_pages_total(path: Path) -> int:
+    from pypdf import PdfReader
+
+    return len(PdfReader(str(path)).pages)
 
 
 def pdf_text(path: Path) -> list[tuple[int, str]]:
@@ -408,12 +415,19 @@ class Auditor:
             except Exception as exc:  # noqa: BLE001
                 self.scan.errors.append(f"{rel}: {type(exc).__name__}: {exc}")
                 continue
-            if p.suffix.lower() == ".pdf" and len(pages) == MAX_PDF_PAGES:
-                self.add(Finding(
-                    "warn", "комплект", rel, None,
-                    f"PDF: прочитано {MAX_PDF_PAGES} страниц — предел; если больше, остальные не проверены", "",
-                    "Проверить остальные страницы вручную",
-                ))
+            if p.suffix.lower() == ".pdf":
+                try:
+                    total_pages = pdf_pages_total(p)
+                except Exception:  # noqa: BLE001
+                    total_pages = 0
+                if total_pages > MAX_PDF_PAGES:
+                    self.scan.truncated += 1
+                    self.add(Finding(
+                        "warn", "комплект", rel, None,
+                        f"PDF: прочитано {MAX_PDF_PAGES} из {total_pages} страниц — предел; "
+                        "остальные не проверены", "",
+                        "Проверить остальные страницы вручную",
+                    ))
             if not pages:
                 ext = p.suffix.lower()
                 if ext in UNSUPPORTED_EXT:
@@ -481,6 +495,7 @@ def result_dict(scan: Scan) -> dict:
             "files_total": scan.files_total,
             "files_scanned": scan.files_scanned,
             "skipped": scan.skipped,
+            "truncated": scan.truncated,
             "size_mb": round(scan.size_mb, 1),
             "duration_s": scan.duration_s,
             "corpus": scan.corpus or "дата не определена",

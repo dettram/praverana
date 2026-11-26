@@ -136,6 +136,24 @@ def test_pdf_limit_reports_truncation(tmp_path, monkeypatch):
 
     scan = engine.Auditor(tmp_path).run()
     assert any("предел" in f.message and "PDF" in f.message for f in scan.findings)
+    assert scan.truncated == 1
+
+
+def test_pdf_exact_limit_is_not_truncated(tmp_path, monkeypatch):
+    from pypdf import PdfWriter
+
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "MAX_PDF_PAGES", 2)
+    writer = PdfWriter()
+    for _ in range(2):
+        writer.add_blank_page(width=595, height=842)
+    writer.write(str(tmp_path / "doc.pdf"))
+
+    scan = engine.Auditor(tmp_path).run()
+    assert not any("PDF" in f.message and "предел" in f.message for f in scan.findings)
+    assert scan.truncated == 0
+    assert engine.result_dict(scan)["meta"]["truncated"] == 0
 
 
 def test_clause_checked_for_active_code(auditor):

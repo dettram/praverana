@@ -52,13 +52,15 @@ WORK = Path(tempfile.gettempdir()) / "stroy-audit-ui"
 WORK.mkdir(parents=True, exist_ok=True)
 
 
-def run_job(job_id: str, path: Path, include_text: bool, history_key: str | None = None) -> None:
+def run_job(job_id: str, path: Path, include_text: bool, history_key: str | None = None,
+            source: str = "path") -> None:
     job = JOBS[job_id]
     job["state"] = "running"
     try:
         prev = previous(str(path), exclude_last=False, key=history_key)
         result = audit(path, include_text=include_text)
         result["meta"]["date"] = __import__("datetime").datetime.now().strftime("%d.%m.%Y %H:%M")
+        result["meta"]["source"] = source
         if history_key:
             result["meta"]["history_key"] = history_key
         result["history"] = {
@@ -121,7 +123,9 @@ def start(payload: dict) -> JSONResponse:
         raise HTTPException(400, "Папка не найдена")
     job_id = uuid.uuid4().hex[:12]
     JOBS[job_id] = {"state": "queued", "path": str(path), "result": None, "error": None}
-    threading.Thread(target=run_job, args=(job_id, path, bool(payload.get("include_text"))),
+    history_key = fingerprint(path)
+    threading.Thread(target=run_job, args=(job_id, path, bool(payload.get("include_text")),
+                                          history_key, "path"),
                      daemon=True).start()
     return JSONResponse({"job": job_id})
 
@@ -142,7 +146,7 @@ async def upload(files: list[UploadFile] = File(...), include_text: bool = Form(
     job_id = uuid.uuid4().hex[:12]
     JOBS[job_id] = {"state": "queued", "path": str(root), "result": None, "error": None}
     history_key = fingerprint(root)
-    threading.Thread(target=run_job, args=(job_id, root, include_text, history_key),
+    threading.Thread(target=run_job, args=(job_id, root, include_text, history_key, "upload"),
                      daemon=True).start()
     return JSONResponse({"job": job_id, "path": str(root)})
 

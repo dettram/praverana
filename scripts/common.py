@@ -14,6 +14,7 @@ REGISTRY_DEFAULT = "02-Реестр.csv"
 REGISTRY_DATE = "18.11.2026"
 STATUS_FIELD = "Статус"
 STATUS_PREFIX = "статус на"
+STATUS_RE = re.compile(r"^статус(?:\s+на\s+\d{1,2}\.\d{1,2}\.\d{4})?$")
 
 TEXT_SUFFIXES = {".md", ".txt", ".csv"}
 SUPPORTED = TEXT_SUFFIXES | {".pdf", ".docx", ".xlsx"}
@@ -61,7 +62,7 @@ def status_key(row: dict) -> str | None:
         if not key:
             continue
         name = str(key).strip().lower()
-        if name == STATUS_FIELD.lower() or name.startswith(STATUS_PREFIX):
+        if STATUS_RE.match(name):
             return key
     return None
 

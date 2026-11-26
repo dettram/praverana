@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import CORPUS_DEFAULT, SUPPORTED, ensure_dir, norm_code, CODE_RE, pages_of  # noqa: E402
+from build_clauses import build as build_clauses  # noqa: E402
 
 DEFAULT_OUT = Path.home() / ".stroy-audit" / "index.sqlite"
 DEFAULT_SKIP = (
@@ -218,8 +219,6 @@ def main() -> int:
 
     db.commit()
     if args.with_clauses:
-        from build_clauses import build as build_clauses
-
         stats["clauses"], stats["clause_docs"] = build_clauses(db)
     db.close()
     stats["seconds"] = round(time.time() - started, 1)

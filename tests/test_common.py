@@ -1,6 +1,6 @@
 import pytest
 
-from common import clean, extract_citations, norm_code, read_text, short, year_of
+from common import clean, extract_citations, norm_code, read_text, short, status_of, year_of
 
 
 @pytest.mark.parametrize("raw, expected", [
@@ -89,3 +89,9 @@ def test_extract_citations_recognises_new_prefixes():
     codes = [c["code"] for c in extract_citations(text)]
     assert codes == ["ПУЭ 6", "ТКП EN 1992-1-1-2009", "СТБ ISO 9001-2015",
                      "ГОСТ Р 21.1101-2013"]
+
+
+def test_status_key_ignores_status_narusheniy():
+    assert status_of({"Статус нарушений": "3"}) == ""
+    assert status_of({"Статус на 18.11.2026": "действует"}) == "действует"
+    assert status_of({"Статус": "отменён"}) == "отменён"

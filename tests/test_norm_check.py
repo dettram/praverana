@@ -107,6 +107,21 @@ def test_registry_date_from_header(tmp_path):
     assert registry_date(tmp_path) == "01.01.2027"
 
 
+def test_registry_date_ignores_status_narusheniy(tmp_path):
+    (tmp_path / "02-Реестр.csv").write_text(
+        "Шифр;Статус нарушений;Статус на 01.01.2027\nСП 1;3;действует\n",
+        encoding="utf-8")
+    assert registry_date(tmp_path) == "01.01.2027"
+
+
+def test_harvest_status_column_is_today():
+    from datetime import date
+
+    import harvest_registry
+
+    assert harvest_registry.STATUS_COL == f"Статус на {date.today().strftime('%d.%m.%Y')}"
+
+
 def test_cancelled_status_shows_replacement_chain():
     registry = {"СНБ 2.04.02-2000": {
         "Шифр": "СНБ 2.04.02-2000",

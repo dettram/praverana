@@ -23,11 +23,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (  # noqa: E402
-    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, REGISTRY_DATE, clean, extract_citations,
+    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, clean, extract_citations,
     norm_code, status_key, status_of, year_of,
 )
 
-STATUS_COL = f"Статус на {REGISTRY_DATE}"
+STATUS_COL = f"Статус на {date.today().strftime('%d.%m.%Y')}"
 COLUMNS = ["№", "Шифр", "Наименование", "Вид", "Введён (утверждён)",
            "Последнее изменение", STATUS_COL, "Заменяет / чем заменён", "Источник"]
 

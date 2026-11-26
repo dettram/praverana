@@ -16,15 +16,19 @@ HISTORY = Path.home() / ".stroy-audit" / "audit-runs"
 
 
 def _key(root: str) -> str:
-    return hashlib.sha1(str(Path(root)).lower().encode("utf-8")).hexdigest()[:8]
+    """Ключ истории — по составу папки, а не по пути: путь и загрузка совпадают."""
+    return fingerprint(root)
 
 
 def fingerprint(root: str | Path) -> str:
-    """Стабильный отпечаток состава папки: относительные имена + размеры."""
+    """Стабильный отпечаток состава папки: относительные имена, без размеров.
+
+    Размер не входит: исправление файла не должно ломать историю «было/стало».
+    """
     base = Path(root)
     h = hashlib.sha1()
     for path in sorted(p for p in base.rglob("*") if p.is_file()):
-        h.update(f"{path.relative_to(base).as_posix()}\0{path.stat().st_size}\n".encode("utf-8"))
+        h.update(f"{path.relative_to(base).as_posix()}\n".encode("utf-8"))
     return h.hexdigest()[:8]
 
 
@@ -42,7 +46,7 @@ def save(result: dict, key: str | None = None) -> Path:
     HISTORY.mkdir(parents=True, exist_ok=True)
     root = result["meta"]["root"]
     key = key or result["meta"].get("history_key") or _key(root)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     path = HISTORY / f"{stamp}-{key}.json"
     path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return path
@@ -78,6 +82,7 @@ def list_runs(root: str, limit: int = 6, key: str | None = None) -> list[dict]:
             "warn": data["summary"]["warn"],
             "info": data["summary"]["info"],
             "files": data["meta"]["files_scanned"],
+            "source": data["meta"].get("source", "path"),
         })
     return out
 
