@@ -87,13 +87,45 @@ def _close(code: str, registry: dict[str, dict], active_only: bool = False, cuto
     return matches[0] if matches else None
 
 
+def _since(row: dict) -> str:
+    """Дата введения нового документа из колонки «Введён (утверждён)»."""
+    for key, value in row.items():
+        if key.startswith("Введён") and value:
+            m = re.search(r"\d{2}\.\d{2}\.\d{4}", value)
+            if m:
+                return m.group(0)
+    return ""
+
+
+def replacement_hint(code: str, row: dict | None) -> str:
+    """Новая часть цепочки: «СП … (с 01.07.2026)» или пометка о неоднозначности."""
+    if not row:
+        return ""
+    new: list[str] = []
+    for m in CODE_RE.finditer(row.get("Заменяет / чем заменён") or ""):
+        value = norm_code(m.group(0))
+        if value != code and value not in new:
+            new.append(value)
+    if not new:
+        for m in CODE_RE.finditer(row.get("Шифр") or ""):
+            value = norm_code(m.group(0))
+            if value != code and value not in new:
+                new.append(value)
+    if not new:
+        return ""
+    if len(new) > 1:
+        return f"{', '.join(new)} (несколько замен — требует проверки)"
+    since = _since(row)
+    return f"{new[0]} (с {since})" if since else new[0]
+
+
 def classify(code: str, registry: dict[str, dict], replaced_by: dict[str, dict]) -> tuple[str, str]:
     """→ (severity, message): error | warn | ok."""
     if code.upper().startswith("СНИП"):
         return "error", "СНиП в РБ не применяются с 21.01.2025 (пост. МАиС № 7); ссылаться на СН/СП"
     if code in CURATED_OUTDATED:
         new, why = CURATED_OUTDATED[code]
-        return "error", f"{why}; замена — {new}"
+        return "error", f"{code} → {new} ({why})"
     if year_of(code) is None and not code.startswith("ГОСТ"):
         hint = _close(code, registry)
         return "warn", "шифр без года — статус не определить" + (f"; возможно, {hint}" if hint else "")
@@ -110,15 +142,22 @@ def classify(code: str, registry: dict[str, dict], replaced_by: dict[str, dict])
         if "не вступ" in status:
             return "warn", f"принят, но не вступил: {status_of(row)}"
         if "не применя" in status:
-            return "error", f"не применяется в РБ (п. 1.5 Указа № 217); {row.get('Заменяет / чем заменён')}"
+            hint = replacement_hint(code, row)
+            tail = f"; {code} → {hint}" if hint else ""
+            return "error", f"не применяется в РБ (п. 1.5 Указа № 217){tail}"
         if "замен" in status or "не действ" in status or "отмен" in status:
-            return "error", f"статус: {status_of(row)}; {row.get('Заменяет / чем заменён')}"
+            hint = replacement_hint(code, row)
+            tail = f"; {code} → {hint}" if hint else ""
+            return "error", f"статус: {status_of(row)}{tail}"
         if not status:
             return "warn", "статус не подтверждён: в реестре нет колонки или значения статуса"
         return "warn", f"статус не распознан: {status_of(row)}"
 
     new_row = replaced_by.get(code)
     if new_row:
+        hint = replacement_hint(code, new_row)
+        if hint:
+            return "error", f"{code} → {hint} (реестр)"
         return "error", f"заменён на {norm_code(new_row['Шифр'])} (реестр)"
 
     import difflib

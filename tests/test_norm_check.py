@@ -1,6 +1,6 @@
 import pytest
 
-from norm_check import classify, registry_date
+from norm_check import classify, registry_date, replacement_hint
 
 REGISTRY = {
     "СП 5.03.01-2020": {"Статус": "действует", "Заменяет / чем заменён": ""},
@@ -105,3 +105,34 @@ def test_registry_date_from_header(tmp_path):
     (tmp_path / "02-Реестр.csv").write_text(
         "Шифр;Статус на 01.01.2027\nСП 1;действует\n", encoding="utf-8")
     assert registry_date(tmp_path) == "01.01.2027"
+
+
+def test_cancelled_status_shows_replacement_chain():
+    registry = {"СНБ 2.04.02-2000": {
+        "Шифр": "СНБ 2.04.02-2000",
+        "Статус": "отменён",
+        "Заменяет / чем заменён": "заменён на СП 2.04.04-2026",
+    }}
+    severity, message = classify("СНБ 2.04.02-2000", registry, {})
+    assert severity == "error"
+    assert "СНБ 2.04.02-2000 → СП 2.04.04-2026" in message
+
+
+def test_replacement_hint_includes_introduction_date():
+    hint = replacement_hint("СНБ 2.04.02-2000", {
+        "Шифр": "СП 2.04.04-2026",
+        "Введён (утверждён)": "01.07.2026 (пост. № 35 от 29.04.2026)",
+    })
+    assert hint == "СП 2.04.04-2026 (с 01.07.2026)"
+
+
+def test_ambiguous_replacement_requires_check():
+    registry = {"СП 1.02.01-2020": {
+        "Шифр": "СП 1.02.01-2020",
+        "Статус": "отменён",
+        "Заменяет / чем заменён": "СП 1.02.02-2021, СП 1.02.03-2022",
+    }}
+    severity, message = classify("СП 1.02.01-2020", registry, {})
+    assert severity == "error"
+    assert "требует проверки" in message
+    assert "СП 1.02.02-2021" in message and "СП 1.02.03-2022" in message

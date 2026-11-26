@@ -29,7 +29,7 @@ sys.path.insert(0, str(SCRIPTS))
 from clause import clause_status  # noqa: E402
 from composition import missing_blocks  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
-from norm_check import classify, load_registry, registry_date  # noqa: E402
+from norm_check import classify, load_registry, registry_date, replacement_hint  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
 SKILL = Path(__file__).resolve().parent.parent
@@ -98,6 +98,7 @@ class Finding:
     norm: str = ""
     action: str = ""
     files: list[str] = field(default_factory=list)   # все файлы, если замечание свёрнуто
+    replacement: str = ""                            # «СП … (с дата)» — чем заменена норма
 
 
 @dataclass
@@ -206,8 +207,10 @@ class Auditor:
                     continue
                 severity, message = classify(code, self.registry, self.replaced)
                 if severity != "ok":
+                    row = self.registry.get(code) or self.replaced.get(code)
                     hit = self.norm_hits.setdefault(code, {
                         "severity": severity, "message": message, "norm": code,
+                        "replacement": replacement_hint(code, row),
                         "files": [], "count": 0,
                     })
                     hit["count"] += 1
@@ -412,7 +415,7 @@ class Auditor:
                       else "Подтвердить шифр и год по реестру ТНПА")
             self.add(Finding(hit["severity"], "нормы", where, None,
                              f"{hit['message']} (встречается {hit['count']} раз)",
-                             code, action, files=list(files)))
+                             code, action, list(files), hit.get("replacement", "")))
 
 
 # --------------------------------------------------------------------------- #

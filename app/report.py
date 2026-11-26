@@ -222,8 +222,11 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
             if f.get("page"):
                 unit = location_unit(f.get("file", ""))
                 where += f", {unit} {f['page']}"
+            norm = f["norm"] or "—"
+            if f.get("replacement"):
+                norm += " → " + f["replacement"]
             rows.append((i, SEV_LABEL[f["severity"]], f["category"], where,
-                         f["message"], f["norm"] or "—", f["action"] or "—"))
+                         f["message"], norm, f["action"] or "—"))
         _table(doc, ("№", "Уровень", "Категория", "Где", "Замечание", "Норма", "Действие"),
                rows, widths=(0.8, 2.5, 2.1, 3.6, 3.5, 2.0, 2.3), size=8)
 
