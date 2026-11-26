@@ -19,14 +19,17 @@ SUPPORTED = TEXT_SUFFIXES | {".pdf", ".docx", ".xlsx"}
 _DASH = dict.fromkeys(map(ord, "‐‑‒–—―−"), "-")
 _SPACE = dict.fromkeys(map(ord, "\u00a0\u202f\t"), " ")
 
-PREFIXES = ("СНиП", "СНБ", "СТБ EN", "СТБ", "ТКП", "СН", "СП", "ГОСТ ISO", "ГОСТ")
+PREFIXES = ("СНиП", "СНБ", "СТБ EN", "СТБ ISO", "СТБ", "ТКП EN", "ТКП",
+            "СН", "СП", "ПУЭ", "ГОСТ Р", "ГОСТ ISO", "ГОСТ")
 CANON = {p.upper(): p for p in PREFIXES}
 PREFIX_RE = re.compile(
-    r"^(СНИП|СНБ|СТБ(?:\s*EN)?|ТКП|СН|СП|ГОСТ(?:\s*(?:ISO|IEC))?)", re.IGNORECASE
+    r"^(СНИП|СНБ|СТБ(?:\s*(?:EN|ISO))?|ТКП(?:\s*EN)?|СН|СП|ПУЭ|"
+    r"ГОСТ(?:\s*(?:ISO|IEC|Р))?)", re.IGNORECASE
 )
 
 CODE_RE = re.compile(
-    r"(?<![А-ЯЁA-Z])(СНиП|СНБ|СТБ(?:\s*EN)?|ТКП|СН|СП|ГОСТ(?:\s*(?:ISO|IEC))?)\s*"
+    r"(?<![А-ЯЁA-Z])(СНиП|СНБ|СТБ(?:\s*(?:EN|ISO))?|ТКП(?:\s*EN)?|СН|СП|ПУЭ|"
+    r"ГОСТ(?:\s*(?:ISO|IEC|Р))?)\s*"
     r"(\d+(?:[.\-]\d+)*(?:-\d{2,4})?|[IVX]+-\d+(?:[.\-]\d+)*)(\*?)",
     re.IGNORECASE,
 )
@@ -78,8 +81,6 @@ def norm_code(raw: str) -> str:
         prefix = m.group(1)
         rest = s[m.end():].strip()
         canonical = CANON.get(prefix, prefix)
-        if prefix == "СТБ" and rest.upper().startswith("EN"):
-            canonical, rest = "СТБ EN", rest[2:].strip()
         s = f"{canonical} {rest}".strip()
     return re.sub(r"\s+", " ", s).strip()
 

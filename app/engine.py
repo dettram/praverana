@@ -26,13 +26,12 @@ import sys
 SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from clause import clause_status  # noqa: E402
+from clause import clause_status, pair_citations  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
-from norm_check import classify, load_registry, registry_date  # noqa: E402
+from composition import missing_sections  # noqa: E402
+from norm_check import classify, load_registry, registry_date, replacement_for  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
-SKILL = Path(__file__).resolve().parent.parent
-COMPOSITION = SKILL / "data" / "pos-ppr.json"
 
 TEXT_EXT = {".md", ".txt", ".csv"}
 DOC_EXT = {".docx", ".pdf", ".xlsx", ".doc"}
@@ -42,30 +41,10 @@ SKIP_EXT = {".dwg", ".rvt", ".rfa", ".ifc", ".png", ".jpg", ".jpeg", ".tif", ".t
 MAX_FILES = 600
 MAX_PDF_PAGES = 80
 
-CLAUSE_RE = re.compile(r"п(?:ункт|\.)?\s*№?\s*(\d+(?:\.\d+){0,4})", re.IGNORECASE)
 PLACEHOLDER_RE = re.compile(r"(ХХХ|___|\bзаполнить\b|\bне заполнено\b|\[вставить)", re.IGNORECASE)
 SOFT_PLACEHOLDER_RE = re.compile(r"(по проекту|уточнить по проекту)", re.IGNORECASE)
 SHORT_CODE_RE = re.compile(r"^(СН|СП|ГОСТ|СТБ|ТКП)\s*\d{1,2}$")
 TRUNCATED_RE = re.compile(r"^(СН|СП|СТБ|ГОСТ|ТКП)\s*\d+(?:\.\d+){1,3}$")
-
-
-def pair_citations(line: str) -> list[tuple[str, str]]:
-    """Пары «шифр — пункт» внутри одной строки: пункт относится к ближайшему
-    предшествующему шифру (не дальше 80 знаков), иначе пара не считается."""
-    codes = [(m.start(), norm_code(m.group(0))) for m in CODE_RE.finditer(line)]
-    out: list[tuple[str, str]] = []
-    for m in CLAUSE_RE.finditer(line):
-        clause = m.group(1)
-        if len(clause.split(".")) < 2:
-            continue
-        prev = [c for c in codes if c[0] < m.start() and m.start() - c[0] <= 80]
-        if not prev:
-            continue
-        code = prev[-1][1]
-        if clause in code:          # «СП 5.04.01-2021» — это шифр, а не пункт
-            continue
-        out.append((code, clause))
-    return out
 
 
 @dataclass
@@ -77,6 +56,8 @@ class Finding:
     message: str
     norm: str = ""
     action: str = ""
+    files: list[str] = field(default_factory=list)
+    replacement: str = ""
 
 
 @dataclass
@@ -156,8 +137,6 @@ class Auditor:
         self.scan.corpus = registry_date(Path(CORPUS_DEFAULT))
         self.db = sqlite3.connect(str(DB)) if DB.exists() else None
         self._clause_cache: dict[tuple[str, str], str] = {}
-        self.composition = (json.loads(COMPOSITION.read_text(encoding="utf-8"))
-                            if COMPOSITION.exists() else {"pos": [], "ppr": []})
         self._seen: set[tuple] = set()
         self.norm_hits: dict[str, dict] = {}
 
@@ -196,9 +175,10 @@ class Auditor:
                     hit = self.norm_hits.setdefault(code, {
                         "severity": severity, "message": message, "norm": code,
                         "files": [], "count": 0,
+                        "replacement": replacement_for(code, self.registry, self.replaced),
                     })
                     hit["count"] += 1
-                    if rel_key not in hit["files"] and len(hit["files"]) < 5:
+                    if rel_key not in hit["files"]:
                         hit["files"].append(rel_key)
                 if self.db is None:
                     continue
@@ -266,16 +246,14 @@ class Auditor:
                 kind = "ppr"
             else:
                 return
-        blocks = self.composition.get(kind, [])
-        missing = [b["clause"] for b in blocks
-                   if not re.search(rf"(?<![\d.]){re.escape(b['clause'].lower())}(?![\d])", low)]
+        missing = missing_sections(kind, text, name)
         if missing:
             self.add(Finding(
                 "warn", "ПОС/ППР", rel, None,
-                f"нет блоков приложения {'В' if kind == 'ppr' else 'Г'}: "
+                f"нет обязательных разделов приложения {'В' if kind == 'ppr' else 'Г'}: "
                 + ", ".join(missing[:12]) + ("…" if len(missing) > 12 else ""),
                 "СН 1.03.04-2020, прил. " + ("В" if kind == "ppr" else "Г"),
-                "Дополнить документ отсутствующими блоками",
+                "Дополнить документ отсутствующими разделами",
             ))
         if "не может служить основанием" not in re.sub(r"\s+", " ", low) and kind == "pos":
             self.add(Finding(
@@ -336,7 +314,9 @@ class Auditor:
             ))
 
         self.scan.files_total = sum(1 for p in self.root.rglob("*") if p.is_file())
-        names = [p.name for p in paths]
+        names = [p.name for p in self.root.rglob("*") if p.is_file()
+                 and not any(part.startswith(".") or part == "__pycache__"
+                             for part in p.relative_to(self.root).parts)]
         self.check_completeness(names)
 
         for p in paths:
@@ -396,13 +376,13 @@ class Auditor:
         """Свёртка по шифрам: один шифр — одна строка со списком файлов."""
         for code, hit in self.norm_hits.items():
             files = hit["files"]
-            where = ", ".join(files[:3]) + (f" и ещё {hit['count'] - len(files[:3])}…"
-                                             if hit["count"] > len(files[:3]) else "")
+            tail = len(files) - len(files[:3])
+            where = ", ".join(files[:3]) + (f" и ещё {tail}…" if tail > 0 else "")
             action = ("Заменить на действующий документ" if hit["severity"] == "error"
                       else "Подтвердить шифр и год по реестру ТНПА")
             self.add(Finding(hit["severity"], "нормы", where, None,
                              f"{hit['message']} (встречается {hit['count']} раз)",
-                             code, action))
+                             code, action, list(files), hit.get("replacement", "")))
 
 
 # --------------------------------------------------------------------------- #

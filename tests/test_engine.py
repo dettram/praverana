@@ -6,6 +6,11 @@ from engine import Finding, Scan, pair_citations, result_dict
 
 @pytest.mark.parametrize("line, expected", [
     ("СП 5.03.01-2020, п. 6.3.4.1", [("СП 5.03.01-2020", "6.3.4.1")]),
+    ("СП 5.03.01-2020, п. 6.3.4.1а", [("СП 5.03.01-2020", "6.3.4.1а")]),
+    ("СП 5.03.01-2020, табл. 5.1", [("СП 5.03.01-2020", "Таблица 5.1")]),
+    ("СП 5.03.01-2020, таблица А.1", [("СП 5.03.01-2020", "Таблица А.1")]),
+    ("СП 5.03.01-2020, прил. Г", [("СП 5.03.01-2020", "Приложение Г")]),
+    ("СП 5.03.01-2020, приложение В.2", [("СП 5.03.01-2020", "Приложение В.2")]),
     ("СП 5.04.01-2021, п. 5.04.01", []),
     ("СП 5.03.01-2020, п. 7", []),
     ("СП 5.03.01-2020 и СН 1.03.04-2020, п. 7.7", [("СН 1.03.04-2020", "7.7")]),
@@ -35,9 +40,45 @@ def test_completeness_missing_groups(auditor):
         assert title in finding.message
 
 
+def test_completeness_sees_skipped_formats(auditor, tmp_path):
+    names = ["01-ПЗ.docx", "02-АР.dwg", "03-КР.docx", "04-ИОС.docx",
+             "05-ПОС.docx", "06-ППР.docx", "07-Смета.gsfx"]
+    for name in names:
+        (tmp_path / name).write_bytes(b"x")
+    scan = auditor.run()
+    assert not any("не найдены разделы" in f.message for f in scan.findings)
+
+
 def test_composition_ppr_missing_blocks(auditor):
     auditor.check_composition("ППР-01.docx", [(1, "Проект производства работ")])
     assert any("приложения В" in f.message for f in auditor.scan.findings)
+
+
+def test_composition_ppr_text_headers_pass(auditor):
+    text = ("Календарный график производства работ. Строительный генеральный план. "
+            "Технологические карты. Охрана труда. Пояснительная записка. "
+            "Новое строительство.")
+    auditor.check_composition("ППР-01.docx", [(1, text)])
+    messages = [f.message for f in auditor.scan.findings]
+    assert not any("приложения В" in m for m in messages)
+    assert not any("В.10" in m or "В.11" in m for m in messages)
+
+
+def test_composition_ppr_reconstruction_needs_v5(auditor):
+    text = ("Календарный график. Строительный генеральный план. Технологические карты. "
+            "Охрана труда. Пояснительная записка. Реконструкция объекта.")
+    auditor.check_composition("ППР-01.docx", [(1, text)])
+    messages = [f.message for f in auditor.scan.findings]
+    assert any("В.5" in m for m in messages)
+    assert not any("В.10" in m or "В.11" in m for m in messages)
+
+
+def test_composition_pos_text_headers_pass(auditor):
+    text = ("Пояснительная записка. Календарный план строительства. "
+            "Строительный генеральный план. Организационно-технологические схемы. "
+            "Ведомость строительных машин. Потребность в кадрах.")
+    auditor.check_composition("ПОС-01.docx", [(1, text)])
+    assert not any("приложения Г" in f.message for f in auditor.scan.findings)
 
 
 def test_composition_km_is_info(auditor):
@@ -79,6 +120,25 @@ def test_norms_deduplicate_by_code(auditor):
     auditor._flush_norms()
     assert len(auditor.scan.findings) == 1
     assert "2 раз" in auditor.scan.findings[0].message
+
+
+def test_norms_tail_counts_unique_files(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    for name in ("a.docx", "b.docx", "c.docx", "d.docx"):
+        auditor.check_norms(name, [(1, "СНБ 2.04.02-2000"), (2, "СНБ 2.04.02-2000")])
+    auditor._flush_norms()
+    finding = auditor.scan.findings[0]
+    assert finding.file == "a, b, c и ещё 1…"
+    assert finding.files == ["a", "b", "c", "d"]
+    assert "встречается 8 раз" in finding.message
+
+
+def test_norms_finding_has_replacement_chain(auditor):
+    auditor.registry, auditor.replaced = {}, {}
+    auditor.check_norms("a.docx", [(1, "СНБ 2.04.02-2000")])
+    auditor._flush_norms()
+    finding = auditor.scan.findings[0]
+    assert finding.replacement == "СП 2.04.04-2026"
 
 
 def test_norms_truncated_code_skipped(auditor):

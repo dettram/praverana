@@ -8,7 +8,11 @@ from common import clean, extract_citations, norm_code, read_text, short, status
     ("СП  5.03.01 – 2020", "СП 5.03.01-2020"),
     ("  сп   5.03.01-2020  ", "СП 5.03.01-2020"),
     ("СТБ EN 1992-1-1", "СТБ EN 1992-1-1"),
+    ("СТБ ISO 9001-2015", "СТБ ISO 9001-2015"),
+    ("ТКП EN 1992-1-1-2009", "ТКП EN 1992-1-1-2009"),
     ("ГОСТ ISO 9001-2015", "ГОСТ ISO 9001-2015"),
+    ("ГОСТ Р 21.1101-2013", "ГОСТ Р 21.1101-2013"),
+    ("ПУЭ 6", "ПУЭ 6"),
     ("ТКП 45-2.02-315-2008", "ТКП 45-2.02-315-2008"),
     ("", ""),
 ])
@@ -34,6 +38,12 @@ def test_extract_citations_keeps_line_and_context():
     assert [c["code"] for c in citations] == ["СП 5.03.01-2020", "СН 1.03.04-2020"]
     assert citations[0]["line"] == 2
     assert "СП 5.03.01-2020" in citations[0]["context"]
+
+
+def test_extract_citations_new_prefixes():
+    text = "ПУЭ 6, ТКП EN 1992-1-1-2009, СТБ ISO 9001-2015, ГОСТ Р 21.1101-2013"
+    assert [c["code"] for c in extract_citations(text)] == [
+        "ПУЭ 6", "ТКП EN 1992-1-1-2009", "СТБ ISO 9001-2015", "ГОСТ Р 21.1101-2013"]
 
 
 def test_extract_citations_ignores_bare_clause():

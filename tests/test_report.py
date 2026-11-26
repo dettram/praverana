@@ -1,7 +1,8 @@
 import pytest
 from docx import Document
+from docx.oxml.ns import qn
 
-from report import build_docx, location_unit
+from report import PS_SCRIPT, build_docx, location_unit
 
 
 @pytest.mark.parametrize("file, unit", [
@@ -147,9 +148,71 @@ def test_report_coverage_distinguishes_limit(tmp_path):
     assert "не вошли в лимит (2)" in text
 
 
+def test_report_lists_skipped_errors_and_units(tmp_path):
+    result = _result()
+    result["meta"]["files_total"] = 5
+    result["meta"]["files_scanned"] = 2
+    result["meta"]["skipped"] = 3
+    result["documents"] = [
+        {"file": "ПЗ.pdf", "pages": 3, "chars": 100},
+        {"file": "АР.docx", "pages": 2, "chars": 50},
+    ]
+    result["errors"] = ["битый.pdf: PdfReadError: broken"]
+    text = _text(Document(str(build_docx(result, tmp_path / "coverage.docx"))))
+    assert "ошибок чтения: 1" in text
+    assert "Ошибки чтения: битый.pdf" in text
+    assert "3 стр." in text
+    assert "2 фрагм." in text
+
+
 def test_marking_section_lists_marked_files(tmp_path):
     marked = [{"file": "ПЗ.docx", "comments": 3}]
     text = _text(Document(str(build_docx(_result(), tmp_path / "marked.docx", marked))))
     assert "Разметка документов" in text
     assert "praverana-marked.zip" in text
     assert "ПЗ.docx" in text
+
+
+def test_pdf_script_quits_word_on_open_failure():
+    assert "$w.Quit()" in PS_SCRIPT
+    assert "$doc.Save()" not in PS_SCRIPT
+    # внешний finally должен стоять до Open, иначе сбой Open оставит WINWORD
+    assert PS_SCRIPT.index("try {") < PS_SCRIPT.index("$w.Documents.Open")
+
+
+def test_register_table_repeats_header(tmp_path):
+    doc = Document(str(build_docx(_result(), tmp_path / "header.docx")))
+    tables = [t for t in doc.tables
+              if t.rows and any(c.text.strip() == "№" for c in t.rows[0].cells)]
+    assert tables
+    for table in tables:
+        tr_pr = table.rows[0]._tr.trPr
+        assert tr_pr is not None
+        assert tr_pr.find(qn("w:tblHeader")) is not None
+
+
+def test_history_line_uses_previous_run(tmp_path):
+    result = _result()
+    result["history"] = {"previous": {
+        "old": {"score": 6.0, "error": 2, "warn": 1, "info": 0},
+        "new": {"score": 6.8, "error": 1, "warn": 1, "info": 0},
+        "delta": {"score": 0.8, "error": -1, "warn": 0, "info": 0},
+        "scope_changed": False,
+    }}
+    text = _text(Document(str(build_docx(result, tmp_path / "history.docx"))))
+    assert "С прошлого прогона" in text
+    assert "оценка 6,0 → 6,8 (+0,8)" in text
+    assert "ошибки 2 → 1 (-1)" in text
+
+
+def test_norm_replacement_is_printed(tmp_path):
+    result = _result()
+    result["findings"][0]["replacement"] = "СП 2.04.04-2026"
+    text = _text(Document(str(build_docx(result, tmp_path / "replacement.docx"))))
+    assert "СНБ 2.04.02-2000 → СП 2.04.04-2026" in text
+
+
+def test_bullets_are_rendered(tmp_path):
+    text = _text(Document(str(build_docx(_result(), tmp_path / "bullets.docx"))))
+    assert "Сканы без OCR" in text
+    assert "—" in text

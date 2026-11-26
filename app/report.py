@@ -306,6 +306,8 @@ def _brief(text: str, limit: int = 90) -> str:
 
 
 def _files(f: dict) -> list[str]:
+    if isinstance(f.get("files"), list) and f["files"]:
+        return [str(x).strip() for x in f["files"] if str(x).strip()] or ["—"]
     raw = (f.get("file") or "").strip()
     return [x.strip() for x in raw.split(",") if x.strip()] or ["—"]
 
@@ -358,7 +360,8 @@ def _address(f: dict, docs) -> tuple[str, str]:
 def _norm_text(f: dict) -> str:
     norm = (f.get("norm") or "").strip()
     if norm:
-        return norm
+        replacement = (f.get("replacement") or "").strip()
+        return f"{norm} → {replacement}" if replacement else norm
     if f.get("category") in ("заглушки", "комплект"):
         return "не требуется для этой проверки"
     return "—"
@@ -376,7 +379,7 @@ def _format_date(moment: datetime | None = None) -> str:
 # --------------------------------------------------------------------------- #
 # Обложка
 # --------------------------------------------------------------------------- #
-def _cover(doc: Document, meta: dict, summary: dict, docs) -> None:
+def _cover(doc: Document, meta: dict, summary: dict, docs, errors) -> None:
     root_text = str(meta.get("root") or "—")
     obj = _basename(root_text)
     score = float(summary.get("score") or 0)
@@ -438,7 +441,8 @@ def _cover(doc: Document, meta: dict, summary: dict, docs) -> None:
         ("Состав", f"{files_total} {_plural(files_total, 'файл', 'файла', 'файлов')}"
                    f" · {_num(meta.get('size_mb', 0))} МБ"),
         ("Прочитано", f"{files_scanned} из {files_total} файлов · {chars} знаков"
-                      f" · {_num(meta.get('duration_s', 0))} с"),
+                      f" · {_num(meta.get('duration_s', 0))} с"
+                      + (f" · ошибок чтения: {len(errors)}" if errors else "")),
         ("Статус", "Черновик · не заключение"),
     )
     table = doc.add_table(rows=0, cols=2)
@@ -517,6 +521,7 @@ def _register(doc: Document, result: dict) -> None:
     meta, summary = result.get("meta", {}), result.get("summary", {})
     findings = result.get("findings", [])
     docs = result.get("documents", [])
+    errors = result.get("errors", [])
     score = float(summary.get("score") or 0)
     files_scanned = int(meta.get("files_scanned") or 0)
 
@@ -612,10 +617,10 @@ def _register(doc: Document, result: dict) -> None:
             _fmt(p, 3, 3, 11)
             _run(p, _brief(f.get("message", "")), 8.5, INK)
 
-            norm = (f.get("norm") or "").strip()
+            norm = _norm_text(f)
             p = cells[3].paragraphs[0]
             _fmt(p, 3, 3, 11)
-            _run(p, norm or "—", 8, INK if norm else MUTED)
+            _run(p, norm, 8, INK if norm != "—" else MUTED)
 
         _fixed(table, (1.1, 3.6, 7.0, 5.3), pad_y=0.1)
         _gap(doc, 6)
@@ -642,6 +647,8 @@ def _register(doc: Document, result: dict) -> None:
                 f"{_plural(unread, 'файл', 'файла', 'файлов')}", 8.5, MUTED)
         if truncated:
             _run(p, f", из них {truncated} — предел", 8.5, MUTED)
+    if errors:
+        _run(p, f"; ошибок чтения: {len(errors)}", 8.5, MUTED)
     _run(p, ". Оценка считается только по прочитанному.", 8.5, MUTED)
 
     prev = (result.get("history") or {}).get("previous")
@@ -820,11 +827,22 @@ def _marking(doc: Document, marked) -> None:
 # --------------------------------------------------------------------------- #
 # Документы и решение
 # --------------------------------------------------------------------------- #
-def _documents(doc: Document, meta: dict, docs) -> None:
+def _errors(doc: Document, errors) -> None:
+    if not errors:
+        return
+    p = doc.add_paragraph()
+    _fmt(p, 4, 0, 11)
+    shown = "; ".join(str(e) for e in errors[:5])
+    tail = f"; и ещё {len(errors) - 5}" if len(errors) > 5 else ""
+    _run(p, f"Ошибки чтения: {shown}{tail}.", 7.5, MUTED)
+
+
+def _documents(doc: Document, meta: dict, docs, errors) -> None:
     _heading(doc, "4 Прочитанные документы", 1)
     if not docs:
         p = doc.add_paragraph()
         _run(p, "Текстовые документы не прочитаны.", 10, INK)
+        _errors(doc, errors)
         return
 
     p = doc.add_paragraph()
@@ -853,14 +871,17 @@ def _documents(doc: Document, meta: dict, docs) -> None:
     for number, d in enumerate(rows, 1):
         row = table.add_row()
         row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
-        values = (number, d.get("file", "—"), d.get("pages", 0), d.get("chars", 0))
+        unit = "стр." if str(d.get("file", "")).lower().endswith(".pdf") else "фрагм."
+        values = (number, d.get("file", "—"),
+                  f"{d.get('pages', 0)} {unit}", d.get("chars", 0))
         for i, value in enumerate(values):
             cell = row.cells[i]
             p = cell.paragraphs[0]
             _fmt(p, 2, 2, 11, align=aligns[i])
             _run(p, str(value), 8.5, INK)
             _cell_border(cell, "bottom", LINE, 4)
-    _fixed(table, (0.9, 9.6, 3.2, 3.3), pad_y=0.08)
+    _fixed(table, (0.9, 9.3, 3.6, 3.2), pad_y=0.08)
+    _errors(doc, errors)
 
     unread = max(0, int(meta.get("files_total") or 0) - int(meta.get("files_scanned") or 0))
     truncated = int(meta.get("truncated") or 0)
@@ -956,6 +977,7 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
     summary = result.get("summary", {})
     findings = result.get("findings", [])
     docs = result.get("documents", [])
+    errors = result.get("errors", [])
 
     doc = Document()
     _setup(doc)
@@ -964,11 +986,11 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
     doc.core_properties.subject = _basename(meta.get("root") or "")
     doc.core_properties.comments = "Черновик · не заключение"
 
-    _cover(doc, meta, summary, docs)
+    _cover(doc, meta, summary, docs, errors)
     _register(doc, result)
     _cards(doc, findings, docs)
     _method(doc, meta, marked)
-    _documents(doc, meta, docs)
+    _documents(doc, meta, docs, errors)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(out))
@@ -981,17 +1003,20 @@ $cfg = Get-Content -LiteralPath $args[0] -Raw -Encoding UTF8 | ConvertFrom-Json
 $w = New-Object -ComObject Word.Application
 $w.Visible = $false
 $w.DisplayAlerts = 0
-foreach ($p in $cfg) {
-    $doc = $w.Documents.Open($p.docx, $false, $false)
-    try {
-        $doc.Fields.Update() | Out-Null
-        $doc.Save()
-        $doc.ExportAsFixedFormat($p.pdf, 17)
-    } finally {
-        $doc.Close($false)
+try {
+    foreach ($p in $cfg) {
+        $doc = $null
+        try {
+            $doc = $w.Documents.Open($p.docx, $false, $false)
+            $doc.Fields.Update() | Out-Null
+            $doc.ExportAsFixedFormat($p.pdf, 17)
+        } finally {
+            if ($doc) { $doc.Close($false) }
+        }
     }
+} finally {
+    $w.Quit()
 }
-$w.Quit()
 """
 
 

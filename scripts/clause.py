@@ -27,6 +27,51 @@ def codes_in(text: str) -> set[str]:
     return {norm_code(m.group(0)) for m in CODE_RE.finditer(text or "")}
 
 
+CLAUSE_RE = re.compile(
+    r"(?<![А-ЯЁA-Z])(?:(п(?:ункт|\.|(?=\s)))|(табл(?:ица|\.))|(прил(?:ожение|\.)))"
+    r"\s*№?\s*([\dА-ЯЁA-Z][\d.\-А-ЯЁA-Z]*)", re.IGNORECASE
+)
+
+
+def clause_key(kind: str, value: str) -> str:
+    """Единый ключ для clauses: «Таблица 5.1», «Приложение Г», «6.3.4.1а»."""
+    kind = (kind or "").lower()
+    value = (value or "").strip(" .")
+    if kind.startswith("табл"):
+        return f"Таблица {value}"
+    if kind.startswith("прил"):
+        return f"Приложение {value}"
+    return value
+
+
+def pair_citations(line: str) -> list[tuple[str, str]]:
+    """Пары «шифр — пункт/таблица/приложение» в строке.
+
+    Ссылка относится к ближайшему предшествующему шифру не дальше 80 знаков.
+    Ключ нормализуется так же, как его пишет build_clauses.py.
+    """
+    codes = [(m.start(), norm_code(m.group(0))) for m in CODE_RE.finditer(line)]
+    out: list[tuple[str, str]] = []
+    for m in CLAUSE_RE.finditer(line):
+        if m.group(2):
+            kind = "таблица"
+        elif m.group(3):
+            kind = "приложение"
+        else:
+            kind = "пункт"
+        clause = clause_key(kind, m.group(4))
+        if kind == "пункт" and len(clause.split(".")) < 2:
+            continue
+        prev = [c for c in codes if c[0] < m.start() and m.start() - c[0] <= 80]
+        if not prev:
+            continue
+        code = prev[-1][1]
+        if clause in code:          # «СП 5.04.01-2021» — это шифр, а не пункт
+            continue
+        out.append((code, clause))
+    return out
+
+
 def docs_for_code(db: sqlite3.Connection, code: str) -> list[tuple[int, str]]:
     """Документы фонда с этим шифром. Сравнение по канону, без склейки СН и СП."""
     target = norm_code(code)
@@ -92,10 +137,15 @@ def parse_citations(text: str) -> list[dict]:
     out = []
     for m in re.finditer(
         r"((?:СН|СП|СТБ|ГОСТ|ТКП)\s*\d+(?:[.\-]\d+)*-\d{4})\s*[,;:]?\s*"
-        r"(п\.|пункт|табл\.|приложение|прил\.)\s*([\dА-ЯA-Z][\d.\-А-ЯA-Z]*)",
+        r"(п\.|пункт|табл\.|таблица|приложение|прил\.)\s*([\dА-ЯA-Z][\d.\-А-ЯA-Z]*)",
         text,
     ):
-        out.append({"code": norm_code(m.group(1)), "kind": m.group(2), "clause": m.group(3).strip(" .")})
+        prefix = m.group(2)
+        kind = ("таблица" if prefix.lower().startswith("табл")
+                else "приложение" if prefix.lower().startswith("прил")
+                else "пункт")
+        out.append({"code": norm_code(m.group(1)), "kind": prefix,
+                    "clause": clause_key(kind, m.group(3))})
     return out
 
 
