@@ -126,3 +126,16 @@ def test_build_docx_marked_table(tmp_path):
                      for cell in row.cells)
     assert "01-ПЗ.docx" in text and "2" in text
     assert "02-КР.docx (ValueError: bad)" in "\n".join(p.text for p in doc.paragraphs)
+
+
+def test_build_docx_norms_coverage(tmp_path):
+    norms = [
+        {"code": "СП 5.03.01-2020", "status": "действует", "replacement": "",
+         "changed": "—", "source": "реестр", "has_full_text": True},
+        {"code": "СП 5.04.01-2021", "status": "нет в реестре", "replacement": "",
+         "changed": "", "source": "", "has_full_text": False},
+    ]
+    doc = Document(build_docx(_result(norms=norms), tmp_path / "report.docx"))
+    text = "\n".join(p.text for p in doc.paragraphs)
+    assert "Норм в тексте: 2. Из них с полным текстом в фонде: 1, только по статусу: 1." in text
+    assert "Полного текста нет в фонде: СП 5.04.01-2021." in text

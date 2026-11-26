@@ -59,6 +59,29 @@ def test_where_tail_counts_files(auditor):
     assert finding.file == "00-ПЗ, 01-ПЗ, 02-ПЗ и ещё 2…"
 
 
+def test_norms_summary_reports_full_text_availability(tmp_path, monkeypatch):
+    dbfile = tmp_path / "index.sqlite"
+    _empty_index(dbfile)
+    conn = sqlite3.connect(dbfile)
+    conn.execute("INSERT INTO docs VALUES(1, 'СП 5.03.01-2020.pdf', 'СП 5.03.01-2020', 'ok')")
+    conn.commit()
+    conn.close()
+    monkeypatch.setattr(engine, "DB", dbfile)
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "load_registry", lambda corpus: ({}, {}))
+
+    auditor = engine.Auditor(tmp_path)
+    auditor.check_norms("01-ПЗ.docx", [
+        (1, "СП 5.03.01-2020, СП 5.04.01-2021 и СНБ 2.04.02-2000.")])
+    result = engine.result_dict(auditor.scan)
+    by_code = {n["code"]: n for n in result["norms"]}
+
+    assert by_code["СП 5.03.01-2020"]["has_full_text"] is True
+    assert by_code["СП 5.04.01-2021"]["has_full_text"] is False
+    assert by_code["СП 5.04.01-2021"]["status"] == "нет в реестре"
+    assert by_code["СНБ 2.04.02-2000"]["replacement"] == "СП 2.04.04-2026"
+
+
 def test_completeness_sees_skipped_cad_and_estimate_files(tmp_path, monkeypatch):
     (tmp_path / "01-ПЗ.txt").write_text("Пояснительная записка", encoding="utf-8")
     (tmp_path / "02-АР-АТЛАС.dwg").write_bytes(b"x")

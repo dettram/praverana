@@ -158,6 +158,18 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         "чертежи и решения специалистов не проверялись."
     )
 
+    norms = result.get("norms") or []
+    if norms:
+        full = sum(1 for n in norms if n.get("has_full_text"))
+        doc.add_paragraph(
+            f"Норм в тексте: {len(norms)}. Из них с полным текстом в фонде: {full}, "
+            f"только по статусу: {len(norms) - full}."
+        )
+        without = [n["code"] for n in norms if not n.get("has_full_text")]
+        if without:
+            shown = ", ".join(without[:20]) + ("…" if len(without) > 20 else "")
+            doc.add_paragraph(f"Полного текста нет в фонде: {shown}.")
+
     coverage = (f"Прочитан текст из {meta['files_scanned']} файлов из {meta['files_total']}."
                 + (f" Пропущено без чтения: {skipped} (чертежи, модели, архивы,"
                    " неподдерживаемые форматы)." if skipped else "")

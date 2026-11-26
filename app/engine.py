@@ -26,9 +26,10 @@ import sys
 SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from clause import clause_status  # noqa: E402
+from clause import clause_status, docs_for_code  # noqa: E402
 from composition import missing_blocks  # noqa: E402
-from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
+from common import (CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, extract_citations,  # noqa: E402
+                    norm_code, read_text, status_of)
 from norm_check import classify, load_registry, registry_date, replacement_hint  # noqa: E402
 
 DB = Path.home() / ".stroy-audit" / "index.sqlite"
@@ -112,6 +113,7 @@ class Scan:
     duration_s: float = 0.0
     findings: list[Finding] = field(default_factory=list)
     documents: list[dict] = field(default_factory=list)
+    norms: list[dict] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
 
 
@@ -174,6 +176,7 @@ class Auditor:
                             if COMPOSITION.exists() else {"pos": [], "ppr": []})
         self._seen: set[tuple] = set()
         self.norm_hits: dict[str, dict] = {}
+        self.norms: dict[str, dict] = {}
 
     # -- helpers ----------------------------------------------------------- #
     def add(self, f: Finding) -> None:
@@ -197,6 +200,45 @@ class Auditor:
         self._clause_cache[key] = state
         return state
 
+    def _norm_passport(self, code: str) -> dict:
+        """Паспорт нормы: статус в реестре, замена, изменение, источник, есть ли текст."""
+        row = self.registry.get(code)
+        new_row = self.replaced.get(code)
+        changed = ""
+        if row is not None:
+            status = status_of(row) or "статус не указан"
+            source = row.get("Источник", "")
+            low = status.lower()
+            replaced = (not low.startswith("действ")) and any(
+                mark in low for mark in ("замен", "не действ", "отмен", "не применя"))
+            hint = replacement_hint(code, row) if replaced else ""
+            hint = hint or CURATED_OUTDATED.get(code, ("", ""))[0]
+            for key, value in row.items():
+                if key.startswith("Последнее измен"):
+                    changed = value or ""
+                    break
+        elif new_row is not None:
+            status = "заменён (по реестру)"
+            source = new_row.get("Источник", "")
+            hint = replacement_hint(code, new_row)
+        else:
+            status, source = "нет в реестре", ""
+            hint = CURATED_OUTDATED.get(code, ("", ""))[0]
+        full = False
+        if self.db is not None:
+            try:
+                full = bool(docs_for_code(self.db, code))
+            except Exception:  # noqa: BLE001
+                full = False
+        return {
+            "code": code,
+            "status": status,
+            "replacement": hint,
+            "changed": changed,
+            "source": source,
+            "has_full_text": full,
+        }
+
     # -- 1–2. нормы и цитаты ---------------------------------------------- #
     def check_norms(self, rel: str, pages: list[tuple[int, str]]) -> None:
         rel_key = rel.rsplit(".", 1)[0]
@@ -205,6 +247,9 @@ class Auditor:
                 code = cit["code"]
                 if SHORT_CODE_RE.match(code) or TRUNCATED_RE.match(code):
                     continue
+                if code not in self.norms:
+                    self.norms[code] = self._norm_passport(code)
+                    self.scan.norms = [self.norms[c] for c in sorted(self.norms)]
                 severity, message = classify(code, self.registry, self.replaced)
                 if severity != "ok":
                     row = self.registry.get(code) or self.replaced.get(code)
@@ -396,6 +441,7 @@ class Auditor:
                 "Добавить DOCX или PDF с текстом; сканы без OCR не проверяются",
             ))
         self._flush_norms()
+        self.scan.norms = [self.norms[c] for c in sorted(self.norms)]
 
         if self.db is not None:
             self.db.close()
@@ -442,6 +488,7 @@ def result_dict(scan: Scan) -> dict:
         "summary": {**counts, "score": round(min(score, 10.0), 1)},
         "findings": [asdict(f) for f in scan.findings],
         "documents": scan.documents,
+        "norms": scan.norms,
         "errors": scan.errors,
     }
 
