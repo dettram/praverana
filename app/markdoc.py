@@ -124,20 +124,33 @@ def mark_document(src: Path, dst: Path, marks: list[dict], limit: int = 80) -> d
     return {"comments": placed, "file": dst.name}
 
 
+def _finding_files(f: dict) -> list[str]:
+    """Все файлы замечания: поле `files` (свёрнутые нормы) или список в `file`."""
+    files = [p.strip() for p in (f.get("files") or []) if str(p).strip()]
+    if not files:
+        files = [p.strip() for p in (f.get("file") or "").split(",") if p.strip()]
+    return files
+
+
 def collect_marks(result: dict, root: Path) -> dict[str, list[dict]]:
     """Из результата аудита собирает, что и где помечать в DOCX."""
     out: dict[str, list[dict]] = {}
     for f in result.get("findings", []):
-        file = (f.get("file") or "").split(",")[0].strip()
-        if file == "—":
-            continue
-        if not file.lower().endswith(".docx"):
-            candidate = file + ".docx"
-            if (root / candidate).exists():
-                file = candidate
-            else:
+        targets: list[str] = []
+        for raw in _finding_files(f):
+            if raw == "—":
                 continue
-        if not (root / file).exists():
+            file = raw
+            if not file.lower().endswith(".docx"):
+                candidate = file + ".docx"
+                if not (root / candidate).exists():
+                    continue
+                file = candidate
+            elif not (root / file).exists():
+                continue
+            if file not in targets:
+                targets.append(file)
+        if not targets:
             continue
         text = (f.get("norm") or "").split(",")[0].strip()
         if not text:
@@ -146,11 +159,13 @@ def collect_marks(result: dict, root: Path) -> dict[str, list[dict]]:
                 text = msg.split("«")[1].split("»")[0]
         if not text:
             continue
-        out.setdefault(file, []).append({
+        mark = {
             "text": text,
             "severity": f["severity"],
             "message": f"{f['category']}: {f['message']}",
-        })
+        }
+        for file in targets:
+            out.setdefault(file, []).append(mark)
     return out
 
 
