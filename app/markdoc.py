@@ -10,6 +10,7 @@ marks: [{"text": "ГОСТ 24045-2016", "severity": "warn", "message": "нет �
 from __future__ import annotations
 
 import copy
+import re
 import shutil
 from pathlib import Path
 
@@ -47,14 +48,41 @@ def _split_run(run: Run, pos: int):
     return run, Run(new_r, run._parent)
 
 
-def _paragraphs(doc: Document):
-    for p in doc.paragraphs:
+def _table_paragraphs(table):
+    for row in table.rows:
+        for cell in row.cells:
+            for p in cell.paragraphs:
+                yield p
+            for nested in cell.tables:
+                yield from _table_paragraphs(nested)
+
+
+def _part_paragraphs(part):
+    for p in part.paragraphs:
         yield p
+    for table in part.tables:
+        yield from _table_paragraphs(table)
+
+
+def _paragraphs(doc: Document):
+    seen = set()
+
+    def unique(paragraphs):
+        for p in paragraphs:
+            marker = id(p._p)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            yield p
+
+    yield from unique(doc.paragraphs)
     for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for p in cell.paragraphs:
-                    yield p
+        yield from unique(_table_paragraphs(table))
+    for section in doc.sections:
+        for part in (section.header, section.footer, section.first_page_header,
+                     section.first_page_footer, section.even_page_header,
+                     section.even_page_footer):
+            yield from unique(_part_paragraphs(part))
 
 
 def _comment_span(doc: Document, paragraph, start: int, end: int, text: str,
@@ -104,17 +132,23 @@ def mark_document(src: Path, dst: Path, marks: list[dict], limit: int = 80) -> d
         needle = mark["text"]
         if not needle or done[needle] >= 3 or placed >= limit:
             continue
+        pattern = re.compile(re.escape(needle), re.IGNORECASE)
         for p in paragraphs:
             hay = p.text
             if not hay:
                 continue
-            idx = hay.lower().find(needle.lower())
-            if idx < 0:
-                continue
-            if _comment_span(doc, p, idx, idx + len(needle),
-                             f"{mark['message']} (найдено автоматически)", mark["severity"]):
-                done[needle] += 1
-                placed += 1
+            for m in pattern.finditer(hay):
+                end = m.end()
+                # «ГОСТ 27751» не должен совпадать с «ГОСТ 27751-2014».
+                if end < len(hay) and (hay[end].isdigit() or hay[end] == "-"):
+                    continue
+                if _comment_span(doc, p, m.start(), end,
+                                 f"{mark['message']} (найдено автоматически)",
+                                 mark["severity"]):
+                    done[needle] += 1
+                    placed += 1
+                if done[needle] >= 3 or placed >= limit:
+                    break
             if done[needle] >= 3 or placed >= limit:
                 break
     if placed:
@@ -128,16 +162,23 @@ def collect_marks(result: dict, root: Path) -> dict[str, list[dict]]:
     """Из результата аудита собирает, что и где помечать в DOCX."""
     out: dict[str, list[dict]] = {}
     for f in result.get("findings", []):
-        file = (f.get("file") or "").split(",")[0].strip()
-        if file == "—":
-            continue
-        if not file.lower().endswith(".docx"):
-            candidate = file + ".docx"
-            if (root / candidate).exists():
-                file = candidate
-            else:
+        raw_files = f.get("files") or (f.get("file") or "").split(",")
+        if isinstance(raw_files, str):
+            raw_files = raw_files.split(",")
+        filenames = []
+        for raw in raw_files:
+            file = (raw or "").strip()
+            if file == "—" or not file:
                 continue
-        if not (root / file).exists():
+            if not file.lower().endswith(".docx"):
+                candidate = file + ".docx"
+                if (root / candidate).exists():
+                    file = candidate
+                else:
+                    continue
+            if (root / file).exists():
+                filenames.append(file)
+        if not filenames:
             continue
         text = (f.get("norm") or "").split(",")[0].strip()
         if not text:
@@ -146,11 +187,13 @@ def collect_marks(result: dict, root: Path) -> dict[str, list[dict]]:
                 text = msg.split("«")[1].split("»")[0]
         if not text:
             continue
-        out.setdefault(file, []).append({
+        mark = {
             "text": text,
             "severity": f["severity"],
             "message": f"{f['category']}: {f['message']}",
-        })
+        }
+        for file in filenames:
+            out.setdefault(file, []).append(mark)
     return out
 
 

@@ -129,6 +129,7 @@ def test_norms_tail_counts_unique_files(auditor):
     auditor._flush_norms()
     finding = auditor.scan.findings[0]
     assert finding.file == "a, b, c и ещё 1…"
+    assert finding.files == ["a", "b", "c", "d"]
     assert "встречается 8 раз" in finding.message
 
 

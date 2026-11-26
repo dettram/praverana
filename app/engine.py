@@ -56,6 +56,7 @@ class Finding:
     message: str
     norm: str = ""
     action: str = ""
+    files: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -379,7 +380,7 @@ class Auditor:
                       else "Подтвердить шифр и год по реестру ТНПА")
             self.add(Finding(hit["severity"], "нормы", where, None,
                              f"{hit['message']} (встречается {hit['count']} раз)",
-                             code, action))
+                             code, action, list(files)))
 
 
 # --------------------------------------------------------------------------- #

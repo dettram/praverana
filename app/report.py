@@ -306,6 +306,8 @@ def _brief(text: str, limit: int = 90) -> str:
 
 
 def _files(f: dict) -> list[str]:
+    if isinstance(f.get("files"), list) and f["files"]:
+        return [str(x).strip() for x in f["files"] if str(x).strip()] or ["—"]
     raw = (f.get("file") or "").strip()
     return [x.strip() for x in raw.split(",") if x.strip()] or ["—"]
 
