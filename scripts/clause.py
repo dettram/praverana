@@ -62,7 +62,7 @@ def clause_status(db: sqlite3.Connection, code: str, clause: str,
     if not docs:
         return "no_text", []
 
-    pattern = re.compile(rf"(?<![\d.]){re.escape(clause)}(?![\d])")
+    pattern = re.compile(rf"(?<![\d.]){re.escape(clause)}(?![\d])", re.IGNORECASE)
     found: list[dict] = []
     chunks = 0
     for doc_id, rel in docs:

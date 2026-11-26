@@ -11,8 +11,12 @@ import sys
 from pathlib import Path
 
 DEFAULT_DB = Path.home() / ".stroy-audit" / "index.sqlite"
-CLAUSE_RE = re.compile(r"^\s*(\d{1,2}(?:\.\d{1,3}){0,4})\s*[.)]?\s+([А-ЯЁA-Z][^\n]{3,100})")
-TABLE_RE = re.compile(r"^\s*(Таблица|Приложение)\s+([А-ЯA-Z]?(?:\.\d+)?)\b\s*[—\-:]?\s*([^\n]{0,90})", re.I)
+CLAUSE_RE = re.compile(r"^\s*(\d{1,2}(?:\.\d{1,3}){0,4}[а-яё]?)\s*[.)]?\s+([А-ЯЁA-Z][^\n]{3,100})")
+TABLE_RE = re.compile(
+    r"^\s*(Таблица|Приложение)\s+"
+    r"([А-ЯЁA-Z](?:\.\d{1,2})?|\d{1,2}(?:\.\d{1,3})*)\b\.?\s*[—\-:]?\s*([^\n]{0,90})",
+    re.IGNORECASE,
+)
 
 
 def main() -> int:
@@ -44,7 +48,8 @@ def main() -> int:
                 continue
             m = CLAUSE_RE.match(line)
             if m:
-                clause, title = m.group(1), re.sub(r"\s+", " ", m.group(2)).strip(" .—-")
+                clause = m.group(1).lower()
+                title = re.sub(r"\s+", " ", m.group(2)).strip(" .—-")
                 key = (doc_id, clause)
                 if key in seen or not title:
                     continue
@@ -54,7 +59,7 @@ def main() -> int:
             t = TABLE_RE.match(line)
             if t:
                 kind, num, title = t.group(1).capitalize(), t.group(2), t.group(3).strip(" .—-")
-                clause = f"{kind} {num}".strip()
+                clause = f"{kind} {num.upper() if kind == 'Приложение' else num}"
                 key = (doc_id, clause)
                 if key in seen:
                     continue

@@ -43,27 +43,46 @@ SKIP_EXT = {".dwg", ".rvt", ".rfa", ".ifc", ".png", ".jpg", ".jpeg", ".tif", ".t
 MAX_FILES = 600
 MAX_PDF_PAGES = 80
 
-CLAUSE_RE = re.compile(r"п(?:ункт|\.)?\s*№?\s*(\d+(?:\.\d+){0,4})", re.IGNORECASE)
+CITATION_RE = re.compile(
+    r"(?<![\w.])(?P<kind>п(?:ункт[аеу]?|\.)?|табл(?:иц[аеуы]?|\.)?|прил(?:ожени[еяи]|\.))"
+    r"\s*№?\s*(?P<num>\d{1,2}(?:\.\d{1,3}){0,4}[а-яёa-z]?|[А-ЯЁA-Z](?:\.\d{1,2})?)(?![\w])",
+    re.IGNORECASE,
+)
 PLACEHOLDER_RE = re.compile(r"(ХХХ|___|\bзаполнить\b|\bне заполнено\b|\[вставить)", re.IGNORECASE)
 SOFT_PLACEHOLDER_RE = re.compile(r"(по проекту|уточнить по проекту)", re.IGNORECASE)
 SHORT_CODE_RE = re.compile(r"^(СН|СП|ГОСТ|СТБ|ТКП)\s*\d{1,2}$")
 TRUNCATED_RE = re.compile(r"^(СН|СП|СТБ|ГОСТ|ТКП)\s*\d+(?:\.\d+){1,3}$")
 
 
+def clause_key(kind: str, num: str) -> str:
+    """Ключ ссылки в том же виде, в каком его хранит индекс (`build_clauses.py`):
+    «6.3.4.1а» для пункта, «Таблица 5.1» и «Приложение Г» для таблиц и приложений."""
+    low = kind.lower()
+    if low.startswith("табл"):
+        return f"Таблица {num}"
+    if low.startswith("прил"):
+        return f"Приложение {num.upper()}"
+    return num.lower()
+
+
 def pair_citations(line: str) -> list[tuple[str, str]]:
-    """Пары «шифр — пункт» внутри одной строки: пункт относится к ближайшему
-    предшествующему шифру (не дальше 80 знаков), иначе пара не считается."""
+    """Пары «шифр — ссылка» внутри одной строки: пункт, таблица или приложение
+    относятся к ближайшему предшествующему шифру (не дальше 80 знаков)."""
     codes = [(m.start(), norm_code(m.group(0))) for m in CODE_RE.finditer(line)]
     out: list[tuple[str, str]] = []
-    for m in CLAUSE_RE.finditer(line):
-        clause = m.group(1)
-        if len(clause.split(".")) < 2:
+    for m in CITATION_RE.finditer(line):
+        kind, num = m.group("kind"), m.group("num")
+        low = kind.lower()
+        is_point = low.startswith("п") and not low.startswith("прил")
+        # «п. 7» — слишком короткая ссылка, чтобы что-то утверждать о её наличии.
+        if is_point and len(num.split(".")) < 2:
             continue
+        clause = clause_key(kind, num)
         prev = [c for c in codes if c[0] < m.start() and m.start() - c[0] <= 80]
         if not prev:
             continue
         code = prev[-1][1]
-        if clause in code:          # «СП 5.04.01-2021» — это шифр, а не пункт
+        if num in code:             # «СП 5.04.01-2021» — это шифр, а не пункт
             continue
         out.append((code, clause))
     return out
@@ -204,8 +223,8 @@ class Auditor:
                         continue
                     self.add(Finding(
                         "warn", "цитаты", rel, page_no,
-                        f"пункт {clause} не найден в тексте {code} (фонд/индекс)",
-                        f"{code}, п. {clause}",
+                        f"ссылка «{clause}» не найдена в тексте {code} (фонд/индекс)",
+                        f"{code}, {clause}",
                         "Проверить нумерацию пункта по действующей редакции",
                     ))
 

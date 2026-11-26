@@ -40,3 +40,17 @@ def test_norm_without_text_is_not_a_missing_clause(db):
     state, hits = clause_status(db, "СП 5.04.01-2021", "99.99.99")
     assert state == "no_text"
     assert hits == []
+
+
+def test_appendix_found_case_insensitive(db):
+    db.execute("INSERT INTO chunks VALUES(1, 40, 'Состав раздела — ПРИЛОЖЕНИЕ Г.')")
+    state, hits = clause_status(db, "СП 5.03.01-2020", "Приложение Г")
+    assert state == "ok"
+    assert hits and hits[0]["page"] == 40
+
+
+def test_lettered_clause_found(db):
+    db.execute("INSERT INTO chunks VALUES(1, 50, 'Требование по п. 6.3.4.1а соблюдается.')")
+    state, hits = clause_status(db, "СП 5.03.01-2020", "6.3.4.1а")
+    assert state == "ok"
+    assert hits and hits[0]["page"] == 50
