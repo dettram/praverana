@@ -1000,17 +1000,20 @@ $cfg = Get-Content -LiteralPath $args[0] -Raw -Encoding UTF8 | ConvertFrom-Json
 $w = New-Object -ComObject Word.Application
 $w.Visible = $false
 $w.DisplayAlerts = 0
-foreach ($p in $cfg) {
-    $doc = $w.Documents.Open($p.docx, $false, $false)
-    try {
-        $doc.Fields.Update() | Out-Null
-        $doc.Save()
-        $doc.ExportAsFixedFormat($p.pdf, 17)
-    } finally {
-        $doc.Close($false)
+try {
+    foreach ($p in $cfg) {
+        $doc = $null
+        try {
+            $doc = $w.Documents.Open($p.docx, $false, $false)
+            $doc.Fields.Update() | Out-Null
+            $doc.ExportAsFixedFormat($p.pdf, 17)
+        } finally {
+            if ($doc) { $doc.Close($false) }
+        }
     }
+} finally {
+    $w.Quit()
 }
-$w.Quit()
 """
 
 

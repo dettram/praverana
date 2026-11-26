@@ -1,7 +1,7 @@
 import pytest
 from docx import Document
 
-from report import build_docx, location_unit
+from report import PS_SCRIPT, build_docx, location_unit
 
 
 @pytest.mark.parametrize("file, unit", [
@@ -170,3 +170,10 @@ def test_marking_section_lists_marked_files(tmp_path):
     assert "Разметка документов" in text
     assert "praverana-marked.zip" in text
     assert "ПЗ.docx" in text
+
+
+def test_pdf_script_quits_word_on_open_failure():
+    assert "$w.Quit()" in PS_SCRIPT
+    assert "$doc.Save()" not in PS_SCRIPT
+    # внешний finally должен стоять до Open, иначе сбой Open оставит WINWORD
+    assert PS_SCRIPT.index("try {") < PS_SCRIPT.index("$w.Documents.Open")
