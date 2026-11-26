@@ -92,6 +92,8 @@ def classify(code: str, registry: dict[str, dict], replaced_by: dict[str, dict])
     """→ (severity, message): error | warn | ok."""
     if code.upper().startswith("СНИП"):
         return "error", "СНиП в РБ не применяются с 21.01.2025 (пост. МАиС № 7); ссылаться на СН/СП"
+    if code.upper().startswith("ГОСТ Р"):
+        return "error", "ГОСТ Р — российский стандарт; в РБ применяются ГОСТ, СТБ и СН"
     if code in CURATED_OUTDATED:
         new, why = CURATED_OUTDATED[code]
         return "error", f"{why}; замена — {new}"

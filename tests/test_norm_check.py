@@ -21,6 +21,12 @@ def test_snip_is_error():
     assert "СНиП" in message
 
 
+def test_gost_r_is_foreign_error():
+    severity, message = classify("ГОСТ Р 21.1101-2013", {}, {})
+    assert severity == "error"
+    assert "ГОСТ Р" in message
+
+
 def test_curated_outdated_has_replacement():
     severity, message = classify("СНБ 2.04.02-2000", {}, {})
     assert severity == "error"
