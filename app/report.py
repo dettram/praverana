@@ -632,13 +632,16 @@ def _register(doc: Document, result: dict) -> None:
     files_total = int(meta.get("files_total") or 0)
     chars = sum(int(d.get("chars") or 0) for d in docs)
     unread = max(0, files_total - files_scanned)
+    truncated = int(meta.get("truncated") or 0)
     p = doc.add_paragraph()
     _fmt(p, 0, 4, 12)
     _run(p, "Покрытие: ", 8.5, MUTED, bold=True)
     _run(p, f"прочитано {files_scanned} из {files_total} файлов, {chars} знаков", 8.5, MUTED)
     if unread:
-        _run(p, f"; {unread} {_plural(unread, 'файл', 'файла', 'файлов')} без текста "
-                f"или неподдерживаемого формата", 8.5, MUTED)
+        _run(p, f"; не прочитано {unread} "
+                f"{_plural(unread, 'файл', 'файла', 'файлов')}", 8.5, MUTED)
+        if truncated:
+            _run(p, f", из них {truncated} — предел", 8.5, MUTED)
     _run(p, ". Оценка считается только по прочитанному.", 8.5, MUTED)
 
     prev = (result.get("history") or {}).get("previous")
@@ -860,10 +863,12 @@ def _documents(doc: Document, meta: dict, docs) -> None:
     _fixed(table, (0.9, 9.6, 3.2, 3.3), pad_y=0.08)
 
     unread = max(0, int(meta.get("files_total") or 0) - int(meta.get("files_scanned") or 0))
+    truncated = int(meta.get("truncated") or 0)
     p = doc.add_paragraph()
     _fmt(p, 6, 0, 12)
     tail = f"Не прочитаны {unread} {_plural(unread, 'файл', 'файла', 'файлов')}: " \
-           "нет извлекаемого текста или неподдерживаемый формат." if unread else ""
+           "нет извлекаемого текста, неподдерживаемый формат" \
+           + (f" или не вошли в лимит ({truncated})" if truncated else "") + "." if unread else ""
     _run(p, f"Итого: {len(docs)} {_plural(len(docs), 'файл', 'файла', 'файлов')} · "
             f"{chars} знаков. {tail}", 8.5, MUTED)
     if len(docs) > 40:

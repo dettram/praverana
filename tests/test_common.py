@@ -1,6 +1,6 @@
 import pytest
 
-from common import clean, extract_citations, norm_code, read_text, short, year_of
+from common import clean, extract_citations, norm_code, read_text, short, status_key, year_of
 
 
 @pytest.mark.parametrize("raw, expected", [
@@ -70,3 +70,10 @@ def test_short():
     assert short("a  b\nc", 10) == "a b c"
     assert short("abcdef", 4) == "abc…"
     assert short("abc", 10) == "abc"
+
+
+def test_status_key_requires_word_boundary():
+    assert status_key({"Статус": "действует"}) == "Статус"
+    assert status_key({"Статус на 01.01.2027": "действует"}) == "Статус на 01.01.2027"
+    assert status_key({"Статус нарушений": "нет"}) is None
+    assert status_key({"Другой статус": "нет"}) is None

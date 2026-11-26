@@ -1,5 +1,8 @@
+from datetime import date
+
 import pytest
 
+import harvest_registry
 from norm_check import classify, registry_date
 
 REGISTRY = {
@@ -105,3 +108,7 @@ def test_registry_date_from_header(tmp_path):
     (tmp_path / "02-Реестр.csv").write_text(
         "Шифр;Статус на 01.01.2027\nСП 1;действует\n", encoding="utf-8")
     assert registry_date(tmp_path) == "01.01.2027"
+
+
+def test_harvest_writes_today_status_column():
+    assert harvest_registry.status_column(date(2030, 1, 2)) == "Статус на 02.01.2030"

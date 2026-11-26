@@ -86,6 +86,7 @@ class Scan:
     files_total: int = 0
     files_scanned: int = 0
     skipped: int = 0
+    truncated: int = 0
     size_mb: float = 0.0
     duration_s: float = 0.0
     findings: list[Finding] = field(default_factory=list)
@@ -123,6 +124,13 @@ def pdf_text(path: Path) -> list[tuple[int, str]]:
         except Exception:  # битый слой — не роняем аудит
             out.append((i, ""))
     return out
+
+
+def pdf_page_count(path: Path) -> int:
+    """Всего страниц в PDF — чтобы отличить «ровно предел» от «больше предела»."""
+    from pypdf import PdfReader
+
+    return len(PdfReader(str(path)).pages)
 
 
 def file_text(path: Path) -> list[tuple[int, str]]:
@@ -320,6 +328,7 @@ class Auditor:
 
         if omitted:
             self.scan.skipped += omitted
+            self.scan.truncated += omitted
             self.add(Finding(
                 "warn", "комплект", "—", None,
                 f"предел {MAX_FILES} файлов: не прочитано ещё {omitted}", "",
@@ -332,16 +341,20 @@ class Auditor:
 
         for p in paths:
             rel = p.relative_to(self.root).as_posix()
+            pdf_total = 0
             try:
                 self.scan.size_mb += p.stat().st_size / 1_048_576
                 pages = file_text(p)
+                if p.suffix.lower() == ".pdf":
+                    pdf_total = pdf_page_count(p)
             except Exception as exc:  # noqa: BLE001
                 self.scan.errors.append(f"{rel}: {type(exc).__name__}: {exc}")
                 continue
-            if p.suffix.lower() == ".pdf" and len(pages) == MAX_PDF_PAGES:
+            if p.suffix.lower() == ".pdf" and pdf_total > MAX_PDF_PAGES:
                 self.add(Finding(
                     "warn", "комплект", rel, None,
-                    f"PDF: прочитано {MAX_PDF_PAGES} страниц — предел; если больше, остальные не проверены", "",
+                    f"PDF: прочитано {MAX_PDF_PAGES} из {pdf_total} страниц — предел; "
+                    f"остальные не проверены", "",
                     "Проверить остальные страницы вручную",
                 ))
             if not pages:
@@ -409,6 +422,7 @@ def result_dict(scan: Scan) -> dict:
             "files_total": scan.files_total,
             "files_scanned": scan.files_scanned,
             "skipped": scan.skipped,
+            "truncated": scan.truncated,
             "size_mb": round(scan.size_mb, 1),
             "duration_s": scan.duration_s,
             "corpus": scan.corpus or "дата не определена",

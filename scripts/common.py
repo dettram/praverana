@@ -11,9 +11,7 @@ from pathlib import Path
 
 CORPUS_DEFAULT = Path.home() / "Desktop" / "Нормы-Беларусь-2026"
 REGISTRY_DEFAULT = "02-Реестр.csv"
-REGISTRY_DATE = "18.11.2026"
 STATUS_FIELD = "Статус"
-STATUS_PREFIX = "статус на"
 
 TEXT_SUFFIXES = {".md", ".txt", ".csv"}
 SUPPORTED = TEXT_SUFFIXES | {".pdf", ".docx", ".xlsx"}
@@ -59,7 +57,7 @@ def status_key(row: dict) -> str | None:
         if not key:
             continue
         name = str(key).strip().lower()
-        if name == STATUS_FIELD.lower() or name.startswith(STATUS_PREFIX):
+        if name == STATUS_FIELD.lower() or re.match(r"^статус\s+на(?:\s|$)", name):
             return key
     return None
 
