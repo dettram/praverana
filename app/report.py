@@ -169,6 +169,15 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
         if without:
             shown = ", ".join(without[:20]) + ("…" if len(without) > 20 else "")
             doc.add_paragraph(f"Полного текста нет в фонде: {shown}.")
+        amended = [n for n in norms if n.get("changed")]
+        if amended:
+            shown = "; ".join(f"{n['code']} ({n['changed']})" for n in amended[:10])
+            if len(amended) > 10:
+                shown += "…"
+            doc.add_paragraph(
+                f"В реестре учтены изменения: {shown} — проверьте актуальность "
+                "конкретных пунктов и таблиц."
+            )
 
     coverage = (f"Прочитан текст из {meta['files_scanned']} файлов из {meta['files_total']}."
                 + (f" Пропущено без чтения: {skipped} (чертежи, модели, архивы,"

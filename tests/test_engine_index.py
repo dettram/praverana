@@ -59,6 +59,19 @@ def test_where_tail_counts_files(auditor):
     assert finding.file == "00-ПЗ, 01-ПЗ, 02-ПЗ и ещё 2…"
 
 
+def test_norm_passport_reads_amendments(auditor):
+    auditor.registry = {"СП 5.03.01-2020": {
+        "Статус": "действует",
+        "Последнее изменение": "изм. № 1 (пост. № 33 от 15.03.2022)",
+        "Источник": "01-Справочник.md",
+    }}
+    passport = auditor._norm_passport("СП 5.03.01-2020")
+    assert passport["status"] == "действует"
+    assert passport["changed"].startswith("изм. № 1")
+    assert passport["source"] == "01-Справочник.md"
+    assert passport["replacement"] == ""
+
+
 def test_norms_summary_reports_full_text_availability(tmp_path, monkeypatch):
     dbfile = tmp_path / "index.sqlite"
     _empty_index(dbfile)

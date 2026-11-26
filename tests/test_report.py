@@ -139,3 +139,13 @@ def test_build_docx_norms_coverage(tmp_path):
     text = "\n".join(p.text for p in doc.paragraphs)
     assert "Норм в тексте: 2. Из них с полным текстом в фонде: 1, только по статусу: 1." in text
     assert "Полного текста нет в фонде: СП 5.04.01-2021." in text
+
+
+def test_build_docx_lists_registry_amendments(tmp_path):
+    norms = [{"code": "СП 5.03.01-2020", "status": "действует", "replacement": "",
+              "changed": "изм. № 1 (пост. № 33)", "source": "реестр",
+              "has_full_text": True}]
+    doc = Document(build_docx(_result(norms=norms), tmp_path / "report.docx"))
+    text = "\n".join(p.text for p in doc.paragraphs)
+    assert "В реестре учтены изменения: СП 5.03.01-2020 (изм. № 1 (пост. № 33))" in text
+    assert "проверьте актуальность" in text
