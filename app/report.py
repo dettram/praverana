@@ -90,7 +90,7 @@ def _setup(doc: Document) -> None:
         h.font.bold = True
         h.font.color.rgb = None
         h.paragraph_format.keep_with_next = True
-        h.paragraph_format.space_before = Pt(10 if name == "Heading 1" else 7)
+        h.paragraph_format.space_before = Pt(14 if name == "Heading 1" else 10)
         h.paragraph_format.space_after = Pt(4)
     sec = doc.sections[0]
     sec.page_width = Cm(21.0)
@@ -99,6 +99,18 @@ def _setup(doc: Document) -> None:
     sec.right_margin = Cm(1.5)
     sec.top_margin = Cm(2.0)
     sec.bottom_margin = Cm(1.5)
+
+    footer_p = sec.footer.paragraphs[0]
+    footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    _add_run(footer_p, "Стр. ", size=9)
+    _field(footer_p, "PAGE", "1", size=9)
+    _add_run(footer_p, " из ", size=9)
+    _field(footer_p, "NUMPAGES", "1", size=9)
+
+    # Word должен обновить TOC и номера страниц при открытии.
+    update = OxmlElement("w:updateFields")
+    update.set(qn("w:val"), "true")
+    doc.settings.element.append(update)
 
 
 def _add_run(
@@ -122,6 +134,27 @@ def _add_run(
         run.font.color.rgb = color
     if highlight is not None:
         run.font.highlight_color = highlight
+    return run
+
+
+def _field(paragraph, code: str, placeholder: str = "1", size: float = 9):
+    """Поле Word (PAGE, NUMPAGES, TOC): при обновлении подставит значение."""
+    run = paragraph.add_run()
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(size)
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = f" {code} "
+    sep = OxmlElement("w:fldChar")
+    sep.set(qn("w:fldCharType"), "separate")
+    text = OxmlElement("w:t")
+    text.text = placeholder
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    for element in (begin, instr, sep, text, end):
+        run._r.append(element)
     return run
 
 
@@ -363,6 +396,14 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
     )
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(14)
+    _add_run(p, "Содержание", size=14, bold=True)
+    p_toc = doc.add_paragraph()
+    _field(p_toc, 'TOC \\o "1-2" \\h \\z \\u',
+           "Оглавление обновится при открытии в Word.", size=11)
+    doc.add_page_break()
+
     score = summary["score"]
     verdict = (
         "документы не прочитаны: оценка не выставляется"
@@ -554,14 +595,13 @@ def build_docx(result: dict, out: Path, marked: list[dict] | None = None) -> Pat
                 _finding_where(f),
                 f["message"],
                 _finding_norm(f),
-                f.get("action") or "—",
             ))
         doc.add_heading("2.1 Сводная таблица замечаний", level=2)
         _table(
             doc,
-            ("№", "Уровень", "Категория", "Где", "Замечание", "Норма", "Действие"),
+            ("№", "Уровень", "Категория", "Где", "Замечание", "Норма"),
             rows,
-            widths=(0.8, 2.5, 2.1, 3.6, 3.5, 2.0, 2.3),
+            widths=(0.8, 2.9, 2.0, 3.3, 5.5, 2.0),
             size=8,
         )
 
@@ -708,6 +748,8 @@ try {
     foreach ($p in $cfg) {
         $doc = $w.Documents.Open($p.docx, $false, $false)
         try {
+            # обновить TOC и поля PAGE/NUMPAGES перед сохранением и PDF
+            try { $doc.Fields.Update() | Out-Null; $doc.Repaginate() } catch {}
             $doc.Save()
             $doc.ExportAsFixedFormat($p.pdf, 17)
         } finally {

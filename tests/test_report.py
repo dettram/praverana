@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from docx import Document
 from docx.oxml.ns import qn
 
@@ -292,6 +292,22 @@ def test_build_docx_limits_quote_blocks(tmp_path):
     assert f"показаны для первых {MAX_QUOTE_BLOCKS} замечаний из {total}" in full_text
     # В сводной таблице замечаний присутствуют все total строк (+1 шапка)
     findings_table = next(
-        t for t in doc.tables if t.rows[0].cells[0].text == "№" and len(t.columns) == 7
+        t for t in doc.tables if t.rows[0].cells[0].text == "№" and len(t.columns) == 6
     )
     assert len(findings_table.rows) == total + 1
+
+
+def test_build_docx_has_toc_and_page_number_fields(tmp_path):
+    from docx.oxml.ns import qn
+
+    doc = Document(build_docx(_result(), tmp_path / "report.docx"))
+
+    body = doc.element.body.xml
+    assert "TOC \\o" in body
+    assert doc.settings.element.find(qn("w:updateFields")) is not None
+
+    footer = doc.sections[0].footer
+    fxml = footer._element.xml
+    assert " PAGE " in fxml and " NUMPAGES " in fxml
+    assert "Стр." in "\n".join(p.text for p in footer.paragraphs)
+
