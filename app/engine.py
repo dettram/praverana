@@ -336,7 +336,9 @@ class Auditor:
             ))
 
         self.scan.files_total = sum(1 for p in self.root.rglob("*") if p.is_file())
-        names = [p.name for p in paths]
+        names = [p.name for p in self.root.rglob("*") if p.is_file()
+                 and not any(part.startswith(".") or part == "__pycache__"
+                             for part in p.relative_to(self.root).parts)]
         self.check_completeness(names)
 
         for p in paths:

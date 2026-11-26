@@ -35,6 +35,15 @@ def test_completeness_missing_groups(auditor):
         assert title in finding.message
 
 
+def test_completeness_sees_skipped_formats(auditor, tmp_path):
+    names = ["01-ПЗ.docx", "02-АР.dwg", "03-КР.docx", "04-ИОС.docx",
+             "05-ПОС.docx", "06-ППР.docx", "07-Смета.gsfx"]
+    for name in names:
+        (tmp_path / name).write_bytes(b"x")
+    scan = auditor.run()
+    assert not any("не найдены разделы" in f.message for f in scan.findings)
+
+
 def test_composition_ppr_missing_blocks(auditor):
     auditor.check_composition("ППР-01.docx", [(1, "Проект производства работ")])
     assert any("приложения В" in f.message for f in auditor.scan.findings)
