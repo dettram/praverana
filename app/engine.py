@@ -26,7 +26,7 @@ import sys
 SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from clause import clause_status  # noqa: E402
+from clause import clause_status, pair_citations  # noqa: E402
 from common import CODE_RE, CORPUS_DEFAULT, extract_citations, norm_code, read_text  # noqa: E402
 from composition import missing_sections  # noqa: E402
 from norm_check import classify, load_registry, registry_date  # noqa: E402
@@ -41,30 +41,10 @@ SKIP_EXT = {".dwg", ".rvt", ".rfa", ".ifc", ".png", ".jpg", ".jpeg", ".tif", ".t
 MAX_FILES = 600
 MAX_PDF_PAGES = 80
 
-CLAUSE_RE = re.compile(r"п(?:ункт|\.)?\s*№?\s*(\d+(?:\.\d+){0,4})", re.IGNORECASE)
 PLACEHOLDER_RE = re.compile(r"(ХХХ|___|\bзаполнить\b|\bне заполнено\b|\[вставить)", re.IGNORECASE)
 SOFT_PLACEHOLDER_RE = re.compile(r"(по проекту|уточнить по проекту)", re.IGNORECASE)
 SHORT_CODE_RE = re.compile(r"^(СН|СП|ГОСТ|СТБ|ТКП)\s*\d{1,2}$")
 TRUNCATED_RE = re.compile(r"^(СН|СП|СТБ|ГОСТ|ТКП)\s*\d+(?:\.\d+){1,3}$")
-
-
-def pair_citations(line: str) -> list[tuple[str, str]]:
-    """Пары «шифр — пункт» внутри одной строки: пункт относится к ближайшему
-    предшествующему шифру (не дальше 80 знаков), иначе пара не считается."""
-    codes = [(m.start(), norm_code(m.group(0))) for m in CODE_RE.finditer(line)]
-    out: list[tuple[str, str]] = []
-    for m in CLAUSE_RE.finditer(line):
-        clause = m.group(1)
-        if len(clause.split(".")) < 2:
-            continue
-        prev = [c for c in codes if c[0] < m.start() and m.start() - c[0] <= 80]
-        if not prev:
-            continue
-        code = prev[-1][1]
-        if clause in code:          # «СП 5.04.01-2021» — это шифр, а не пункт
-            continue
-        out.append((code, clause))
-    return out
 
 
 @dataclass
