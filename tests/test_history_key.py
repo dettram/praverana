@@ -31,3 +31,20 @@ def test_explicit_key_links_different_roots(tmp_path, monkeypatch):
     old = history.previous("C:/upload-2", exclude_last=False, key=key)
     assert old["meta"]["root"] == "C:/upload-1"
     assert history.list_runs("C:/upload-2", key=key)[0]["score"] == 8.0
+
+
+def test_saved_run_keeps_norms_passport(tmp_path, monkeypatch):
+    monkeypatch.setattr(history, "HISTORY", tmp_path)
+    payload = result()
+    payload["norms"] = [{
+        "code": "СП 5.03.01-2020",
+        "status": "действует",
+        "replacement": "",
+        "changed": "изм. № 1 (пост. № 33)",
+        "source": "01-Справочник.md",
+        "has_full_text": True,
+    }]
+    history.save(payload, key="norms000")
+
+    saved = history.previous("C:/upload-1", exclude_last=False, key="norms000")
+    assert saved["norms"] == payload["norms"]
