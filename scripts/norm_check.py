@@ -73,8 +73,9 @@ def registry_date(corpus: Path) -> str:
         with path.open(encoding="utf-8-sig", newline="") as fh:
             header = next(csv.reader(fh, delimiter=";"), [])
         for name in header:
-            if name and name.strip().lower().startswith("статус на"):
-                return name.split("на", 1)[1].strip() or "дата не определена"
+            m = re.match(r"^статус\s+на\s+(.+)$", name.strip(), re.I) if name else None
+            if m:
+                return m.group(1).strip() or "дата не определена"
     return "дата не определена"
 
 

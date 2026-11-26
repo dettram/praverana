@@ -43,6 +43,9 @@ uv run --with fastapi --with uvicorn --with python-docx --with pypdf --with pyth
 uv run --with python-docx --with pypdf python app/engine.py --path "<папка проекта>" --out result.json
 ```
 
+Минимальный кит лендинга уже лежит в `app/ui/assets`. Полный кит для локального просмотра
+ставится `powershell -File tools/setup-kit.ps1 -SkillPath "<папка design-taste-frontend>"`;
+демо, фото и галереи после этого не коммить.
 ## Что нужно подготовить самому
 
 Репозиторий **не содержит текстов норм**: это принципиально (авторские права) и технически

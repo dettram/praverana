@@ -1,6 +1,8 @@
 """История прогонов аудита и сравнение «стало лучше / стало хуже».
 
-Хранилище: ~/.stroy-audit/audit-runs/<время>-<хеш папки или отпечаток состава>.json
+Хранилище: ~/.stroy-audit/audit-runs/<время>-<ключ набора>.json.
+Ключ набора — имя корневой папки + состав файлов (без размеров), поэтому
+правка документа не разрывает историю, а путь и загрузка одной папки совпадают.
 Сравнение — по смыслу замечания: (категория, норма, текст без чисел-счётчиков),
 а не по номеру строки в таблице.
 """
@@ -19,13 +21,42 @@ def _key(root: str) -> str:
     return hashlib.sha1(str(Path(root)).lower().encode("utf-8")).hexdigest()[:8]
 
 
-def fingerprint(root: str | Path) -> str:
-    """Стабильный отпечаток состава папки: относительные имена + размеры."""
-    base = Path(root)
+def fingerprint(root: str | Path, names: list[str] | None = None) -> str:
+    """Отпечаток состава: относительные имена без размеров.
+
+    Размер не входит: исправление документа не должно разрывать «было/стало».
+    """
+    if names is None:
+        base = Path(root)
+        names = [p.relative_to(base).as_posix() for p in base.rglob("*") if p.is_file()]
     h = hashlib.sha1()
-    for path in sorted(p for p in base.rglob("*") if p.is_file()):
-        h.update(f"{path.relative_to(base).as_posix()}\0{path.stat().st_size}\n".encode("utf-8"))
+    for name in sorted(str(n).replace("\\", "/") for n in names):
+        h.update(name.encode("utf-8") + b"\n")
     return h.hexdigest()[:8]
+
+
+def dataset_key(root: str | Path, source_name: str | None = None,
+                names: list[str] | None = None) -> str:
+    """Единый ключ набора: имя корневой папки + отпечаток состава.
+
+    Для загрузки через браузер `source_name` — корневая папка из
+    `webkitRelativePath`, а `names` — пути уже без этой папки. Для аудита по
+    пути всё считается от самого корня. Одна и та же папка даёт один ключ.
+    """
+    base = Path(root)
+    if names is None:
+        names = [p.relative_to(base).as_posix() for p in base.rglob("*") if p.is_file()]
+    source = (source_name or base.name or "project").strip().lower()
+    digest = fingerprint(base, names)
+    return hashlib.sha1(f"{source}\0{digest}".encode("utf-8")).hexdigest()[:8]
+
+
+def _files_for(root: str, key: str | None = None) -> list[Path]:
+    """Файлы истории по новому ключу и по старому ключу-пути (миграция)."""
+    key = key or dataset_key(root)
+    files = set(HISTORY.glob(f"*-{key}.json"))
+    files.update(HISTORY.glob(f"*-{_key(root)}.json"))
+    return sorted(files, reverse=True)
 
 
 def _norm_text(s: str) -> str:
@@ -41,9 +72,13 @@ def finding_key(f: dict) -> tuple:
 def save(result: dict, key: str | None = None) -> Path:
     HISTORY.mkdir(parents=True, exist_ok=True)
     root = result["meta"]["root"]
-    key = key or result["meta"].get("history_key") or _key(root)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    key = key or result["meta"].get("history_key") or dataset_key(root)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     path = HISTORY / f"{stamp}-{key}.json"
+    serial = 0
+    while path.exists():
+        serial += 1
+        path = HISTORY / f"{stamp}-{key}-{serial}.json"
     path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return path
 
@@ -51,7 +86,7 @@ def save(result: dict, key: str | None = None) -> Path:
 def previous(root: str, exclude_last: bool = True, key: str | None = None) -> dict | None:
     """Предыдущий прогон для этой папки (последний сохранённый)."""
     HISTORY.mkdir(parents=True, exist_ok=True)
-    files = sorted(HISTORY.glob(f"*-{key or _key(root)}.json"), reverse=True)
+    files = _files_for(root, key)
     if exclude_last and files:
         files = files[1:]
     for f in files:
@@ -65,7 +100,7 @@ def previous(root: str, exclude_last: bool = True, key: str | None = None) -> di
 def list_runs(root: str, limit: int = 6, key: str | None = None) -> list[dict]:
     HISTORY.mkdir(parents=True, exist_ok=True)
     out = []
-    for f in sorted(HISTORY.glob(f"*-{key or _key(root)}.json"), reverse=True)[:limit]:
+    for f in _files_for(root, key)[:limit]:
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -78,6 +113,7 @@ def list_runs(root: str, limit: int = 6, key: str | None = None) -> list[dict]:
             "warn": data["summary"]["warn"],
             "info": data["summary"]["info"],
             "files": data["meta"]["files_scanned"],
+            "source": data["meta"].get("source", "path"),
         })
     return out
 

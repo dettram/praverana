@@ -26,7 +26,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from engine import audit  # noqa: E402
-from history import compare, fingerprint, list_runs, previous, save  # noqa: E402
+from history import compare, dataset_key, list_runs, previous, save  # noqa: E402
 from markdoc import mark_all  # noqa: E402
 from report import build_docx, to_pdf  # noqa: E402
 
@@ -52,20 +52,22 @@ WORK = Path(tempfile.gettempdir()) / "stroy-audit-ui"
 WORK.mkdir(parents=True, exist_ok=True)
 
 
-def run_job(job_id: str, path: Path, include_text: bool, history_key: str | None = None) -> None:
+def run_job(job_id: str, path: Path, include_text: bool,
+            history_key: str | None = None, source: str = "path") -> None:
     job = JOBS[job_id]
     job["state"] = "running"
     try:
-        prev = previous(str(path), exclude_last=False, key=history_key)
+        key = history_key or dataset_key(path)
+        prev = previous(str(path), exclude_last=False, key=key)
         result = audit(path, include_text=include_text)
         result["meta"]["date"] = __import__("datetime").datetime.now().strftime("%d.%m.%Y %H:%M")
-        if history_key:
-            result["meta"]["history_key"] = history_key
+        result["meta"]["history_key"] = key
+        result["meta"]["source"] = source
         result["history"] = {
-            "runs": list_runs(str(path), key=history_key),
+            "runs": list_runs(str(path), key=key),
             "previous": compare(prev, result) if prev else None,
         }
-        save(result, key=history_key)
+        save(result, key=key)
         job["result"] = result
         job["state"] = "done"
     except Exception as exc:  # noqa: BLE001
@@ -126,23 +128,37 @@ def start(payload: dict) -> JSONResponse:
     return JSONResponse({"job": job_id})
 
 
+def upload_identity(rels: list[str]) -> tuple[str, list[str]]:
+    """Имя корневой папки и состав без неё для загрузки через браузер."""
+    if rels and all("/" in r for r in rels):
+        tops = {r.split("/", 1)[0] for r in rels}
+        if len(tops) == 1:
+            top = tops.pop()
+            return top, [r.split("/", 1)[1] for r in rels]
+    return "upload", rels
+
+
 @app.post("/api/upload")
 async def upload(files: list[UploadFile] = File(...), include_text: bool = Form(True)) -> JSONResponse:
     if not files:
         raise HTTPException(400, "Файлы не получены")
     root = WORK / uuid.uuid4().hex[:12]
     root.mkdir(parents=True, exist_ok=True)
+    rels: list[str] = []
     for f in files:
         rel = (f.filename or "file").replace("\\", "/").lstrip("/")
         rel = "/".join(part for part in rel.split("/") if part not in ("..", "."))
+        rels.append(rel)
         target = root / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("wb") as fh:
             shutil.copyfileobj(f.file, fh)
     job_id = uuid.uuid4().hex[:12]
     JOBS[job_id] = {"state": "queued", "path": str(root), "result": None, "error": None}
-    history_key = fingerprint(root)
-    threading.Thread(target=run_job, args=(job_id, root, include_text, history_key),
+    source_name, names = upload_identity(rels)
+    history_key = dataset_key(root, source_name=source_name, names=names)
+    threading.Thread(target=run_job,
+                     args=(job_id, root, include_text, history_key, "upload"),
                      daemon=True).start()
     return JSONResponse({"job": job_id, "path": str(root)})
 

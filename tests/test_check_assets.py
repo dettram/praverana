@@ -49,3 +49,19 @@ def test_external_anchor_and_route_skipped(tmp_path):
     )
     result = run(tmp_path)
     assert result.returncode == 0, result.stdout
+
+
+def test_absolute_asset_is_checked(tmp_path):
+    make_page(tmp_path, '<link rel="stylesheet" href="/assets/missing.css">')
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "MISSING" in result.stdout
+
+
+def test_absolute_asset_exists(tmp_path):
+    asset = tmp_path / "app" / "ui" / "assets" / "a.css"
+    asset.parent.mkdir(parents=True, exist_ok=True)
+    asset.write_text("body{}", encoding="utf-8")
+    make_page(tmp_path, '<link rel="stylesheet" href="/assets/a.css">')
+    result = run(tmp_path)
+    assert result.returncode == 0, result.stdout

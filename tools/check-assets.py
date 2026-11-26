@@ -33,8 +33,14 @@ def check(root: Path) -> list[str]:
         text = page.read_text(encoding="utf-8-sig")
         for raw in references(text):
             ref = raw.split("?", 1)[0].split("#", 1)[0].strip()
-            if not ref or ref.startswith(SKIP) or ref.startswith("/"):
+            if not ref or ref.startswith(SKIP):
                 continue
+            if ref.startswith("/"):
+                # Серверные маршруты (/app, /api/...) пропускаем, а /assets/...
+                # разрешаем от веб-корня app/ui.
+                if not ref.startswith("/assets/"):
+                    continue
+                ref = ref.lstrip("/")
             while ref.startswith("../"):
                 ref = ref[3:]
             target = (base / ref).resolve()

@@ -120,6 +120,7 @@ def test_file_limit_reports_omitted(tmp_path, monkeypatch):
     assert scan.files_total == 3
     assert scan.files_scanned == 2
     assert scan.skipped >= 1
+    assert scan.truncated == 1
     assert any("предел 2 файлов" in f.message for f in scan.findings)
 
 
@@ -136,6 +137,21 @@ def test_pdf_limit_reports_truncation(tmp_path, monkeypatch):
 
     scan = engine.Auditor(tmp_path).run()
     assert any("предел" in f.message and "PDF" in f.message for f in scan.findings)
+
+
+def test_pdf_at_limit_is_not_truncated(tmp_path, monkeypatch):
+    from pypdf import PdfWriter
+
+    monkeypatch.setattr(engine, "DB", tmp_path / "missing.sqlite")
+    monkeypatch.setattr(engine, "CORPUS_DEFAULT", tmp_path / "corpus")
+    monkeypatch.setattr(engine, "MAX_PDF_PAGES", 2)
+    writer = PdfWriter()
+    for _ in range(2):
+        writer.add_blank_page(width=595, height=842)
+    writer.write(str(tmp_path / "exact.pdf"))
+
+    scan = engine.Auditor(tmp_path).run()
+    assert not any("предел" in f.message and "PDF" in f.message for f in scan.findings)
 
 
 def test_clause_checked_for_active_code(auditor):

@@ -136,6 +136,17 @@ def test_no_scanned_docs_do_not_get_score(tmp_path):
     assert "0 из 10" not in text
 
 
+def test_report_coverage_distinguishes_limit(tmp_path):
+    result = _result()
+    result["meta"]["files_total"] = 4
+    result["meta"]["files_scanned"] = 1
+    result["meta"]["truncated"] = 2
+    result["documents"] = [{"file": "ПЗ.docx", "pages": 1, "chars": 100}]
+    text = _text(Document(str(build_docx(result, tmp_path / "limited.docx"))))
+    assert "из них 2 — предел" in text
+    assert "не вошли в лимит (2)" in text
+
+
 def test_marking_section_lists_marked_files(tmp_path):
     marked = [{"file": "ПЗ.docx", "comments": 3}]
     text = _text(Document(str(build_docx(_result(), tmp_path / "marked.docx", marked))))

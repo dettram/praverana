@@ -378,10 +378,12 @@ function render() {
   $('meta-line').textContent =
     `${m.files_scanned} док. · ${m.size_mb} МБ · ${m.duration_s} с`;
 
-  const skipped = m.skipped || 0;
+  const truncated = m.truncated || 0;
+  const skipped = Math.max(0, (m.skipped || 0) - truncated);
   const errorsCount = (result.errors || []).length;
   let coverage = `Прочитано файлов: <b>${m.files_scanned}</b> из ${m.files_total}.`;
   if (skipped) coverage += ` Пропущено без чтения: ${skipped} (чертежи, модели, архивы).`;
+  if (truncated) coverage += ` Не вошло в лимит: ${truncated}.`;
   if (errorsCount) coverage += ` Не удалось прочитать: ${errorsCount}.`;
   coverage += ' Сканы без текстового слоя не проверяются.';
   $('coverage').innerHTML = coverage;
@@ -426,7 +428,8 @@ function renderDynamics() {
   }
   if (h.runs && h.runs.length) {
     parts.push('<div class="history">Прогоны: ' + h.runs.map(r =>
-      `<span>${r.date} — <b>${String(r.score).replace('.', ',')}</b> (${r.error}/${r.warn}/${r.info})</span>`
+      `<span>${r.date} — <b>${String(r.score).replace('.', ',')}</b> (${r.error}/${r.warn}/${r.info})`
+      + `${r.source === 'upload' ? ' · загружено через браузер' : ''}</span>`
     ).join('') + '</div>');
   }
   if (!parts.length) { box.classList.add('hide'); box.innerHTML = ''; return; }
@@ -451,8 +454,8 @@ function drawRows() {
     const tr = document.createElement('tr');
     const label = f.severity === 'error' ? 'Ошибка'
       : f.severity === 'warn' ? 'Предупр.' : 'Прим.';
-    const isDocx = /\.docx$/i.test(f.file || '');
-    const place = f.page ? `${isDocx ? 'фрагм.' : 'стр.'} ${f.page}` : '';
+    const isPdf = /\.pdf$/i.test(f.file || '');
+    const place = f.page ? `${isPdf ? 'стр.' : 'фрагм.'} ${f.page}` : '';
     const where = f.file === '—' ? 'комплект проекта' : f.file + (place ? `, ${place}` : '');
     tr.innerHTML = `
       <td><span class="lvl ${f.severity}">${label}</span></td>
@@ -514,10 +517,11 @@ for (const [id, what] of [['dl-docx', 'DOCX'], ['dl-pdf', 'PDF'], ['dl-marked', 
           : `Не удалось подготовить ${what}. Повторите позже.`));
       }
       const blob = await res.blob();
+      const ext = id === 'dl-docx' ? 'docx' : id === 'dl-pdf' ? 'pdf' : 'zip';
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = res.headers.get('content-disposition')?.match(/filename="?([^";]+)/i)?.[1]
-        || `praverana-${what}.bin`;
+        || `praverana-report.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();

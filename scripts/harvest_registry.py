@@ -23,11 +23,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (  # noqa: E402
-    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, REGISTRY_DATE, clean, extract_citations,
+    CODE_RE, CORPUS_DEFAULT, CURATED_OUTDATED, clean, extract_citations,
     norm_code, status_key, status_of, year_of,
 )
 
-STATUS_COL = f"Статус на {REGISTRY_DATE}"
+
+def status_column(day: date | None = None) -> str:
+    """Колонка статуса с датой сбора, а не с датой из старой константы."""
+    return f"Статус на {(day or date.today()).strftime('%d.%m.%Y')}"
+
+
+STATUS_COL = status_column()
 COLUMNS = ["№", "Шифр", "Наименование", "Вид", "Введён (утверждён)",
            "Последнее изменение", STATUS_COL, "Заменяет / чем заменён", "Источник"]
 
