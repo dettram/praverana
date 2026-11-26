@@ -36,7 +36,7 @@ def test_completeness_missing_groups(auditor):
 
 
 def test_composition_ppr_missing_blocks(auditor):
-    auditor.check_composition("ППР-01.docx", [(1, "Проект производства работ")])
+    auditor.check_composition("ППР-01.docx", [(1, "Монтаж каркаса и плит перекрытия")])
     assert any("приложения В" in f.message for f in auditor.scan.findings)
 
 

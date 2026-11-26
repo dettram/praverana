@@ -71,3 +71,25 @@ def test_completeness_sees_skipped_cad_and_estimate_files(tmp_path, monkeypatch)
 
     assert "Архитектурные" not in message
     assert "Конструкции" not in message
+
+
+def test_composition_accepts_section_titles_without_codes(auditor):
+    text = (
+        "Календарный план строительства. Строительный генеральный план. "
+        "Охрана труда. Пожарная безопасность. Охрана окружающей среды. "
+        "Технико-экономические показатели."
+    )
+    auditor.check_composition("05-ПОС-АТЛАС.docx", [(1, text)])
+    assert not any("нет обязательных разделов" in f.message for f in auditor.scan.findings)
+
+
+def test_ppr_new_build_does_not_require_demolition(auditor):
+    text = "Проект производства работ. В.1. Монтаж каркаса и плит перекрытия."
+    auditor.check_composition("06-ППР-АТЛАС.docx", [(1, text)])
+    assert not any("В.10" in f.message or "В.11" in f.message for f in auditor.scan.findings)
+
+
+def test_ppr_demolition_object_requires_demolition_blocks(auditor):
+    text = "Проект производства работ на снос здания. В.1. Демонтаж конструкций."
+    auditor.check_composition("06-ППР-снос.docx", [(1, text)])
+    assert any("В.10" in f.message for f in auditor.scan.findings)
