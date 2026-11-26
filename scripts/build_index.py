@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS docs(
   pages INTEGER,
   chars INTEGER,
   status TEXT,
-  detail TEXT
+  detail TEXT,
+  size INTEGER
 );
 CREATE TABLE IF NOT EXISTS chunks(
   id INTEGER PRIMARY KEY,
@@ -96,6 +97,20 @@ def iter_files(corpus: Path, skips: tuple[str, ...]):
         yield path, rel
 
 
+def _drop_doc(db: sqlite3.Connection, doc_id: int) -> None:
+    """Удаляет документ и его куски, включая записи FTS (внешнее содержимое)."""
+    for chunk_id, text in db.execute("SELECT id, text FROM chunks WHERE doc_id=?", (doc_id,)):
+        db.execute("INSERT INTO chunks_fts(chunks_fts, rowid, text) VALUES('delete', ?, ?)",
+                   (chunk_id, text))
+    db.execute("DELETE FROM chunks WHERE doc_id=?", (doc_id,))
+    for table in ("clauses",):
+        try:
+            db.execute(f"DELETE FROM {table} WHERE doc_id=?", (doc_id,))
+        except sqlite3.OperationalError:
+            pass
+    db.execute("DELETE FROM docs WHERE id=?", (doc_id,))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--corpus", default=str(CORPUS_DEFAULT))
@@ -104,7 +119,10 @@ def main() -> int:
     ap.add_argument("--skip", default=",".join(DEFAULT_SKIP))
     ap.add_argument("--limit", type=int, default=0, help="0 = все файлы")
     ap.add_argument("--only", default="", help="подстрока пути: индексировать только совпавшие файлы")
-    ap.add_argument("--append", action="store_true", help="дописать в существующую БД, пропуская уже indexed")
+    ap.add_argument("--append", action="store_true",
+                    help="дописать в существующую БД; обновлённые и неудачные файлы переиндексируются")
+    ap.add_argument("--with-clauses", action="store_true",
+                    help="пересобрать таблицу пунктов clauses после индексации")
     args = ap.parse_args()
 
     corpus = Path(args.corpus)
@@ -119,8 +137,17 @@ def main() -> int:
     skips = tuple(s for s in args.skip.split(",") if s)
     db = sqlite3.connect(out)
     db.executescript(SCHEMA)
-    existing = {row[0] for row in db.execute("SELECT rel FROM docs")} if args.append else set()
-    stats = {"docs": 0, "pages": 0, "chunks": 0, "no_text": [], "locked": [], "errors": [], "skipped_big": []}
+    columns = {row[1] for row in db.execute("PRAGMA table_info(docs)")}
+    if "size" not in columns:
+        db.execute("ALTER TABLE docs ADD COLUMN size INTEGER")
+        db.commit()
+    # rel -> (id, status, size): при append переиндексируем изменившиеся и неудачные файлы.
+    existing: dict[str, tuple[int, str, int | None]] = {}
+    if args.append:
+        for doc_id, rel, status, size in db.execute("SELECT id, rel, status, size FROM docs"):
+            existing[rel] = (doc_id, status or "", size)
+    stats = {"docs": 0, "pages": 0, "chunks": 0, "refreshed": 0,
+             "no_text": [], "locked": [], "errors": [], "skipped_big": []}
     started = time.time()
 
     files = list(iter_files(corpus, skips))
@@ -130,12 +157,17 @@ def main() -> int:
     for path, rel in files:
         if args.only and args.only.lower() not in rel.lower():
             continue
-        if rel in existing:
-            continue
         try:
-            size_mb = path.stat().st_size / 1048576
+            size = path.stat().st_size
         except FileNotFoundError:
             continue
+        if rel in existing:
+            old_id, old_status, old_size = existing[rel]
+            if old_status == "ok" and old_size == size:
+                continue
+            _drop_doc(db, old_id)
+            stats["refreshed"] += 1
+        size_mb = size / 1048576
         if size_mb > args.max_mb:
             stats["skipped_big"].append({"rel": rel, "mb": round(size_mb, 1)})
             continue
@@ -146,9 +178,10 @@ def main() -> int:
             locked = "Decrypt" in name or "Password" in name
             stats["locked" if locked else "errors"].append({"rel": rel, "error": f"{name}: {exc}"})
             db.execute(
-                "INSERT INTO docs(rel,title,code,kind,pages,chars,status,detail) VALUES(?,?,?,?,?,?,?,?)",
+                "INSERT INTO docs(rel,title,code,kind,pages,chars,status,detail,size)"
+                " VALUES(?,?,?,?,?,?,?,?,?)",
                 (rel, path.stem, code_of(path.stem), path.suffix.lower(), 0, 0,
-                 "locked" if locked else "error", f"{name}: {exc}"),
+                 "locked" if locked else "error", f"{name}: {exc}", size),
             )
             db.commit()
             continue
@@ -158,9 +191,11 @@ def main() -> int:
         title = path.stem
         code = code_of(title)
         cur = db.execute(
-            "INSERT INTO docs(rel,title,code,kind,pages,chars,status,detail) VALUES(?,?,?,?,?,?,?,?)",
+            "INSERT INTO docs(rel,title,code,kind,pages,chars,status,detail,size)"
+            " VALUES(?,?,?,?,?,?,?,?,?)",
             (rel, title, code, path.suffix.lower(), len(pages), chars, status,
-             "" if status == "ok" else "текстовый слой отсутствует или короче 200 символов"),
+             "" if status == "ok" else "текстовый слой отсутствует или короче 200 символов",
+             size),
         )
         doc_id = cur.lastrowid
         if status != "ok":
@@ -182,6 +217,10 @@ def main() -> int:
         db.commit()
 
     db.commit()
+    if args.with_clauses:
+        from build_clauses import build as build_clauses
+
+        stats["clauses"], stats["clause_docs"] = build_clauses(db)
     db.close()
     stats["seconds"] = round(time.time() - started, 1)
     stats["db"] = str(out)

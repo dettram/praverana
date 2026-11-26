@@ -19,12 +19,8 @@ TABLE_RE = re.compile(
 )
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--db", default=str(DEFAULT_DB))
-    args = ap.parse_args()
-    db_path = Path(args.db)
-    db = sqlite3.connect(db_path)
+def build(db: sqlite3.Connection) -> tuple[int, int]:
+    """Пересобирает таблицу пунктов по chunks; возвращает (пунктов, документов)."""
     db.executescript("""
       DROP TABLE IF EXISTS clauses;
       CREATE TABLE clauses(
@@ -70,6 +66,16 @@ def main() -> int:
     db.commit()
     total = db.execute("SELECT COUNT(*) FROM clauses").fetchone()[0]
     docs = db.execute("SELECT COUNT(DISTINCT doc_id) FROM clauses").fetchone()[0]
+    return total, docs
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--db", default=str(DEFAULT_DB))
+    args = ap.parse_args()
+    db_path = Path(args.db)
+    db = sqlite3.connect(db_path)
+    total, docs = build(db)
     db.close()
     print(f"clauses={total} docs={docs} db={db_path}")
     return 0
